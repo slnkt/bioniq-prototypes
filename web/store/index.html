@@ -152,6 +152,8 @@ const DELIV_STATUS = {
 const fmt  = n => n.toLocaleString('ru-RU') + ' ₽';
 const getV = id => VITAMINS.find(v => v.id === id);
 const getK = id => KITS.find(k => k.id === id);
+const RU_MONTHS = ['января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря'];
+const delivDate = (offset=4) => { const d=new Date(); d.setDate(d.getDate()+offset); return d.getDate()+' '+RU_MONTHS[d.getMonth()]; };
 
 /* ─── CONTEXT ──────────────────────────────────────────────────────────── */
 const Ctx = createContext(null);
@@ -522,14 +524,27 @@ function VitCard({ v }) {
   const { addToCart, effStock } = useApp();
   const history = useHistory();
   const s = effStock(v.id);
-  const [added, setAdded] = useState(false);
+  const [stage, setStage] = useState('idle'); // idle | picking | confirmed
+  const [qty, setQty]     = useState(1);
   const [imgIdx, setImgIdx] = useState(0);
   const imgs = v.imgs || [];
-  const add = e => {
+  const deliv = delivDate(4);
+
+  const reset = () => { setStage('idle'); setQty(1); };
+
+  const onMain = e => {
     e.stopPropagation();
-    if (addToCart({ id:v.id, type:'vitamin', name:v.name, price:v.price, stock:s }))
-      { setAdded(true); setTimeout(()=>setAdded(false),1400); }
+    if (stage === 'idle') { setStage('picking'); setQty(1); return; }
+    if (stage === 'picking') {
+      if (addToCart({ id:v.id, type:'vitamin', name:v.name, price:v.price, stock:s, qty })) {
+        setStage('confirmed');
+        setTimeout(reset, 1500);
+      }
+    }
   };
+  const dec = e => { e.stopPropagation(); if (qty>1) setQty(q=>q-1); else reset(); };
+  const inc = e => { e.stopPropagation(); if (qty<s) setQty(q=>q+1); };
+
   return (
     <div className="bg-white rounded-2xl overflow-hidden card-hover cursor-pointer border border-gray-100"
       onClick={() => history.push('/vitamins/'+v.id)}
@@ -555,20 +570,34 @@ function VitCard({ v }) {
       </div>
       <div className="p-3">
         <h3 className="text-ink mb-0.5" style={{fontSize:'14px',fontWeight:700,letterSpacing:'-0.01em'}}>{v.name}</h3>
-        <p className="text-[12px] text-secondary mb-3 truncate">{v.sub}</p>
-        <div className="flex items-center justify-between">
-          <div className="leading-tight">
-            <div className="font-bold text-ink text-[14px]">{fmt(v.price)}</div>
-            {v.orig>v.price && <div className="text-[11px] text-disabled line-through">{fmt(v.orig)}</div>}
-          </div>
-          {s===0
-            ? <span className="text-[11px] text-disabled">Нет в наличии</span>
-            : <button onClick={add}
-                className={'btn-p text-[12px] px-3 py-1.5 font-semibold ' + (added?'!bg-green-600':'')}>
-                {added ? '✓' : '+ В корзину'}
-              </button>
-          }
+        <p className="text-[12px] text-secondary mb-2 truncate">{v.sub}</p>
+        <div className="leading-tight mb-3">
+          <span className="font-bold text-ink text-[15px]">{fmt(v.price)}</span>
+          {v.orig>v.price && <span className="text-[11px] text-disabled line-through ml-2">{fmt(v.orig)}</span>}
         </div>
+
+        {s===0 ? (
+          <div className="rounded-lg py-2 text-center text-[12px] font-semibold" style={{background:'#f5f5f5',color:'rgba(0,0,0,0.38)'}}>Нет в наличии</div>
+        ) : stage==='confirmed' ? (
+          <button disabled className="w-full text-[12px] py-2 px-3 font-semibold rounded-lg flex items-center justify-center text-white" style={{background:'#16a34a'}}>✓ В корзине</button>
+        ) : stage==='idle' ? (
+          <>
+            <button onClick={onMain} className="btn-p w-full text-[12px] py-2 font-semibold">В корзину</button>
+            <p className="text-[10px] text-center mt-1.5" style={{color:'rgba(0,0,0,0.54)'}}>Доставим с {deliv}</p>
+          </>
+        ) : (
+          <>
+            <div className="flex gap-1.5 items-stretch" onClick={e=>e.stopPropagation()}>
+              <button onClick={onMain} className="flex-1 text-[12px] py-2 px-2 font-semibold rounded-lg text-white transition-colors" style={{background:'#16a34a'}}>В корзину</button>
+              <div className="flex items-center rounded-lg overflow-hidden" style={{background:'#E5EDF2'}}>
+                <button onClick={dec} className="w-7 h-full flex items-center justify-center font-bold text-[15px] hover:bg-[#d4dee5]" style={{color:'#042033'}} aria-label="Уменьшить">−</button>
+                <span className="w-6 text-center text-[12px] font-bold" style={{color:'#042033'}}>{qty}</span>
+                <button onClick={inc} className={'w-7 h-full flex items-center justify-center font-bold text-[15px] hover:bg-[#d4dee5] ' + (qty>=s?'opacity-30 cursor-not-allowed':'')} style={{color:'#042033'}} aria-label="Увеличить">+</button>
+              </div>
+            </div>
+            <p className="text-[10px] text-center mt-1.5" style={{color:'rgba(0,0,0,0.54)'}}>Доставим с {deliv}</p>
+          </>
+        )}
       </div>
     </div>
   );
@@ -579,8 +608,28 @@ function KitCard({ k }) {
   const { addKitToCart, effStock } = useApp();
   const history = useHistory();
   const [imgIdx, setImgIdx] = useState(0);
+  const [stage, setStage] = useState('idle');
+  const [qty, setQty] = useState(1);
   const imgs = k.imgs || [];
   const hasOOS = k.items.some(i => effStock(i.vid)<i.qty);
+  const maxQty = Math.min(...k.items.map(i => Math.floor(effStock(i.vid)/i.qty))) || 0;
+  const deliv = delivDate(4);
+
+  const reset = () => { setStage('idle'); setQty(1); };
+  const onMain = e => {
+    e.stopPropagation();
+    if (stage==='idle') { setStage('picking'); setQty(1); return; }
+    if (stage==='picking') {
+      let ok = true;
+      for (let i=0; i<qty; i++) {
+        if (!addKitToCart(k)) { ok = false; break; }
+      }
+      if (ok) { setStage('confirmed'); setTimeout(reset, 1500); }
+    }
+  };
+  const dec = e => { e.stopPropagation(); if (qty>1) setQty(q=>q-1); else reset(); };
+  const inc = e => { e.stopPropagation(); if (qty<maxQty) setQty(q=>q+1); };
+
   return (
     <div className="bg-white rounded-2xl p-4 border border-gray-100 card-hover cursor-pointer flex-shrink-0" style={{width:'300px'}}
       onClick={() => history.push('/vitamin-kits/'+k.id)}
@@ -605,18 +654,34 @@ function KitCard({ k }) {
         )}
       </div>
       <h3 className="text-ink mb-0.5" style={{fontSize:'15px',fontWeight:700,letterSpacing:'-0.01em'}}>{k.name}</h3>
-      <p className="text-[12px] text-secondary mb-3">{k.items.length} продукта</p>
-      <div className="flex items-center justify-between">
-        <div className="leading-tight">
-          <div className="font-bold text-ink text-[15px]">{fmt(k.price)}</div>
-          <div className="text-[11px] text-disabled line-through">{fmt(k.orig)}</div>
-        </div>
-        {hasOOS
-          ? <span className="text-[11px] text-orange-500 font-medium">Часть нет в наличии</span>
-          : <button onClick={e=>{e.stopPropagation();addKitToCart(k);}}
-              className="btn-p text-[12px] px-3 py-1.5 font-semibold">+ В корзину</button>
-        }
+      <p className="text-[12px] text-secondary mb-2">{k.items.length} продукта</p>
+      <div className="leading-tight mb-3">
+        <span className="font-bold text-ink text-[16px]">{fmt(k.price)}</span>
+        <span className="text-[11px] text-disabled line-through ml-2">{fmt(k.orig)}</span>
       </div>
+
+      {hasOOS ? (
+        <div className="rounded-lg py-2 text-center text-[12px] font-semibold" style={{background:'#fff7ed',color:'#c2410c'}}>Часть товаров недоступна</div>
+      ) : stage==='confirmed' ? (
+        <button disabled className="w-full text-[12px] py-2 font-semibold rounded-lg text-white" style={{background:'#16a34a'}}>✓ В корзине</button>
+      ) : stage==='idle' ? (
+        <>
+          <button onClick={onMain} className="btn-p w-full text-[12px] py-2 font-semibold">В корзину</button>
+          <p className="text-[10px] text-center mt-1.5" style={{color:'rgba(0,0,0,0.54)'}}>Доставим с {deliv}</p>
+        </>
+      ) : (
+        <>
+          <div className="flex gap-1.5 items-stretch" onClick={e=>e.stopPropagation()}>
+            <button onClick={onMain} className="flex-1 text-[12px] py-2 px-2 font-semibold rounded-lg text-white" style={{background:'#16a34a'}}>В корзину</button>
+            <div className="flex items-center rounded-lg overflow-hidden" style={{background:'#E5EDF2'}}>
+              <button onClick={dec} className="w-7 h-full flex items-center justify-center font-bold text-[15px] hover:bg-[#d4dee5]" style={{color:'#042033'}}>−</button>
+              <span className="w-6 text-center text-[12px] font-bold" style={{color:'#042033'}}>{qty}</span>
+              <button onClick={inc} className={'w-7 h-full flex items-center justify-center font-bold text-[15px] hover:bg-[#d4dee5] ' + (qty>=maxQty?'opacity-30 cursor-not-allowed':'')} style={{color:'#042033'}}>+</button>
+            </div>
+          </div>
+          <p className="text-[10px] text-center mt-1.5" style={{color:'rgba(0,0,0,0.54)'}}>Доставим с {deliv}</p>
+        </>
+      )}
     </div>
   );
 }
