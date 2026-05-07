@@ -654,7 +654,10 @@ function VitCard({ v }) {
         <p className="text-[12px] text-secondary mb-2 truncate">{v.sub}</p>
         <div className="leading-tight mb-3">
           <span className="font-bold text-ink text-[15px]">{fmt(v.price)}</span>
-          {v.orig>v.price && <span className="text-[11px] text-disabled line-through ml-2">{fmt(v.orig)}</span>}
+          {v.orig>v.price && <>
+            <span className="text-[11px] text-disabled line-through ml-2">{fmt(v.orig)}</span>
+            <span className="text-[11px] font-semibold ml-1.5" style={{color:'#d10714'}}>−{Math.round((1-v.price/v.orig)*100)}%</span>
+          </>}
         </div>
 
         {s===0 ? (
@@ -730,7 +733,6 @@ function KitCard({ k }) {
       onMouseLeave={()=>setImgIdx(0)}>
       <div className="aspect-[4/3] -mx-4 -mt-4 mb-3 flex items-center justify-center p-3 relative overflow-hidden" style={{background:'#f5f5f5'}}>
         <img src={imgs[imgIdx]} alt={k.name} className="max-h-full max-w-full object-contain transition-opacity" style={{filter:'drop-shadow(0 10px 18px rgba(0,0,0,0.18))'}} />
-        <span className="absolute top-3 right-3 text-white text-xs px-2 py-1 rounded-lg font-semibold" style={{background:'#042033'}}>−{k.saving}</span>
         {imgs.length > 1 && (
           <div className="absolute bottom-2 left-1/2 flex gap-1.5" style={{transform:'translateX(-50%)'}} onClick={e=>e.stopPropagation()}>
             {imgs.map((_, i) => (
@@ -752,6 +754,7 @@ function KitCard({ k }) {
       <div className="leading-tight mb-3">
         <span className="font-bold text-ink text-[16px]">{fmt(k.price)}</span>
         <span className="text-[11px] text-disabled line-through ml-2">{fmt(k.orig)}</span>
+        <span className="text-[11px] font-semibold ml-1.5" style={{color:'#d10714'}}>−{Math.round((1-k.price/k.orig)*100)}%</span>
       </div>
 
       {hasOOS ? (
@@ -1192,9 +1195,7 @@ function VitaminDetail() {
             <span className="text-3xl font-bold text-ink">{fmt(v.price)}</span>
             {v.orig>v.price && <>
               <span className="text-disabled line-through text-lg">{fmt(v.orig)}</span>
-              <span className="bg-red-50 text-red-600 text-sm px-2 py-0.5 rounded-lg font-medium">
-                −{Math.round((1-v.price/v.orig)*100)}%
-              </span>
+              <span className="text-sm font-semibold px-2 py-0.5 rounded-lg" style={{background:'#fef2f2',color:'#d10714'}}>−{Math.round((1-v.price/v.orig)*100)}%</span>
             </>}
           </div>
           {s===0 ? (
@@ -1292,12 +1293,13 @@ function KitDetail() {
           <img src={(k.imgs||[])[0]} alt={k.name} className="max-h-[460px] max-w-full object-contain" style={{filter:'drop-shadow(0 20px 32px rgba(0,0,0,0.18))'}} />
         </div>
         <div>
-          <span className="text-white text-sm px-3 py-1 rounded-lg font-semibold mb-4 inline-block" style={{background:'#042033'}}>Набор · Экономия {k.saving}</span>
+          <span className="text-xs font-semibold tracking-[0.2em] uppercase mb-4 inline-block" style={{color:'rgba(0,0,0,0.54)'}}>Набор</span>
           <h1 className="text-3xl font-bold text-ink mb-2">{k.name}</h1>
           <p className="text-secondary mb-6">{k.desc}</p>
           <div className="flex items-baseline gap-3 mb-6">
             <span className="text-3xl font-bold text-ink">{fmt(k.price)}</span>
             <span className="text-disabled line-through text-lg">{fmt(k.orig)}</span>
+            <span className="text-sm font-semibold px-2 py-0.5 rounded-lg" style={{background:'#fef2f2',color:'#d10714'}}>−{Math.round((1-k.price/k.orig)*100)}%</span>
           </div>
           <div className="space-y-2 mb-6">
             {k.items.map(({vid,qty}) => {
