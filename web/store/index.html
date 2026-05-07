@@ -1640,18 +1640,14 @@ function ReviewsSection({ productId }) {
   const total = productReviewCount(productId);
   return (
     <section className="mb-12">
-      <div className="flex items-end justify-between mb-6 flex-wrap gap-3">
-        <div>
-          <h2 className="text-ink mb-2" style={{fontSize:'24px',fontWeight:700,letterSpacing:'-0.01em'}}>Отзывы покупателей</h2>
-          <div className="flex items-center gap-2.5">
-            <Stars rating={rating} size={18} />
-            <span className="text-[16px] font-semibold text-ink">{rating.toFixed(1)}</span>
-            <span className="text-[13px]" style={{color:'rgba(0,0,0,0.54)'}}>· {total} {wordForm(total, ['отзыв','отзыва','отзывов'])}</span>
-          </div>
+      <div className="mb-6">
+        <h2 className="text-ink mb-2" style={{fontSize:'24px',fontWeight:700,letterSpacing:'-0.01em'}}>Отзывы покупателей</h2>
+        <div className="flex items-center gap-2.5 flex-wrap">
+          <Stars rating={rating} size={18} />
+          <span className="text-[16px] font-semibold text-ink">{rating.toFixed(1)}</span>
+          <span className="text-[13px]" style={{color:'rgba(0,0,0,0.54)'}}>· {total} {wordForm(total, ['отзыв','отзыва','отзывов'])}</span>
+          <span className="text-[12px] ml-2 px-2 py-0.5 rounded-full" style={{background:'#f5f5f5',color:'rgba(0,0,0,0.54)'}}>Только от покупателей</span>
         </div>
-        <button onClick={()=>showToast('Только покупатели могут оставлять отзывы')} className="btn-o px-5 py-2.5 text-sm font-semibold">
-          Написать отзыв
-        </button>
       </div>
       <div className="grid md:grid-cols-2 gap-4">
         {reviews.map((r, i) => (
@@ -2742,10 +2738,63 @@ function AccountOrders() {
 }
 
 /* ─── ACCOUNT ORDER DETAIL ───────────────────────────────────────────────── */
+function ReviewItemForm({ item, review, onSubmit }) {
+  const [rating, setRating] = useState(review?.rating || 0);
+  const [hoverRating, setHoverRating] = useState(0);
+  const [text,   setText]   = useState(review?.text || '');
+  const submitted = review?.submitted;
+
+  if (submitted) {
+    return (
+      <div className="py-4 border-b border-gray-100 last:border-0">
+        <div className="flex items-center justify-between mb-2">
+          <span className="font-semibold text-ink text-sm">{item.name}</span>
+          <span className="text-xs font-semibold inline-flex items-center gap-1" style={{color:'#16a34a'}}>
+            <svg width="12" height="12" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>
+            Отзыв отправлен
+          </span>
+        </div>
+        <div className="flex items-center gap-2 mb-1">
+          <Stars rating={review.rating} size={14} />
+          <span className="text-[12px] text-secondary">{review.rating}/5</span>
+        </div>
+        {review.text && <p className="text-[13px] text-secondary mt-2 leading-snug">«{review.text}»</p>}
+      </div>
+    );
+  }
+
+  return (
+    <div className="py-4 border-b border-gray-100 last:border-0">
+      <div className="font-semibold text-ink text-sm mb-3">{item.name}</div>
+      <div className="flex gap-1 mb-3" onMouseLeave={()=>setHoverRating(0)}>
+        {[1,2,3,4,5].map(i => (
+          <button key={i} type="button"
+            onClick={()=>setRating(i)}
+            onMouseEnter={()=>setHoverRating(i)}
+            className="hover:scale-110 transition-transform">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill={(hoverRating || rating) >= i ? '#F9AB00' : '#E5E7EB'}>
+              <path d="M12 2l3.09 6.26L22 9.27l-5 4.87L18.18 22 12 18.27 5.82 22 7 14.14l-5-4.87 6.91-1.01L12 2z"/>
+            </svg>
+          </button>
+        ))}
+        {rating > 0 && <span className="text-[12px] text-secondary self-center ml-2">{rating}/5</span>}
+      </div>
+      <textarea value={text} onChange={e=>setText(e.target.value)}
+        placeholder="Расскажите о впечатлениях (необязательно)…"
+        className="inp resize-none mb-3" rows={2} style={{fontSize:'13px'}} />
+      <button onClick={()=>onSubmit(rating, text)} disabled={!rating}
+        className={'btn-p px-5 py-2 text-[13px] font-semibold ' + (!rating?'!opacity-40 !cursor-not-allowed':'')}>
+        Отправить отзыв
+      </button>
+    </div>
+  );
+}
+
 function AccountOrderDetail() {
   const { id } = useParams();
-  const { orders, addToCart, effStock } = useApp();
+  const { orders, addToCart, effStock, showToast } = useApp();
   const history = useHistory();
+  const [reviews, setReviews] = useState({});
   const o = orders.find(x=>x.id===id);
 
   if (!o) return (
@@ -2765,6 +2814,11 @@ function AccountOrderDetail() {
       addToCart({ id:i.vid, type:'vitamin', name:i.name, price:i.price, stock:s, qty:i.qty });
     });
     history.push('/cart');
+  };
+
+  const submitReview = (vid, rating, text) => {
+    setReviews(prev => ({ ...prev, [vid]: { rating, text, submitted:true } }));
+    showToast('Спасибо за отзыв!');
   };
 
   return (
@@ -2824,6 +2878,21 @@ function AccountOrderDetail() {
           <span>Итого</span><span>{fmt(o.total)}</span>
         </div>
       </div>
+
+      {o.orderStatus === 'delivered' && (
+        <div className="bg-white rounded-2xl p-5 border border-gray-100 mb-4">
+          <div className="flex items-center justify-between mb-1">
+            <h3 className="font-semibold text-ink">Оценить покупки</h3>
+            <span className="text-[11px] uppercase tracking-wider font-semibold" style={{color:'#16a34a'}}>Доставлен</span>
+          </div>
+          <p className="text-secondary text-sm mb-2">Поставьте оценку и оставьте отзыв — это поможет другим покупателям.</p>
+          {o.items.map(item => (
+            <ReviewItemForm key={item.vid} item={item}
+              review={reviews[item.vid]}
+              onSubmit={(rating, text) => submitReview(item.vid, rating, text)} />
+          ))}
+        </div>
+      )}
 
       <div className="flex gap-3">
         <button onClick={repeat} className="btn-p flex-1 py-3 font-semibold text-sm">🔄 Повторить заказ</button>
