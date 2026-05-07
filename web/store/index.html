@@ -777,8 +777,9 @@ function KitCard({ k }) {
           </div>
         )}
       </div>
-      <h3 className="text-ink mb-0.5" style={{fontSize:'15px',fontWeight:700,letterSpacing:'-0.01em'}}>{k.name}</h3>
-      <p className="text-[12px] text-secondary mb-2">{k.items.length} продукта · {k.items.reduce((s,i)=>s+(getV(i.vid)?.count||0)*i.qty,0)} шт.</p>
+      <h3 className="text-ink mb-1" style={{fontSize:'15px',fontWeight:700,letterSpacing:'-0.01em'}}>{k.name}</h3>
+      <p className="text-[12px] text-ink mb-1" style={{lineHeight:1.3}}>{k.items.map(i => getV(i.vid)?.name).filter(Boolean).join(' · ')}</p>
+      <p className="text-[11px] text-disabled mb-2">{k.items.length} продукта · {k.items.reduce((s,i)=>s+(getV(i.vid)?.count||0)*i.qty,0)} шт.</p>
       <div className="leading-tight mb-3">
         <span className="font-bold text-ink text-[16px]">{fmt(k.price)}</span>
         <span className="text-[11px] text-disabled line-through ml-2">{fmt(k.orig)}</span>
