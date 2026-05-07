@@ -183,40 +183,47 @@ function AppProvider({ children }) {
 
   const effStock = vid => {
     if (ts.outOfStock && (vid==='vit-d3'||vid==='vit-c')) return 0;
-    return getV(vid)?.stock ?? 0;
+    const base = getV(vid)?.stock ?? 0;
+    const used = cart.reduce((sum, c) => {
+      if (c.type === 'vitamin' && c.id === vid) return sum + c.qty;
+      if (c.type === 'kit' && c.items) {
+        const ki = c.items.find(i => i.vid === vid);
+        if (ki) return sum + ki.qty * c.qty;
+      }
+      return sum;
+    }, 0);
+    return Math.max(0, base - used);
   };
 
   const cartCount    = cart.reduce((s,i) => s+i.qty, 0);
   const cartSubtotal = cart.reduce((s,i) => s+i.price*i.qty, 0);
 
   const addToCart = item => {
+    const delta = item.qty || 1;
     const s = effStock(item.id);
-    if (s===0) { showToast('Товар закончился', 'err'); return false; }
+    if (delta > s) {
+      showToast(s===0 ? 'Товар закончился' : 'Недостаточно остатка', s===0?'err':'warn');
+      return false;
+    }
     setCart(prev => {
-      const ex = prev.find(c => c.id===item.id);
-      if (ex) {
-        const nq = ex.qty + (item.qty||1);
-        if (nq>s) { showToast('Недостаточно остатка', 'warn'); return prev; }
-        return prev.map(c => c.id===item.id ? {...c, qty:nq} : c);
-      }
-      return [...prev, { ...item, qty:item.qty||1, stock:s }];
+      const ex = prev.find(c => c.id===item.id && c.type !== 'kit');
+      if (ex) return prev.map(c => c===ex ? {...c, qty:c.qty+delta} : c);
+      return [...prev, { ...item, qty:delta }];
     });
     showToast(item.name + ' добавлен в корзину');
     return true;
   };
 
-  const addKitToCart = kit => {
+  const addKitToCart = (kit, addQty=1) => {
     if (!kit.available) { showToast('Набор недоступен', 'err'); return false; }
-    const ex = cart.find(c => c.type==='kit' && c.id===kit.id);
-    const targetQty = (ex?.qty || 0) + 1;
-    const bad = kit.items.filter(i => effStock(i.vid) < i.qty * targetQty).map(i => getV(i.vid)?.name);
+    const bad = kit.items.filter(i => effStock(i.vid) < i.qty * addQty).map(i => getV(i.vid)?.name);
     if (bad.length) { showToast('Нет в наличии: ' + bad.join(', '), 'err'); return false; }
     setCart(prev => {
       const existing = prev.find(c => c.type==='kit' && c.id===kit.id);
-      if (existing) return prev.map(c => c===existing ? {...c, qty:c.qty+1} : c);
-      return [...prev, { type:'kit', id:kit.id, name:kit.name, price:kit.price, qty:1, items:kit.items, imgs:kit.imgs }];
+      if (existing) return prev.map(c => c===existing ? {...c, qty:c.qty+addQty} : c);
+      return [...prev, { type:'kit', id:kit.id, name:kit.name, price:kit.price, qty:addQty, items:kit.items, imgs:kit.imgs }];
     });
-    showToast('Набор «' + kit.name + '» добавлен');
+    showToast('Набор «' + kit.name + '» добавлен' + (addQty > 1 ? ' (×' + addQty + ')' : ''));
     return true;
   };
 
@@ -224,14 +231,15 @@ function AppProvider({ children }) {
     if (c.id!==id) return c;
     const nq = c.qty+d;
     if (nq<1) return c;
-    if (c.type==='kit') {
-      const k = getK(id);
-      const out = k?.items.find(i => effStock(i.vid) < i.qty * nq);
-      if (out) { showToast('Недостаточно остатка', 'warn'); return c; }
-      return {...c, qty:nq};
+    if (d > 0) {
+      if (c.type==='kit') {
+        const k = getK(id);
+        const out = k?.items.find(i => effStock(i.vid) < i.qty * d);
+        if (out) { showToast('Недостаточно остатка', 'warn'); return c; }
+      } else {
+        if (d > effStock(id)) { showToast('Недостаточно остатка', 'warn'); return c; }
+      }
     }
-    const s = effStock(id);
-    if (nq>s) { showToast('Недостаточно остатка', 'warn'); return c; }
     return {...c, qty:nq};
   }));
 
@@ -1337,27 +1345,24 @@ function VitaminDetail() {
 /* ─── KIT DETAIL ─────────────────────────────────────────────────────────── */
 function KitDetail() {
   const { id } = useParams();
-  const { addKitToCart, effStock } = useApp();
+  const { addKitToCart, effStock, cart } = useApp();
   const history = useHistory();
   const k = getK(id);
-  const [added, setAdded] = useState(false);
-  const [qty,   setQty]   = useState(1);
-  const [tab,   setTab]   = useState('desc');
+  const [qty, setQty] = useState(1);
+  const [tab, setTab] = useState('desc');
 
   if (!k) return <div className="text-center py-24 text-secondary">Набор не найден</div>;
 
   const maxQty = k.available ? (Math.min(...k.items.map(i => Math.floor(effStock(i.vid)/i.qty))) || 0) : 0;
   const hasOOS = maxQty === 0;
+  const inCart = cart.find(c => c.type==='kit' && c.id===k.id)?.qty || 0;
+  const clampedQty = Math.min(qty, Math.max(maxQty, 1));
 
   const add = () => {
-    let ok = true;
-    for (let i=0; i<qty; i++) if (!addKitToCart(k)) { ok = false; break; }
-    if (ok) setAdded(true);
+    if (addKitToCart(k, clampedQty)) setQty(1);
   };
   const buyNow = () => {
-    let ok = true;
-    for (let i=0; i<qty; i++) if (!addKitToCart(k)) { ok = false; break; }
-    if (ok) history.push('/checkout');
+    if (addKitToCart(k, clampedQty)) history.push('/checkout');
   };
   const recKits = KITS.filter(kk => kk.available && kk.id !== k.id);
   const recVits = VITAMINS;
@@ -1419,26 +1424,25 @@ function KitDetail() {
               <div className="flex items-center gap-4 mb-6">
                 <div className="flex items-center border border-gray-200 rounded-xl overflow-hidden bg-white">
                   <button className="w-10 h-10 flex items-center justify-center text-lg hover:bg-gray-50 transition-colors" onClick={()=>setQty(q=>Math.max(1,q-1))}>−</button>
-                  <span className="w-12 text-center font-semibold">{qty}</span>
-                  <button className={'w-10 h-10 flex items-center justify-center text-lg transition-colors ' + (qty<maxQty?'hover:bg-gray-50':'text-disabled cursor-not-allowed')}
-                    onClick={()=>qty<maxQty&&setQty(q=>q+1)}>+</button>
+                  <span className="w-12 text-center font-semibold">{clampedQty}</span>
+                  <button className={'w-10 h-10 flex items-center justify-center text-lg transition-colors ' + (clampedQty<maxQty?'hover:bg-gray-50':'text-disabled cursor-not-allowed')}
+                    onClick={()=>clampedQty<maxQty&&setQty(q=>q+1)}>+</button>
                 </div>
                 <span className="text-sm text-secondary">Доступно наборов: {maxQty}</span>
               </div>
-              {!added
-                ? <>
-                    <button onClick={add} className="btn-p w-full py-4 font-bold text-base">
-                      Добавить набор в корзину — {fmt(k.price*qty)}
-                    </button>
-                    <button onClick={buyNow}
-                      className="w-full mt-3 py-4 font-bold text-base rounded-lg transition-colors hover:opacity-80" style={{background:'#E5EDF2',color:'#042033'}}>
-                      Купить сейчас
-                    </button>
-                  </>
-                : <button onClick={()=>history.push('/cart')} className="btn-p w-full py-4 font-bold text-base">
-                    Перейти в корзину →
-                  </button>
-              }
+              <button onClick={add} className="btn-p w-full py-4 font-bold text-base">
+                Добавить набор в корзину — {fmt(k.price*clampedQty)}
+              </button>
+              <button onClick={buyNow}
+                className="w-full mt-3 py-4 font-bold text-base rounded-lg transition-colors hover:opacity-80" style={{background:'#E5EDF2',color:'#042033'}}>
+                Купить сейчас
+              </button>
+              {inCart > 0 && (
+                <Link to="/cart" className="flex items-center justify-between mt-4 p-3 rounded-xl border border-gray-100 hover:border-gray-200 transition-colors">
+                  <span className="text-sm text-ink">В корзине: <span className="font-semibold">{inCart} {inCart===1?'набор':inCart<5?'набора':'наборов'}</span></span>
+                  <span className="text-sm font-semibold" style={{color:'#042033'}}>Перейти в корзину →</span>
+                </Link>
+              )}
             </>
           )}
         </div>
