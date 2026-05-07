@@ -1,0 +1,20 @@
+/* Bioniq Design Tokens — общие переменные для всех прототипов */
+:root {
+  --bioniq-primary:        #042033;
+  --bioniq-primary-hover:  #0a3550;
+  --bioniq-primary-tint:   #E5EDF2;
+  --bioniq-logo-blue:      #1098D4;
+  --bioniq-error:          #d10714;
+  --bioniq-bg:             #fafafa;
+  --bioniq-bg-white:       #ffffff;
+  --bioniq-text:           rgba(0,0,0,.87);
+  --bioniq-text-secondary: rgba(0,0,0,.54);
+  --bioniq-text-disabled:  rgba(0,0,0,.38);
+
+  --bioniq-font: 'Montserrat', Arial, Helvetica, sans-serif;
+
+  --bioniq-radius-btn:    8px;
+  --bioniq-radius-input:  10px;
+  --bioniq-radius-card:   16px;
+  --bioniq-radius-modal:  20px;
+}

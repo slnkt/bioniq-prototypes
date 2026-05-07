@@ -1,0 +1,1369 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Bioniq — Магазин витаминов</title>
+<script src="https://unpkg.com/react@17/umd/react.development.js" crossorigin></script>
+<script src="https://unpkg.com/react-dom@17/umd/react-dom.development.js" crossorigin></script>
+<script src="https://unpkg.com/react-router-dom@5.3.4/umd/react-router-dom.min.js" crossorigin></script>
+<script src="https://unpkg.com/@babel/standalone@7.23.6/babel.min.js" crossorigin></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+tailwind.config = {
+  theme: {
+    fontFamily: { sans: ['Montserrat', 'Arial', 'Helvetica', 'sans-serif'] },
+    extend: { colors: {
+      brand:       '#042033',
+      'brand-dark':'#0a3550',
+      'brand-tint':'#E5EDF2',
+      'logo-blue': '#1098D4',
+      error:       '#d10714',
+      ink:         'rgba(0,0,0,.87)',
+      secondary:   'rgba(0,0,0,.54)',
+      disabled:    'rgba(0,0,0,.38)',
+  }}}
+}
+</script>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#fafafa;font-family:'Montserrat',Arial,Helvetica,sans-serif;color:rgba(0,0,0,.87);font-size:14px;font-weight:400}
+.fade-in{animation:fi .2s ease}
+@keyframes fi{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
+.card-hover{transition:transform .18s,box-shadow .18s}
+.card-hover:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(0,0,0,.08)}
+/* Primary button */
+.btn-p{background:#042033;color:#fff;border:none;cursor:pointer;transition:background .15s;display:inline-flex;align-items:center;justify-content:center;border-radius:8px;font-weight:600;font-size:14px;font-family:inherit}
+.btn-p:hover:not(:disabled){background:#0a3550}
+.btn-p:disabled{background:#E0E0E0;color:rgba(0,0,0,.38);cursor:not-allowed}
+/* Secondary gray */
+.btn-s{background:#f2f2f2;color:rgba(0,0,0,.87);border:none;cursor:pointer;transition:background .15s;display:inline-flex;align-items:center;justify-content:center;border-radius:8px;font-weight:600;font-size:14px;font-family:inherit}
+.btn-s:hover:not(:disabled){background:#e5e5e5}
+/* Outline */
+.btn-o{background:transparent;border:1.5px solid #042033;color:#042033;cursor:pointer;transition:all .15s;display:inline-flex;align-items:center;justify-content:center;border-radius:8px;font-weight:600;font-size:14px;font-family:inherit}
+.btn-o:hover{background:#042033;color:#fff}
+/* Inputs */
+.inp{background:#f5f5f5;border:1.5px solid transparent;border-radius:10px;padding:12px 16px;font-size:14px;color:rgba(0,0,0,.87);width:100%;outline:none;transition:background .15s,border-color .15s;font-family:inherit}
+.inp:focus{background:#fff;border-color:#042033;box-shadow:0 0 0 3px rgba(4,32,51,.10)}
+.inp::placeholder{color:rgba(0,0,0,.38)}
+.inp-err{background:#fff;border-color:#d10714}
+@keyframes spin{to{transform:rotate(360deg)}}
+.spin{animation:spin .7s linear infinite}
+::-webkit-scrollbar{width:5px}::-webkit-scrollbar-thumb{background:#ddd;border-radius:3px}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const { useState, useEffect, useContext, createContext, useRef, useCallback } = React;
+const { HashRouter, Switch, Route, Link, useHistory, useParams, useLocation, Redirect } = ReactRouterDOM;
+
+/* ─── DATA ──────────────────────────────────────────────────────────────── */
+const VITAMINS = [
+  { id:'vit-d3',    name:'Витамин D3',   sub:'Иммунитет и кости',        price:890,  orig:1190, stock:15, em:'☀️', bg:'#EBF7FD', tags:['Иммунитет','Кости'],    cat:'vitamins',
+    desc:'Витамин D3 (холекальциферол) — ключевой нутриент для поддержания иммунной системы, здоровья костей и зубов. Участвует в регуляции более 200 генов.',
+    ingr:[{n:'Холекальциферол (D3)',a:'2000 МЕ',p:'1000%'},{n:'Оливковое масло',a:'200 мг',p:'—'}], dose:'1 капсула в день во время еды' },
+  { id:'vit-c',     name:'Витамин C',    sub:'Антиоксидантная защита',    price:650,  orig:890,  stock:8,  em:'🍊', bg:'#FFF3E0', tags:['Антиоксидант','Иммунитет'], cat:'vitamins',
+    desc:'Аскорбиновая кислота — мощный антиоксидант, необходимый для синтеза коллагена и укрепления иммунитета.',
+    ingr:[{n:'Аскорбиновая кислота',a:'500 мг',p:'556%'}], dose:'1–2 капсулы в день' },
+  { id:'vit-omega3',name:'Омега-3',      sub:'Сердце и мозг',             price:1290, orig:1590, stock:20, em:'🐟', bg:'#E8F4FD', tags:['Сердце','Мозг'],        cat:'omega',
+    desc:'Высококонцентрированный рыбий жир EPA и DHA для здоровья сердца и мозга.',
+    ingr:[{n:'EPA',a:'400 мг',p:'—'},{n:'DHA',a:'300 мг',p:'—'}], dose:'2 капсулы в день во время еды' },
+  { id:'vit-mag',   name:'Магний B6',    sub:'Нервная система и сон',     price:790,  orig:990,  stock:12, em:'🧠', bg:'#F3E8FF', tags:['Стресс','Сон'],          cat:'minerals',
+    desc:'Комплекс магния с витамином B6 для нормальной работы нервной системы и улучшения сна.',
+    ingr:[{n:'Магний (цитрат)',a:'300 мг',p:'71%'},{n:'Витамин B6',a:'2 мг',p:'143%'}], dose:'2 таблетки вечером' },
+  { id:'vit-zinc',  name:'Цинк',         sub:'Иммунитет и кожа',          price:490,  orig:690,  stock:0,  em:'💎', bg:'#E8F5E9', tags:['Иммунитет','Кожа'],    cat:'minerals',
+    desc:'Незаменимый микроэлемент для работы иммунной системы и здоровья кожи.',
+    ingr:[{n:'Цинк (глюконат)',a:'15 мг',p:'150%'}], dose:'1 таблетка в день с едой' },
+  { id:'vit-bcomp', name:'B-комплекс',   sub:'Энергия и метаболизм',      price:990,  orig:1290, stock:6,  em:'⚡', bg:'#FFFDE7', tags:['Энергия','Метаболизм'], cat:'vitamins',
+    desc:'Полный комплекс витаминов группы B для энергетического обмена.',
+    ingr:[{n:'B1 (тиамин)',a:'1.1 мг',p:'100%'},{n:'B6',a:'1.4 мг',p:'100%'},{n:'B12',a:'2.5 мкг',p:'100%'}], dose:'1 капсула утром с едой' },
+];
+
+const KITS = [
+  { id:'kit-immunity', name:'Иммунитет Про', sub:'Комплексная защита', price:1990, orig:2770, em:'🛡️', bg:'#EBF7FD', saving:'780 ₽',
+    desc:'Полный комплекс для поддержки иммунной системы. D3 + C + Цинк — многоуровневая защита.',
+    items:[{vid:'vit-d3',qty:1},{vid:'vit-c',qty:1},{vid:'vit-zinc',qty:1}] },
+  { id:'kit-energy',   name:'Энергия и Фокус', sub:'Заряд на весь день', price:2490, orig:3170, em:'🚀', bg:'#E8F4FD', saving:'680 ₽',
+    desc:'Омега-3, B-комплекс и магний — идеальное трио для высокого уровня энергии и продуктивности.',
+    items:[{vid:'vit-omega3',qty:1},{vid:'vit-bcomp',qty:1},{vid:'vit-mag',qty:1}] },
+];
+
+const MOCK_ORDERS = [
+  { id:'ORD-2024-001', date:'2024-11-15', items:[{vid:'vit-d3',qty:2,name:'Витамин D3',price:890},{vid:'vit-omega3',qty:1,name:'Омега-3',price:1290}], total:3070, payStatus:'paid', orderStatus:'delivered', delivStatus:'delivered', tracking:'CDEK123456789', address:'г. Москва, ул. Тверская, д. 1', delivery:350 },
+  { id:'ORD-2024-002', date:'2024-12-03', items:[{vid:'vit-c',qty:1,name:'Витамин C',price:650},{vid:'vit-mag',qty:1,name:'Магний B6',price:790}], total:1790, payStatus:'paid', orderStatus:'shipping', delivStatus:'in_transit', tracking:'CDEK987654321', address:'г. Москва, ул. Арбат, д. 10', delivery:0 },
+];
+
+const PROMOS = { 'BIONIQ10':10, 'WELCOME15':15 };
+
+const DELIVERY_OPTS = [
+  { id:'pvz',     label:'Пункт выдачи СДЭК', price:0,   days:'2–3 дня', icon:'📦' },
+  { id:'courier', label:'Курьер СДЭК',         price:350, days:'1–2 дня', icon:'🚚' },
+  { id:'express', label:'Экспресс-доставка',   price:690, days:'сегодня',  icon:'⚡' },
+];
+
+const PVZ = [
+  { id:'p1', name:'СДЭК Тверская',    addr:'ул. Тверская, 15',       h:'09:00–21:00' },
+  { id:'p2', name:'СДЭК Арбат',       addr:'ул. Арбат, 24',          h:'08:00–22:00' },
+  { id:'p3', name:'СДЭК Кутузовская', addr:'Кутузовский пр., 32',    h:'10:00–20:00' },
+];
+
+const PAY_METHODS = [
+  { id:'card',     label:'Банковская карта', icon:'💳' },
+  { id:'sbp',      label:'СБП',              icon:'📱' },
+  { id:'yoomoney', label:'ЮMoney',           icon:'💛' },
+];
+
+const ORDER_STEPS = [
+  { key:'processing', label:'Оформлен' },
+  { key:'assembly',   label:'В сборке'  },
+  { key:'shipping',   label:'В доставке'},
+  { key:'delivered',  label:'Доставлен' },
+];
+
+const ORDER_STATUS = {
+  processing:{ label:'В обработке', cls:'bg-yellow-100 text-yellow-700' },
+  assembly:  { label:'В сборке',    cls:'bg-blue-100 text-blue-700' },
+  shipping:  { label:'В доставке',  cls:'bg-purple-100 text-purple-700' },
+  delivered: { label:'Доставлен',   cls:'bg-green-100 text-green-700' },
+  cancelled: { label:'Отменён',     cls:'bg-red-100 text-red-600' },
+};
+
+const DELIV_STATUS = {
+  pending:    { label:'Ожидает передачи', cls:'bg-gray-100 text-gray-600' },
+  in_transit: { label:'В пути',           cls:'bg-blue-100 text-blue-700' },
+  delivered:  { label:'Доставлен',        cls:'bg-green-100 text-green-700' },
+};
+
+/* ─── HELPERS ──────────────────────────────────────────────────────────── */
+const fmt  = n => n.toLocaleString('ru-RU') + ' ₽';
+const getV = id => VITAMINS.find(v => v.id === id);
+const getK = id => KITS.find(k => k.id === id);
+
+/* ─── CONTEXT ──────────────────────────────────────────────────────────── */
+const Ctx = createContext(null);
+
+function AppProvider({ children }) {
+  const [cart,     setCart]     = useState([]);
+  const [user,     setUser]     = useState(null);
+  const [orders,   setOrders]   = useState(MOCK_ORDERS);
+  const [authOpen, setAuthOpen] = useState(false);
+  const [authCb,   setAuthCb]   = useState(null);
+  const [curOrder, setCurOrder] = useState(null);
+  const [toast,    setToast]    = useState(null);
+  const [ts,       setTs]       = useState({ outOfStock:false, payFail:false, delivErr:false });
+
+  const showToast = useCallback((msg, type='ok') => {
+    setToast({ msg, type, id: Date.now() });
+    setTimeout(() => setToast(null), 3000);
+  }, []);
+
+  const effStock = vid => {
+    if (ts.outOfStock && (vid==='vit-d3'||vid==='vit-c')) return 0;
+    return getV(vid)?.stock ?? 0;
+  };
+
+  const cartCount    = cart.reduce((s,i) => s+i.qty, 0);
+  const cartSubtotal = cart.reduce((s,i) => s+i.price*i.qty, 0);
+
+  const addToCart = item => {
+    const s = effStock(item.id);
+    if (s===0) { showToast('Товар закончился', 'err'); return false; }
+    setCart(prev => {
+      const ex = prev.find(c => c.id===item.id);
+      if (ex) {
+        const nq = ex.qty + (item.qty||1);
+        if (nq>s) { showToast('Недостаточно остатка', 'warn'); return prev; }
+        return prev.map(c => c.id===item.id ? {...c, qty:nq} : c);
+      }
+      return [...prev, { ...item, qty:item.qty||1, stock:s }];
+    });
+    showToast(item.name + ' добавлен в корзину');
+    return true;
+  };
+
+  const addKitToCart = kit => {
+    const bad = kit.items.filter(i => effStock(i.vid)<i.qty).map(i => getV(i.vid)?.name);
+    if (bad.length) { showToast('Нет в наличии: ' + bad.join(', '), 'err'); return false; }
+    setCart(prev => {
+      let u = [...prev];
+      kit.items.forEach(({ vid, qty }) => {
+        const v = getV(vid); const s = effStock(vid);
+        const ex = u.find(c => c.id===vid);
+        if (ex) u = u.map(c => c.id===vid ? {...c, qty:Math.min(c.qty+qty,s)} : c);
+        else u.push({ id:vid, type:'vitamin', name:v?.name, price:v?.price, qty, stock:s });
+      });
+      return u;
+    });
+    showToast('Набор «' + kit.name + '» добавлен');
+    return true;
+  };
+
+  const updQty = (id, d) => setCart(prev => prev.map(c => {
+    if (c.id!==id) return c;
+    const s = effStock(id); const nq = c.qty+d;
+    if (nq<1) return c;
+    if (nq>s) { showToast('Недостаточно остатка', 'warn'); return c; }
+    return {...c, qty:nq};
+  }));
+
+  const removeItem = id => setCart(prev => prev.filter(c => c.id!==id));
+
+  const requireAuth = cb => {
+    if (user) { cb(); return; }
+    setAuthCb(() => cb);
+    setAuthOpen(true);
+  };
+
+  const login = email => {
+    setUser({ email, name: email.split('@')[0] });
+    setAuthOpen(false);
+    if (authCb) { authCb(); setAuthCb(null); }
+  };
+
+  const placeOrder = data => {
+    const o = {
+      id: 'ORD-' + Date.now(),
+      date: new Date().toISOString().slice(0,10),
+      items: cart.map(c => ({ vid:c.id, qty:c.qty, name:c.name, price:c.price })),
+      total: data.total, delivery: data.delivCost, address: data.address,
+      payStatus:'paid', orderStatus:'processing', delivStatus:'pending', tracking:null,
+    };
+    setOrders(prev => [o, ...prev]);
+    setCurOrder(o);
+    setCart([]);
+    return o;
+  };
+
+  return (
+    <Ctx.Provider value={{ cart, cartCount, cartSubtotal, addToCart, addKitToCart, updQty, removeItem,
+      user, login, logout:()=>setUser(null), requireAuth, authOpen, setAuthOpen,
+      orders, placeOrder, curOrder, setCurOrder,
+      toast, showToast, ts, setTs, effStock, PROMOS }}>
+      {children}
+    </Ctx.Provider>
+  );
+}
+const useApp = () => useContext(Ctx);
+
+/* ─── TOAST ─────────────────────────────────────────────────────────────── */
+function Toast() {
+  const { toast } = useApp();
+  if (!toast) return null;
+  const cls = { ok:'bg-green-600', err:'bg-red-600', warn:'bg-amber-500' };
+  const ico  = { ok:'✓ ', err:'✗ ', warn:'⚠ ' };
+  return (
+    <div className={'fixed bottom-6 left-1/2 z-50 fade-in px-5 py-3 rounded-xl text-white text-sm font-semibold shadow-2xl ' + (cls[toast.type]||'bg-green-600')}
+      style={{transform:'translateX(-50%)'}}>
+      {ico[toast.type]||''}{toast.msg}
+    </div>
+  );
+}
+
+/* ─── AUTH MODAL ─────────────────────────────────────────────────────────── */
+function AuthModal() {
+  const { authOpen, setAuthOpen, login } = useApp();
+  const [tab,   setTab]   = useState('login');
+  const [email, setEmail] = useState('');
+  const [pass,  setPass]  = useState('');
+  const [err,   setErr]   = useState('');
+
+  if (!authOpen) return null;
+
+  const submit = () => {
+    if (!email||!pass) { setErr('Заполните все поля'); return; }
+    if (pass.length<4) { setErr('Пароль слишком короткий'); return; }
+    login(email);
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center fade-in" style={{background:'rgba(0,0,0,0.5)'}}
+      onClick={() => setAuthOpen(false)}>
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md mx-4 p-8" onClick={e => e.stopPropagation()}>
+        <div className="flex justify-between items-center mb-6">
+          <h2 className="text-2xl font-bold text-ink">Войдите в аккаунт</h2>
+          <button onClick={() => setAuthOpen(false)}
+            className="w-8 h-8 rounded-full bg-gray-100 text-secondary flex items-center justify-center text-xl hover:bg-gray-200 transition-colors">×</button>
+        </div>
+        <div className="flex gap-6 mb-6 border-b border-gray-100">
+          {['login','register'].map(t => (
+            <button key={t} onClick={() => setTab(t)}
+              className={'pb-3 text-sm font-semibold border-b-2 -mb-px transition-colors ' + (tab===t ? 'border-brand text-brand' : 'border-transparent text-gray-400 hover:text-gray-700')}>
+              {t==='login' ? 'Войти' : 'Регистрация'}
+            </button>
+          ))}
+        </div>
+        <div className="space-y-4">
+          <input type="email" placeholder="Email" value={email}
+            onChange={e=>{setEmail(e.target.value);setErr('');}}
+            className={'inp ' + (err?'inp-err':'')} />
+          <input type="password" placeholder="Пароль" value={pass}
+            onChange={e=>{setPass(e.target.value);setErr('');}}
+            className={'inp ' + (err?'inp-err':'')} />
+          {err && <p className="text-red-500 text-sm">{err}</p>}
+          <button onClick={submit} className="btn-p w-full py-3 font-semibold text-sm">
+            {tab==='login' ? 'Войти' : 'Создать аккаунт'}
+          </button>
+          <p className="text-xs text-secondary text-center">Корзина сохранится после входа</p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ─── TEST PANEL ─────────────────────────────────────────────────────────── */
+function TestPanel() {
+  const { ts, setTs } = useApp();
+  const [open, setOpen] = useState(false);
+  const tog = k => setTs(p => ({...p, [k]:!p[k]}));
+  const reset = () => setTs({ outOfStock:false, payFail:false, delivErr:false });
+  return (
+    <div className="fixed bottom-4 right-4 z-40">
+      <button onClick={() => setOpen(o=>!o)}
+        className="bg-navy text-white px-4 py-2 rounded-xl text-sm font-semibold shadow-lg hover:bg-gray-800 transition-colors flex items-center gap-2">
+        🧪 Тест {open?'▲':'▼'}
+      </button>
+      {open && (
+        <div className="absolute bottom-12 right-0 bg-white border border-gray-100 rounded-2xl p-4 shadow-2xl w-64 fade-in">
+          <p className="text-xs font-bold text-secondary uppercase tracking-wider mb-3">Переключатель состояний</p>
+          {[['outOfStock','Товар закончился (D3, C)'],['payFail','Ошибка оплаты'],['delivErr','Ошибка доставки']].map(([k,l]) => (
+            <label key={k} className="flex items-center gap-3 py-2 cursor-pointer" onClick={() => tog(k)}>
+              <div className={'w-10 h-5 rounded-full transition-colors relative flex-shrink-0 ' + (ts[k]?'bg-brand':'bg-gray-200')}>
+                <div className={'absolute top-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform ' + (ts[k]?'translate-x-5':'translate-x-0.5')} />
+              </div>
+              <span className="text-sm text-ink">{l}</span>
+            </label>
+          ))}
+          <button onClick={reset} className="mt-3 w-full text-xs text-secondary hover:text-ink border border-gray-100 rounded-lg py-2 transition-colors">
+            Сбросить всё
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* ─── HEADER ─────────────────────────────────────────────────────────────── */
+function Header() {
+  const { cartCount, user, setAuthOpen, logout } = useApp();
+  const history = useHistory();
+  const location = useLocation();
+  return (
+    <header className="sticky top-0 z-30 bg-white border-b border-gray-100">
+      <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
+        <Link to="/" className="flex items-center hover:opacity-80 transition-opacity" aria-label="bioniq">
+          <svg width="36" height="36" viewBox="0 0 160 160" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M99.4688 83.0625C99.4688 71.4645 90.0667 62.0625 78.4688 62.0625H71.0312V55.0625H78.4688C93.9327 55.0625 106.469 67.5985 106.469 83.0625V129H99.4688V83.0625ZM53.5312 76.9375V31H60.5312V76.9375C60.5312 88.5355 69.9333 97.9375 81.5312 97.9375H88.8115V104.938H81.5312C66.0673 104.938 53.5312 92.4015 53.5312 76.9375Z" fill="#1098D4"/>
+          </svg>
+        </Link>
+        <nav className="hidden md:flex items-center gap-8">
+          <Link to="/vitamins"
+            className={'text-sm font-medium transition-colors ' + (location.pathname.startsWith('/vitamin')?'text-brand':'text-secondary hover:text-ink')}>
+            Магазин витаминов
+          </Link>
+        </nav>
+        <div className="flex items-center gap-5">
+          <button onClick={() => history.push('/cart')} className="relative text-secondary hover:text-ink transition-colors">
+            <svg width="22" height="22" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24">
+              <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/>
+              <line x1="3" y1="6" x2="21" y2="6"/>
+              <path d="M16 10a4 4 0 01-8 0"/>
+            </svg>
+            {cartCount>0 && (
+              <span className="absolute -top-2 -right-2 bg-brand text-white text-xs w-5 h-5 rounded-full flex items-center justify-center font-bold">
+                {cartCount}
+              </span>
+            )}
+          </button>
+          {user ? (
+            <div className="flex items-center gap-3">
+              <button onClick={() => history.push('/account/orders')} className="text-secondary hover:text-ink text-sm transition-colors">
+                👤 {user.name}
+              </button>
+              <button onClick={logout} className="text-disabled hover:text-secondary text-xs transition-colors">выйти</button>
+            </div>
+          ) : (
+            <button onClick={() => setAuthOpen(true)} className="text-secondary hover:text-ink transition-colors">
+              <svg width="22" height="22" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24">
+                <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/>
+                <circle cx="12" cy="7" r="4"/>
+              </svg>
+            </button>
+          )}
+        </div>
+      </div>
+    </header>
+  );
+}
+
+/* ─── TAG CHIP ───────────────────────────────────────────────────────────── */
+function Tag({ label }) {
+  return (
+    <span className="text-xs px-2 py-0.5 rounded-full font-medium"
+      style={{background:'#E5EDF2', color:'#042033'}}>{label}</span>
+  );
+}
+
+/* ─── VITAMIN CARD ───────────────────────────────────────────────────────── */
+function VitCard({ v }) {
+  const { addToCart, effStock } = useApp();
+  const history = useHistory();
+  const s = effStock(v.id);
+  const [added, setAdded] = useState(false);
+  const add = e => {
+    e.stopPropagation();
+    if (addToCart({ id:v.id, type:'vitamin', name:v.name, price:v.price, stock:s }))
+      { setAdded(true); setTimeout(()=>setAdded(false),1400); }
+  };
+  return (
+    <div className="bg-white rounded-2xl overflow-hidden card-hover cursor-pointer border border-gray-100"
+      onClick={() => history.push('/vitamins/'+v.id)}>
+      <div className="h-28 flex items-center justify-center text-5xl" style={{background:v.bg}}>{v.em}</div>
+      <div className="p-4">
+        <div className="flex flex-wrap gap-1 mb-2">
+          {v.tags.slice(0,2).map(t => <Tag key={t} label={t} />)}
+        </div>
+        <h3 className="font-bold text-ink text-sm mb-0.5">{v.name}</h3>
+        <p className="text-xs text-secondary mb-3">{v.sub}</p>
+        <div className="flex items-center justify-between">
+          <div>
+            <span className="font-bold text-ink text-sm">{fmt(v.price)}</span>
+            {v.orig>v.price && <span className="text-xs text-disabled line-through ml-1">{fmt(v.orig)}</span>}
+          </div>
+          {s===0
+            ? <span className="text-xs text-disabled">Нет в наличии</span>
+            : <button onClick={add}
+                className={'btn-p text-xs px-3 py-1.5 font-semibold ' + (added?'!bg-green-500':'')}>
+                {added ? '✓ Добавлен' : '+ В корзину'}
+              </button>
+          }
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ─── KIT CARD ───────────────────────────────────────────────────────────── */
+function KitCard({ k }) {
+  const { addKitToCart, effStock } = useApp();
+  const history = useHistory();
+  const hasOOS = k.items.some(i => effStock(i.vid)<i.qty);
+  return (
+    <div className="bg-white rounded-2xl p-5 border border-gray-100 card-hover cursor-pointer min-w-60"
+      onClick={() => history.push('/vitamin-kits/'+k.id)}>
+      <div className="flex items-start justify-between mb-3">
+        <span className="text-3xl">{k.em}</span>
+        <span className="text-white text-xs px-2 py-1 rounded-lg font-semibold" style={{background:'#042033'}}>−{k.saving}</span>
+      </div>
+      <h3 className="font-bold text-ink mb-1">{k.name}</h3>
+      <p className="text-xs text-secondary mb-3">{k.items.length} товара</p>
+      <div className="flex items-center justify-between">
+        <div>
+          <span className="font-bold text-ink">{fmt(k.price)}</span>
+          <span className="text-xs text-disabled line-through ml-2">{fmt(k.orig)}</span>
+        </div>
+        {hasOOS
+          ? <span className="text-xs text-orange-500 font-medium">Частично недоступен</span>
+          : <button onClick={e=>{e.stopPropagation();addKitToCart(k);}}
+              className="btn-p text-xs px-3 py-1.5 font-semibold">В корзину</button>
+        }
+      </div>
+    </div>
+  );
+}
+
+/* ─── HOME PAGE ──────────────────────────────────────────────────────────── */
+function HomePage() {
+  const history = useHistory();
+  return (
+    <div>
+      <section className="overflow-hidden relative" style={{background:'#1A2E3F'}}>
+        <div className="absolute inset-0 opacity-15" style={{background:'radial-gradient(circle at 70% 50%, #042033 0%, transparent 60%)'}} />
+        <div className="max-w-6xl mx-auto px-6 py-20 grid md:grid-cols-2 gap-12 items-center relative z-10">
+          <div>
+            <p className="text-sm font-semibold tracking-widest uppercase mb-4" style={{color:'#042033'}}>Персонализированное питание</p>
+            <h1 className="text-white text-5xl font-bold leading-tight mb-6">Витамины<br/>для вашего<br/>здоровья</h1>
+            <p className="text-gray-400 mb-8 text-lg">Научно обоснованные нутриенты для ваших целей.</p>
+            <button onClick={()=>history.push('/vitamins')} className="btn-p px-8 py-4 font-bold text-base">
+              Открыть магазин →
+            </button>
+          </div>
+          <div className="space-y-4">
+            <div className="rounded-2xl p-5 flex items-center gap-4 cursor-pointer card-hover border"
+              style={{background:'rgba(41,171,226,0.12)', borderColor:'rgba(41,171,226,0.3)'}}
+              onClick={()=>history.push('/vitamins')}>
+              <span className="text-4xl">🛡️</span>
+              <div className="flex-1">
+                <h3 className="text-white font-semibold">Магазин витаминов</h3>
+                <p className="text-gray-400 text-sm">Более 20 витаминов и наборов</p>
+              </div>
+              <button className="btn-p px-4 py-2 text-sm font-semibold">Перейти</button>
+            </div>
+            <div className="rounded-2xl p-5 flex items-center gap-4 border border-white/10" style={{background:'rgba(255,255,255,0.05)'}}>
+              <span className="text-4xl">🧬</span>
+              <div>
+                <h3 className="text-white font-semibold">Персонализация</h3>
+                <p className="text-gray-400 text-sm">Анализ на основе ваших данных</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+      <section className="max-w-6xl mx-auto px-6 py-16 grid md:grid-cols-3 gap-8">
+        {[['🔬','Научный подход','Формулы разработаны совместно с нутрициологами'],
+          ['✈️','Быстрая доставка','СДЭК по всей России за 1–3 дня'],
+          ['🔒','Гарантия качества','Сертифицированное производство']].map(([i,t,d]) => (
+          <div key={t} className="text-center">
+            <div className="text-4xl mb-4">{i}</div>
+            <h3 className="font-bold text-ink mb-2">{t}</h3>
+            <p className="text-secondary text-sm">{d}</p>
+          </div>
+        ))}
+      </section>
+    </div>
+  );
+}
+
+/* ─── VITAMINS PAGE ──────────────────────────────────────────────────────── */
+function VitaminsPage() {
+  const [filter, setFilter] = useState('all');
+  const [faq, setFaq]       = useState(null);
+  const CATS = [{id:'all',l:'Все'},{id:'vitamins',l:'Витамины'},{id:'minerals',l:'Минералы'},{id:'omega',l:'Омега'}];
+  const shown = VITAMINS.filter(v => filter==='all' || v.cat===filter);
+  const FAQS = [
+    ['Как подобрать витамины?','Рекомендуем пройти наш онлайн-тест или сдать анализы.'],
+    ['Как принимать витамины?','Следуйте инструкции на упаковке. Большинство — с едой.'],
+    ['Есть ли противопоказания?','Проконсультируйтесь с врачом при хронических заболеваниях.'],
+    ['Как быстро доставят?','По Москве 1–2 дня, по России 2–7 дней через СДЭК.'],
+  ];
+  return (
+    <div className="max-w-6xl mx-auto px-6 py-8 fade-in">
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold text-ink">Магазин витаминов</h1>
+        <p className="text-secondary mt-1">Высококачественные нутриенты для здоровья</p>
+      </div>
+      <div className="mb-10">
+        <h2 className="text-xl font-bold text-ink mb-4">🎁 Наборы</h2>
+        <div className="flex gap-4 overflow-x-auto pb-2">{KITS.map(k => <KitCard key={k.id} k={k} />)}</div>
+      </div>
+      <div className="flex gap-2 mb-6 flex-wrap">
+        {CATS.map(c => (
+          <button key={c.id} onClick={()=>setFilter(c.id)}
+            className={'px-4 py-2 rounded-full text-sm font-medium transition-all ' + (filter===c.id
+              ? 'text-white'
+              : 'bg-white text-secondary border border-gray-200 hover:border-brand hover:text-brand')}
+            style={filter===c.id ? {background:'#042033'} : {}}>
+            {c.l}
+          </button>
+        ))}
+      </div>
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mb-16">
+        {shown.map(v => <VitCard key={v.id} v={v} />)}
+        {shown.length===0 && <p className="col-span-4 text-center py-16 text-secondary">Товары не найдены</p>}
+      </div>
+      <div className="max-w-2xl mx-auto">
+        <h2 className="text-xl font-bold text-ink mb-4">Часто задаваемые вопросы</h2>
+        {FAQS.map(([q,a],i) => (
+          <div key={i} className="bg-white rounded-xl border border-gray-100 mb-2">
+            <button className="w-full text-left p-4 flex justify-between items-center gap-4" onClick={()=>setFaq(faq===i?null:i)}>
+              <span className="font-semibold text-ink text-sm">{q}</span>
+              <span className="text-xl flex-shrink-0 font-light" style={{color: faq===i ? '#042033' : '#666'}}>{faq===i?'−':'+'}</span>
+            </button>
+            {faq===i && <p className="px-4 pb-4 text-secondary text-sm">{a}</p>}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+/* ─── VITAMIN DETAIL ─────────────────────────────────────────────────────── */
+function VitaminDetail() {
+  const { id } = useParams();
+  const { addToCart, effStock } = useApp();
+  const history = useHistory();
+  const v = getV(id);
+  const [qty, setQty]     = useState(1);
+  const [added, setAdded] = useState(false);
+  const [tab, setTab]     = useState('desc');
+
+  if (!v) return <div className="text-center py-24 text-secondary">Товар не найден</div>;
+  const s = effStock(id);
+
+  const add = () => {
+    if (addToCart({ id:v.id, type:'vitamin', name:v.name, price:v.price, stock:s, qty }))
+      setAdded(true);
+  };
+
+  const recs = VITAMINS.filter(x=>x.id!==id).slice(0,4);
+
+  return (
+    <div className="max-w-6xl mx-auto px-6 py-8 fade-in">
+      <button onClick={()=>history.push('/vitamins')} className="text-secondary hover:text-ink text-sm mb-6 flex items-center gap-1 transition-colors">
+        ← Назад в магазин
+      </button>
+      <div className="grid md:grid-cols-2 gap-12 mb-16">
+        <div className="rounded-2xl flex items-center justify-center text-9xl h-72" style={{background:v.bg}}>{v.em}</div>
+        <div>
+          <div className="flex flex-wrap gap-2 mb-3">
+            {v.tags.map(t => <Tag key={t} label={t} />)}
+          </div>
+          <h1 className="text-3xl font-bold text-ink mb-1">{v.name}</h1>
+          <p className="text-secondary mb-4">{v.sub}</p>
+          <div className="flex items-baseline gap-3 mb-6">
+            <span className="text-3xl font-bold text-ink">{fmt(v.price)}</span>
+            {v.orig>v.price && <>
+              <span className="text-disabled line-through text-lg">{fmt(v.orig)}</span>
+              <span className="bg-red-50 text-red-600 text-sm px-2 py-0.5 rounded-lg font-medium">
+                −{Math.round((1-v.price/v.orig)*100)}%
+              </span>
+            </>}
+          </div>
+          {s===0 ? (
+            <div className="bg-red-50 border border-red-100 rounded-xl p-4 mb-4">
+              <p className="text-red-600 font-semibold">Нет в наличии</p>
+              <p className="text-red-400 text-sm mt-1">Товар временно отсутствует на складе</p>
+            </div>
+          ) : (
+            <>
+              <div className="flex items-center gap-4 mb-6">
+                <div className="flex items-center border border-gray-200 rounded-xl overflow-hidden bg-white">
+                  <button className="w-10 h-10 flex items-center justify-center text-lg hover:bg-gray-50 transition-colors" onClick={()=>setQty(q=>Math.max(1,q-1))}>−</button>
+                  <span className="w-12 text-center font-semibold">{qty}</span>
+                  <button className={'w-10 h-10 flex items-center justify-center text-lg transition-colors ' + (qty<s?'hover:bg-gray-50':'text-disabled cursor-not-allowed')}
+                    onClick={()=>qty<s&&setQty(q=>q+1)}>+</button>
+                </div>
+                <span className="text-sm text-secondary">В наличии: {s} шт.</span>
+              </div>
+              {!added
+                ? <button onClick={add} className="btn-p w-full py-4 font-bold text-base">
+                    Добавить в корзину — {fmt(v.price*qty)}
+                  </button>
+                : <div className="flex gap-3">
+                    <button onClick={()=>{setAdded(false);setQty(1);}} className="btn-o flex-1 py-4 font-bold">+ Ещё</button>
+                    <button onClick={()=>history.push('/cart')} className="btn-p flex-1 py-4 font-bold">Перейти в корзину →</button>
+                  </div>
+              }
+            </>
+          )}
+        </div>
+      </div>
+
+      <div className="border-b border-gray-200 mb-6 flex gap-6">
+        {[['desc','Описание'],['ingr','Состав'],['dose','Применение']].map(([k,l]) => (
+          <button key={k} onClick={()=>setTab(k)}
+            className={'pb-3 text-sm font-medium border-b-2 -mb-px transition-colors ' + (tab===k?'text-brand':'border-transparent text-secondary hover:text-ink')}
+            style={tab===k ? {borderBottomColor:'#042033'} : {}}>
+            {l}
+          </button>
+        ))}
+      </div>
+      <div className="max-w-2xl mb-16">
+        {tab==='desc' && <p className="text-ink leading-relaxed">{v.desc}</p>}
+        {tab==='ingr' && (
+          <table className="w-full text-sm">
+            <thead><tr className="border-b"><th className="text-left py-2 text-secondary font-medium">Компонент</th><th className="text-right py-2 text-secondary font-medium">Кол-во</th><th className="text-right py-2 text-secondary font-medium">% РСНП</th></tr></thead>
+            <tbody>{v.ingr.map((i,n)=><tr key={n} className="border-b border-gray-50"><td className="py-3 text-ink">{i.n}</td><td className="py-3 text-right">{i.a}</td><td className="py-3 text-right text-secondary">{i.p}</td></tr>)}</tbody>
+          </table>
+        )}
+        {tab==='dose' && <p className="text-ink">{v.dose}</p>}
+      </div>
+
+      <h2 className="text-xl font-bold text-ink mb-4">С этим покупают</h2>
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        {recs.map(x => <VitCard key={x.id} v={x} />)}
+      </div>
+    </div>
+  );
+}
+
+/* ─── KIT DETAIL ─────────────────────────────────────────────────────────── */
+function KitDetail() {
+  const { id } = useParams();
+  const { addKitToCart, effStock } = useApp();
+  const history = useHistory();
+  const k = getK(id);
+  const [added, setAdded] = useState(false);
+
+  if (!k) return <div className="text-center py-24 text-secondary">Набор не найден</div>;
+
+  const add = () => { if (addKitToCart(k)) setAdded(true); };
+
+  return (
+    <div className="max-w-6xl mx-auto px-6 py-8 fade-in">
+      <button onClick={()=>history.push('/vitamins')} className="text-secondary hover:text-ink text-sm mb-6 flex items-center gap-1 transition-colors">← Назад в магазин</button>
+      <div className="grid md:grid-cols-2 gap-12">
+        <div className="rounded-2xl flex items-center justify-center text-9xl h-72" style={{background:k.bg}}>{k.em}</div>
+        <div>
+          <span className="text-white text-sm px-3 py-1 rounded-lg font-semibold mb-4 inline-block" style={{background:'#042033'}}>Набор · Экономия {k.saving}</span>
+          <h1 className="text-3xl font-bold text-ink mb-2">{k.name}</h1>
+          <p className="text-secondary mb-6">{k.desc}</p>
+          <div className="flex items-baseline gap-3 mb-6">
+            <span className="text-3xl font-bold text-ink">{fmt(k.price)}</span>
+            <span className="text-disabled line-through text-lg">{fmt(k.orig)}</span>
+          </div>
+          <div className="space-y-2 mb-6">
+            {k.items.map(({vid,qty}) => {
+              const vv = getV(vid); const s = effStock(vid);
+              return (
+                <div key={vid}
+                  className={'flex items-center gap-3 p-3 rounded-xl border cursor-pointer transition-colors ' + (s===0?'border-red-100 bg-red-50':'border-gray-100 bg-gray-50 hover:border-gray-200')}
+                  onClick={()=>history.push('/vitamins/'+vid)}>
+                  <span className="text-2xl">{vv?.em}</span>
+                  <div className="flex-1"><span className="text-sm font-medium text-ink">{vv?.name}</span><span className="text-xs text-secondary ml-2">×{qty}</span></div>
+                  {s===0 ? <span className="text-xs text-red-500 font-medium">Нет в наличии</span>
+                    : <span className="text-xs text-green-600 font-medium">✓ В наличии</span>}
+                </div>
+              );
+            })}
+          </div>
+          {!added
+            ? <button onClick={add} className="btn-p w-full py-4 font-bold text-base">Добавить набор в корзину</button>
+            : <div className="flex gap-3">
+                <button onClick={()=>setAdded(false)} className="btn-o flex-1 py-4 font-bold">← Изменить</button>
+                <button onClick={()=>history.push('/cart')} className="btn-p flex-1 py-4 font-bold">Перейти в корзину →</button>
+              </div>
+          }
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ─── CART PAGE ──────────────────────────────────────────────────────────── */
+function CartPage() {
+  const { cart, updQty, removeItem, addToCart, effStock, requireAuth, PROMOS } = useApp();
+  const history = useHistory();
+  const [promoIn, setPromoIn] = useState('');
+  const [promo,   setPromo]   = useState(null);
+  const [promoErr, setPromoErr] = useState('');
+
+  const subtotal = cart.reduce((s,i) => s+i.price*i.qty, 0);
+  const discount = promo ? Math.round(subtotal*promo.pct/100) : 0;
+  const total    = subtotal - discount;
+
+  const applyPromo = () => {
+    const pct = PROMOS[promoIn.toUpperCase()];
+    if (pct) { setPromo({ code:promoIn.toUpperCase(), pct }); setPromoErr(''); }
+    else { setPromoErr('Промокод не найден'); setPromo(null); }
+  };
+
+  const recs = VITAMINS.filter(v => !cart.find(c=>c.id===v.id)).slice(0,4);
+
+  if (cart.length===0) return (
+    <div className="max-w-2xl mx-auto px-6 py-24 text-center fade-in">
+      <div className="text-6xl mb-6">🛒</div>
+      <h2 className="text-2xl font-bold text-ink mb-3">Корзина пуста</h2>
+      <p className="text-secondary mb-8">Добавьте витамины или наборы, чтобы продолжить</p>
+      <Link to="/vitamins" className="btn-p px-8 py-3 font-semibold text-sm">Смотреть все витамины</Link>
+    </div>
+  );
+
+  return (
+    <div className="max-w-6xl mx-auto px-6 py-8 fade-in">
+      <h1 className="text-3xl font-bold text-ink mb-8">Корзина <span className="text-secondary text-xl font-normal">{cart.length} поз.</span></h1>
+      <div className="grid lg:grid-cols-3 gap-8">
+        <div className="lg:col-span-2 space-y-3">
+          {cart.map(item => {
+            const s = effStock(item.id); const vv = getV(item.id);
+            return (
+              <div key={item.id} className="bg-white rounded-2xl p-4 flex gap-4 border border-gray-100">
+                <div className="w-16 h-16 rounded-xl flex items-center justify-center text-3xl flex-shrink-0" style={{background:vv?.bg||'#F2F2F2'}}>{vv?.em||'💊'}</div>
+                <div className="flex-1 min-w-0">
+                  <h3 className="font-semibold text-ink text-sm mb-0.5">{item.name}</h3>
+                  <p className="text-secondary text-xs mb-2">{fmt(item.price)} за штуку</p>
+                  {s===0 && <p className="text-red-500 text-xs font-medium mb-2">⚠ Товар закончился</p>}
+                  <div className="flex items-center gap-3">
+                    <div className="flex items-center border border-gray-200 rounded-lg overflow-hidden bg-white">
+                      <button className="w-8 h-8 flex items-center justify-center hover:bg-gray-50 transition-colors text-sm" onClick={()=>updQty(item.id,-1)}>−</button>
+                      <span className="w-8 text-center text-sm font-semibold">{item.qty}</span>
+                      <button className={'w-8 h-8 flex items-center justify-center text-sm transition-colors ' + (item.qty<s?'hover:bg-gray-50':'text-disabled cursor-not-allowed')}
+                        onClick={()=>item.qty<s&&updQty(item.id,1)}>+</button>
+                    </div>
+                    <button onClick={()=>removeItem(item.id)} className="text-disabled hover:text-red-500 text-xs transition-colors">Удалить</button>
+                  </div>
+                </div>
+                <div className="flex-shrink-0"><span className="font-bold text-ink">{fmt(item.price*item.qty)}</span></div>
+              </div>
+            );
+          })}
+
+          <div className="bg-white rounded-2xl p-4 border border-gray-100">
+            <p className="text-sm font-semibold text-ink mb-3">Промокод</p>
+            <div className="flex gap-2">
+              <input value={promoIn} onChange={e=>{setPromoIn(e.target.value);setPromoErr('');}}
+                placeholder="Введите промокод (BIONIQ10)" className="inp flex-1" style={{borderRadius:'12px'}} />
+              <button onClick={applyPromo} className="btn-o px-4 py-2 text-sm font-semibold">Применить</button>
+            </div>
+            {promoErr && <p className="text-red-500 text-xs mt-2">{promoErr}</p>}
+            {promo && <p className="text-green-600 text-xs mt-2 font-medium">✓ Промокод {promo.code} — скидка {promo.pct}%</p>}
+          </div>
+
+          {recs.length>0 && (
+            <div className="bg-white rounded-2xl p-4 border border-gray-100">
+              <p className="text-sm font-semibold text-ink mb-3">Добавить к заказу</p>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                {recs.map(vv => {
+                  const s = effStock(vv.id);
+                  return (
+                    <div key={vv.id} className="text-center p-3 rounded-xl border border-gray-100 hover:border-gray-200 transition-colors cursor-pointer"
+                      onClick={()=>history.push('/vitamins/'+vv.id)}>
+                      <div className="text-2xl mb-1">{vv.em}</div>
+                      <p className="text-xs font-medium text-ink mb-1 leading-tight">{vv.name}</p>
+                      <p className="text-xs text-secondary mb-2">{fmt(vv.price)}</p>
+                      {s===0 ? <span className="text-xs text-disabled">Нет</span>
+                        : <button onClick={e=>{e.stopPropagation();addToCart({id:vv.id,type:'vitamin',name:vv.name,price:vv.price,stock:s});}}
+                            className="btn-p w-full py-1 text-xs font-semibold">+ Добавить</button>
+                      }
+                    </div>
+                  );
+                })}
+              </div>
+              <Link to="/vitamins" className="block mt-3 text-center text-xs hover:underline" style={{color:'#042033'}}>Смотреть все витамины →</Link>
+            </div>
+          )}
+        </div>
+
+        <div className="sticky top-20">
+          <div className="bg-white rounded-2xl p-6 border border-gray-100">
+            <h2 className="font-bold text-ink text-lg mb-4">Итого</h2>
+            <div className="space-y-2 text-sm mb-4">
+              <div className="flex justify-between"><span className="text-secondary">Товары</span><span>{fmt(subtotal)}</span></div>
+              {discount>0 && <div className="flex justify-between text-green-600"><span>Скидка {promo.pct}%</span><span>−{fmt(discount)}</span></div>}
+              <div className="flex justify-between"><span className="text-secondary">Доставка</span><span className="text-disabled">рассчитывается</span></div>
+            </div>
+            <div className="border-t border-gray-100 pt-4 mb-6">
+              <div className="flex justify-between font-bold text-ink text-lg"><span>К оплате</span><span>{fmt(total)}</span></div>
+            </div>
+            <button onClick={() => requireAuth(() => history.push('/checkout', { discount, promo }))}
+              className="btn-p w-full py-4 font-bold text-base">Оформить заказ →</button>
+            <Link to="/vitamins" className="block mt-3 text-center text-sm text-secondary hover:text-ink transition-colors">Продолжить покупки</Link>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ─── CHECKOUT PAGE ──────────────────────────────────────────────────────── */
+function CheckoutPage() {
+  const { cart, user, requireAuth, ts } = useApp();
+  const history  = useHistory();
+  const location = useLocation();
+  const { discount=0, promo=null } = location.state || {};
+  const [delType, setDelType] = useState('');
+  const [pvz,    setPvz]     = useState(null);
+  const [addr,   setAddr]    = useState('');
+  const [pvzOpen,setPvzOpen] = useState(false);
+  const [payM,   setPayM]    = useState('card');
+  const [agreed, setAgreed]  = useState(false);
+  const [errs,   setErrs]    = useState({});
+
+  useEffect(() => { if (!user) requireAuth(()=>{}); }, []);
+  if (cart.length===0) { history.push('/cart'); return null; }
+
+  const subtotal  = cart.reduce((s,i)=>s+i.price*i.qty,0) - discount;
+  const delivCost = delType ? (DELIVERY_OPTS.find(d=>d.id===delType)?.price??0) : null;
+  const total     = subtotal + (delivCost||0);
+
+  const validate = () => {
+    const e={};
+    if (!delType) e.del='Выберите способ доставки';
+    if (delType==='pvz' && !pvz) e.pvz='Выберите пункт выдачи';
+    if (delType==='courier' && !addr) e.addr='Введите адрес доставки';
+    if (!agreed) e.agreed='Необходимо согласие с офертой';
+    return e;
+  };
+
+  const submit = () => {
+    const e=validate(); if (Object.keys(e).length){setErrs(e);return;}
+    const address = delType==='pvz' ? pvz?.addr : addr;
+    history.push('/payment', { total, delivCost, address, payM, discount, promo });
+  };
+
+  const activeDelivCls  = 'border-2 bg-white';
+  const inactiveDelivCls = 'border-2 border-gray-100 hover:border-gray-200';
+
+  return (
+    <div className="max-w-6xl mx-auto px-6 py-8 fade-in">
+      <h1 className="text-3xl font-bold text-ink mb-8">Оформление заказа</h1>
+      <div className="grid lg:grid-cols-3 gap-8">
+        <div className="lg:col-span-2 space-y-6">
+          <div className="bg-white rounded-2xl p-6 border border-gray-100">
+            <h2 className="font-bold text-ink mb-4">Доставка</h2>
+            {ts.delivErr && (
+              <div className="bg-orange-50 border border-orange-200 rounded-xl p-3 mb-4 text-sm text-orange-700">
+                ⚠ Не удалось рассчитать стоимость. Цена будет уточнена оператором.
+              </div>
+            )}
+            <div className="space-y-3 mb-4">
+              {DELIVERY_OPTS.map(opt => (
+                <label key={opt.id}
+                  className={'flex items-center gap-4 p-4 rounded-xl cursor-pointer transition-all ' + (delType===opt.id ? activeDelivCls : inactiveDelivCls)}
+                  style={delType===opt.id ? {borderColor:'#042033', background:'#F0F9FF'} : {}}
+                  onClick={()=>{setDelType(opt.id);setErrs(e=>({...e,del:null}));}}>
+                  <div className={'w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 ' + (delType===opt.id?'':'border-gray-300')}
+                    style={delType===opt.id ? {borderColor:'#042033'} : {}}>
+                    {delType===opt.id && <div className="w-2.5 h-2.5 rounded-full" style={{background:'#042033'}} />}
+                  </div>
+                  <span className="text-xl">{opt.icon}</span>
+                  <div className="flex-1">
+                    <p className="font-medium text-ink text-sm">{opt.label}</p>
+                    <p className="text-xs text-secondary">{opt.days}</p>
+                  </div>
+                  <span className="font-semibold text-ink text-sm">{opt.price===0?'Бесплатно':fmt(opt.price)}</span>
+                </label>
+              ))}
+            </div>
+            {errs.del && <p className="text-red-500 text-xs mb-2">{errs.del}</p>}
+
+            {delType==='pvz' && (
+              <div className="mt-2">
+                <button onClick={()=>setPvzOpen(o=>!o)}
+                  className={'w-full border-2 rounded-xl p-4 text-left text-sm transition-colors ' + (pvz?'border-green-400 bg-green-50':'border-dashed border-gray-200 hover:border-gray-300')}>
+                  {pvz ? <><span className="font-medium text-ink">{pvz.name}</span><br/><span className="text-secondary text-xs">{pvz.addr} · {pvz.h}</span></>
+                    : <span className="text-secondary">📍 Выбрать пункт выдачи</span>}
+                </button>
+                {pvzOpen && (
+                  <div className="mt-2 border border-gray-200 rounded-xl overflow-hidden shadow-sm">
+                    {PVZ.map(p => (
+                      <div key={p.id} className={'p-4 cursor-pointer transition-colors border-b last:border-0 ' + (pvz?.id===p.id?'bg-brand-tint':'hover:bg-gray-50')}
+                        onClick={()=>{setPvz(p);setPvzOpen(false);setErrs(e=>({...e,pvz:null}));}}>
+                        <p className="font-medium text-ink text-sm">{p.name}</p>
+                        <p className="text-xs text-secondary">{p.addr}</p>
+                        <p className="text-xs text-disabled">{p.h}</p>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                {errs.pvz && <p className="text-red-500 text-xs mt-1">{errs.pvz}</p>}
+              </div>
+            )}
+            {delType==='courier' && (
+              <div className="mt-2">
+                <input value={addr} onChange={e=>{setAddr(e.target.value);setErrs(er=>({...er,addr:null}));}}
+                  placeholder="Город, улица, дом, квартира" className={'inp ' + (errs.addr?'inp-err':'')} />
+                {errs.addr && <p className="text-red-500 text-xs mt-1">{errs.addr}</p>}
+              </div>
+            )}
+          </div>
+
+          <div className="bg-white rounded-2xl p-6 border border-gray-100">
+            <h2 className="font-bold text-ink mb-4">Способ оплаты</h2>
+            <div className="grid grid-cols-3 gap-3">
+              {PAY_METHODS.map(m => (
+                <button key={m.id} onClick={()=>setPayM(m.id)}
+                  className={'p-4 rounded-xl border-2 text-center transition-all ' + (payM===m.id?'':'border-gray-100 hover:border-gray-200')}
+                  style={payM===m.id ? {borderColor:'#042033', background:'#F0F9FF'} : {}}>
+                  <div className="text-2xl mb-1">{m.icon}</div>
+                  <p className="text-xs font-medium text-ink">{m.label}</p>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="space-y-1">
+            <label className="flex items-start gap-3 cursor-pointer" onClick={()=>{setAgreed(a=>!a);setErrs(e=>({...e,agreed:null}));}}>
+              <div className={'mt-0.5 w-5 h-5 rounded border-2 flex items-center justify-center flex-shrink-0 transition-colors ' + (agreed?'':'border-gray-300')}
+                style={agreed ? {background:'#042033', borderColor:'#042033'} : {}}>
+                {agreed && <svg width="10" height="8" fill="none"><path d="M1 4l3 3 5-6" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>}
+              </div>
+              <p className="text-sm text-secondary">Я согласен с <a href="#" onClick={e=>e.preventDefault()} className="hover:underline" style={{color:'#042033'}}>условиями оферты</a> и <a href="#" onClick={e=>e.preventDefault()} className="hover:underline" style={{color:'#042033'}}>политикой конфиденциальности</a></p>
+            </label>
+            {errs.agreed && <p className="text-red-500 text-xs ml-8">{errs.agreed}</p>}
+          </div>
+        </div>
+
+        <div className="sticky top-20">
+          <div className="bg-white rounded-2xl p-6 border border-gray-100">
+            <h2 className="font-bold text-ink text-lg mb-4">Ваш заказ</h2>
+            <div className="space-y-2 text-sm mb-4">
+              {cart.map(i=><div key={i.id} className="flex justify-between"><span className="text-secondary truncate mr-2">{i.name} ×{i.qty}</span><span>{fmt(i.price*i.qty)}</span></div>)}
+            </div>
+            <div className="border-t border-gray-100 pt-3 space-y-2 text-sm">
+              <div className="flex justify-between"><span className="text-secondary">Товары</span><span>{fmt(cart.reduce((s,i)=>s+i.price*i.qty,0))}</span></div>
+              {discount>0 && <div className="flex justify-between text-green-600"><span>Скидка</span><span>−{fmt(discount)}</span></div>}
+              <div className="flex justify-between">
+                <span className="text-secondary">Доставка</span>
+                <span>{delivCost===null?'—':delivCost===0?'Бесплатно':fmt(delivCost)}</span>
+              </div>
+            </div>
+            <div className="border-t border-gray-100 mt-3 pt-3 mb-6">
+              <div className="flex justify-between font-bold text-ink text-lg"><span>Итого</span><span>{fmt(total)}</span></div>
+            </div>
+            <button onClick={submit} className="btn-p w-full py-4 font-bold text-base">Оплатить {fmt(total)}</button>
+            <button onClick={()=>history.push('/cart')} className="w-full mt-3 text-sm text-secondary hover:text-ink transition-colors">← Назад в корзину</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ─── PAYMENT PAGE ───────────────────────────────────────────────────────── */
+function PaymentPage() {
+  const { placeOrder, ts } = useApp();
+  const history  = useHistory();
+  const location = useLocation();
+  const { total, delivCost, address, payM } = location.state || {};
+  const [card, setCard] = useState('');
+  const [exp,  setExp]  = useState('');
+  const [cvv,  setCvv]  = useState('');
+  const [loading, setLoading] = useState(false);
+
+  if (!total) { history.push('/cart'); return null; }
+
+  const fmtCard = v => v.replace(/\D/g,'').slice(0,16).replace(/(\d{4})(?=\d)/g,'$1 ');
+  const fmtExp  = v => { const d=v.replace(/\D/g,''); return d.length>=2?d.slice(0,2)+'/'+d.slice(2,4):d; };
+
+  const pay = () => {
+    setLoading(true);
+    setTimeout(() => {
+      setLoading(false);
+      if (ts.payFail) {
+        history.push('/order-failed', { total, reason:'Отклонено банком' });
+      } else {
+        const order = placeOrder({ total, delivCost, address });
+        history.push('/order-success', { order });
+      }
+    }, 2000);
+  };
+
+  const method = PAY_METHODS.find(m=>m.id===payM) || PAY_METHODS[0];
+
+  return (
+    <div className="min-h-screen flex items-center justify-center px-4 fade-in" style={{background:'#F2F2F2'}}>
+      <div className="bg-white rounded-2xl shadow-xl p-8 w-full max-w-md">
+        <div className="text-center mb-8">
+          <div className="text-5xl mb-3">{method.icon}</div>
+          <h1 className="text-2xl font-bold text-ink">Оплата заказа</h1>
+          <p className="text-secondary text-sm mt-1">{method.label}</p>
+          <p className="text-3xl font-bold mt-3" style={{color:'#042033'}}>{fmt(total)}</p>
+        </div>
+
+        {payM==='card' && (
+          <div className="space-y-4 mb-6">
+            <div>
+              <label className="text-xs text-secondary font-medium block mb-1">Номер карты</label>
+              <input value={card} onChange={e=>setCard(fmtCard(e.target.value))} placeholder="0000 0000 0000 0000"
+                className="inp font-mono tracking-widest" maxLength="19" />
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="text-xs text-secondary font-medium block mb-1">Срок действия</label>
+                <input value={exp} onChange={e=>setExp(fmtExp(e.target.value))} placeholder="MM/YY"
+                  className="inp" maxLength="5" />
+              </div>
+              <div>
+                <label className="text-xs text-secondary font-medium block mb-1">CVV</label>
+                <input value={cvv} onChange={e=>setCvv(e.target.value.replace(/\D/g,'').slice(0,3))} placeholder="•••" type="password"
+                  className="inp" maxLength="3" />
+              </div>
+            </div>
+          </div>
+        )}
+        {payM==='sbp' && (
+          <div className="rounded-xl p-6 mb-6 text-center border" style={{background:'#EBF7FD', borderColor:'#E5EDF2'}}>
+            <p className="text-sm font-medium mb-4" style={{color:'#042033'}}>Отсканируйте QR-код в приложении банка</p>
+            <div className="w-36 h-36 bg-white border-4 rounded-xl mx-auto flex items-center justify-center text-5xl" style={{borderColor:'#E5EDF2'}}>📲</div>
+          </div>
+        )}
+        {payM==='yoomoney' && (
+          <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-6 mb-6 text-center">
+            <div className="text-4xl mb-2">💛</div>
+            <p className="text-sm text-yellow-700">Нажмите «Оплатить» для перехода в ЮMoney</p>
+          </div>
+        )}
+
+        {ts.payFail && (
+          <div className="bg-red-50 border border-red-200 rounded-xl p-3 mb-4 text-sm text-red-600 text-center">
+            ⚠ Тестовый режим: оплата завершится ошибкой
+          </div>
+        )}
+
+        <button onClick={pay} disabled={loading} className="btn-p w-full py-4 font-bold text-base">
+          {loading
+            ? <span className="flex items-center justify-center gap-2">
+                <span className="w-4 h-4 rounded-full border-2 border-white/30 border-t-white spin inline-block" />
+                Обработка…
+              </span>
+            : 'Оплатить ' + fmt(total)
+          }
+        </button>
+        <button onClick={()=>history.push('/checkout')} className="w-full mt-3 text-sm text-secondary hover:text-ink transition-colors py-2">
+          Закрыть
+        </button>
+        <p className="text-center text-xs text-disabled mt-4">🔒 Защищённое соединение</p>
+      </div>
+    </div>
+  );
+}
+
+/* ─── ORDER SUCCESS ──────────────────────────────────────────────────────── */
+function OrderSuccess() {
+  const { curOrder } = useApp();
+  const history  = useHistory();
+  const location = useLocation();
+  const order = location.state?.order || curOrder;
+
+  return (
+    <div className="min-h-screen flex items-center justify-center px-4 fade-in" style={{background:'#F2F2F2'}}>
+      <div className="bg-white rounded-2xl shadow-xl p-8 w-full max-w-lg text-center">
+        <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
+          <svg width="36" height="36" fill="none" viewBox="0 0 24 24">
+            <path d="M5 13l4 4L19 7" stroke="#16a34a" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
+        </div>
+        <h1 className="text-3xl font-bold text-ink mb-2">Заказ оформлен!</h1>
+        <p className="text-secondary mb-1">Оплата прошла успешно</p>
+        {order && <p className="font-bold text-lg mb-6" style={{color:'#042033'}}>#{order.id}</p>}
+
+        {order && (
+          <div className="rounded-xl p-4 mb-6 text-left" style={{background:'#F2F2F2'}}>
+            <p className="text-xs font-semibold text-secondary uppercase tracking-wider mb-3">Состав заказа</p>
+            {order.items.map((i,n) => (
+              <div key={n} className="flex justify-between text-sm py-2 border-b border-gray-100 last:border-0">
+                <span className="text-ink">{i.name} <span className="text-secondary">×{i.qty}</span></span>
+                <span className="font-medium text-ink">{fmt(i.price*i.qty)}</span>
+              </div>
+            ))}
+            <div className="flex justify-between font-bold text-ink pt-3 border-t border-gray-100 mt-1">
+              <span>Итого</span><span>{fmt(order.total)}</span>
+            </div>
+            {order.address && <p className="text-xs text-secondary mt-3">📍 {order.address}</p>}
+          </div>
+        )}
+
+        <div className="rounded-xl p-4 mb-6 text-sm text-left" style={{background:'#EBF7FD', color:'#0a3550'}}>
+          📦 Заказ передан в сборку. Ожидайте SMS с трек-номером СДЭК.
+        </div>
+
+        <div className="space-y-3">
+          <button onClick={()=>history.push('/account/orders')} className="btn-p w-full py-3 font-semibold">Перейти в личный кабинет</button>
+          <button onClick={()=>history.push('/vitamins')} className="btn-o w-full py-3 font-semibold">Вернуться в магазин</button>
+          <button onClick={()=>history.push('/')} className="w-full text-sm text-secondary hover:text-ink transition-colors py-2">На главную</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ─── ORDER FAILED ───────────────────────────────────────────────────────── */
+function OrderFailed() {
+  const history  = useHistory();
+  const location = useLocation();
+  const { total, reason='Неизвестная ошибка' } = location.state || {};
+  return (
+    <div className="min-h-screen flex items-center justify-center px-4 fade-in" style={{background:'#F2F2F2'}}>
+      <div className="bg-white rounded-2xl shadow-xl p-8 w-full max-w-lg text-center">
+        <div className="w-20 h-20 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-6">
+          <svg width="36" height="36" fill="none" viewBox="0 0 24 24">
+            <path d="M18 6L6 18M6 6l12 12" stroke="#dc2626" strokeWidth="2.5" strokeLinecap="round"/>
+          </svg>
+        </div>
+        <h1 className="text-3xl font-bold text-ink mb-2">Оплата не прошла</h1>
+        <p className="text-secondary mb-2">Причина: {reason}</p>
+        {total && <p className="text-disabled text-sm mb-6">Сумма заказа: {fmt(total)}</p>}
+        <div className="rounded-xl p-4 mb-6 text-sm text-secondary text-left" style={{background:'#F2F2F2'}}>
+          ✅ Ваша корзина сохранена. Попробуйте снова или выберите другой способ оплаты.
+        </div>
+        <div className="space-y-3">
+          <button onClick={()=>history.push('/payment', { total })} className="btn-p w-full py-3 font-semibold">🔄 Повторить оплату</button>
+          <button onClick={()=>history.push('/checkout')} className="btn-o w-full py-3 font-semibold">💳 Другой способ оплаты</button>
+          <button onClick={()=>history.push('/cart')} className="w-full text-sm text-secondary hover:text-ink transition-colors py-2">Вернуться в корзину</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ─── ACCOUNT ORDERS ─────────────────────────────────────────────────────── */
+function AccountOrders() {
+  const { orders, user, requireAuth } = useApp();
+  const history = useHistory();
+  useEffect(() => { if (!user) requireAuth(()=>{}); }, []);
+
+  if (!user) return (
+    <div className="max-w-md mx-auto px-6 py-24 text-center">
+      <div className="text-5xl mb-4">🔒</div>
+      <p className="text-secondary mb-6">Войдите, чтобы просмотреть заказы</p>
+      <button onClick={()=>requireAuth(()=>{})} className="btn-p px-6 py-3 font-semibold text-sm">Войти в аккаунт</button>
+    </div>
+  );
+
+  return (
+    <div className="max-w-3xl mx-auto px-6 py-8 fade-in">
+      <div className="flex items-center gap-4 mb-8">
+        <div className="w-12 h-12 rounded-full flex items-center justify-center text-xl" style={{background:'#E5EDF2'}}>👤</div>
+        <div>
+          <h1 className="text-2xl font-bold text-ink">{user.name}</h1>
+          <p className="text-secondary text-sm">{user.email}</p>
+        </div>
+      </div>
+      <h2 className="text-xl font-bold text-ink mb-4">История заказов</h2>
+      {orders.length===0 ? (
+        <div className="text-center py-16">
+          <div className="text-5xl mb-4">📦</div>
+          <p className="text-secondary mb-6">У вас пока нет заказов</p>
+          <Link to="/vitamins" className="btn-p px-6 py-3 font-semibold text-sm">Перейти в магазин</Link>
+        </div>
+      ) : (
+        <div className="space-y-3">
+          {orders.map(o => {
+            const st = ORDER_STATUS[o.orderStatus] || ORDER_STATUS.processing;
+            return (
+              <div key={o.id} className="bg-white rounded-2xl p-5 border border-gray-100 card-hover cursor-pointer"
+                onClick={()=>history.push('/account/orders/'+o.id)}>
+                <div className="flex items-start justify-between mb-3">
+                  <div>
+                    <p className="font-bold text-ink">#{o.id}</p>
+                    <p className="text-xs text-secondary mt-0.5">{o.date}</p>
+                  </div>
+                  <span className={'inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold ' + st.cls}>{st.label}</span>
+                </div>
+                <p className="text-sm text-secondary mb-3">
+                  {o.items.slice(0,2).map(i=>`${i.name} ×${i.qty}`).join(', ')}
+                  {o.items.length>2 && ` + ещё ${o.items.length-2}`}
+                </p>
+                <div className="flex items-center justify-between">
+                  <span className="font-bold text-ink">{fmt(o.total)}</span>
+                  {o.tracking && <span className="text-xs text-secondary">📦 {o.tracking}</span>}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* ─── ACCOUNT ORDER DETAIL ───────────────────────────────────────────────── */
+function AccountOrderDetail() {
+  const { id } = useParams();
+  const { orders, addToCart, effStock } = useApp();
+  const history = useHistory();
+  const o = orders.find(x=>x.id===id);
+
+  if (!o) return (
+    <div className="max-w-2xl mx-auto px-6 py-16 text-center">
+      <p className="text-secondary mb-4">Заказ не найден</p>
+      <button onClick={()=>history.push('/account/orders')} className="btn-p px-6 py-3 font-semibold">← К заказам</button>
+    </div>
+  );
+
+  const st  = ORDER_STATUS[o.orderStatus]  || ORDER_STATUS.processing;
+  const dst = DELIV_STATUS[o.delivStatus] || DELIV_STATUS.pending;
+  const stepIdx = ORDER_STEPS.findIndex(s=>s.key===o.orderStatus);
+
+  const repeat = () => {
+    o.items.forEach(i => {
+      const s = effStock(i.vid);
+      addToCart({ id:i.vid, type:'vitamin', name:i.name, price:i.price, stock:s, qty:i.qty });
+    });
+    history.push('/cart');
+  };
+
+  return (
+    <div className="max-w-2xl mx-auto px-6 py-8 fade-in">
+      <button onClick={()=>history.push('/account/orders')} className="text-secondary hover:text-ink text-sm mb-6 flex items-center gap-1 transition-colors">← К заказам</button>
+      <div className="flex items-start justify-between mb-6">
+        <div>
+          <h1 className="text-2xl font-bold text-ink">#{o.id}</h1>
+          <p className="text-secondary text-sm">от {o.date}</p>
+        </div>
+        <span className={'inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold ' + st.cls}>{st.label}</span>
+      </div>
+
+      <div className="bg-white rounded-2xl p-6 border border-gray-100 mb-4">
+        <div className="flex items-center overflow-x-auto">
+          {ORDER_STEPS.map((step,i) => (
+            <React.Fragment key={step.key}>
+              <div className="flex flex-col items-center flex-shrink-0">
+                <div className={'w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold transition-colors ' + (i<=stepIdx?'text-white':'bg-gray-100 text-disabled')}
+                  style={i<=stepIdx ? {background:'#042033'} : {}}>
+                  {i<stepIdx?'✓':i+1}
+                </div>
+                <p className="text-xs text-secondary mt-1 text-center w-16 leading-tight">{step.label}</p>
+              </div>
+              {i<ORDER_STEPS.length-1 && <div className={'flex-1 h-0.5 mx-1 mb-5 '} style={{background: i<stepIdx ? '#042033' : '#F0F0F0'}} />}
+            </React.Fragment>
+          ))}
+        </div>
+      </div>
+
+      <div className="bg-white rounded-2xl p-5 border border-gray-100 mb-4">
+        <h3 className="font-semibold text-ink mb-3">Доставка</h3>
+        <span className={'inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold mb-3 ' + dst.cls}>{dst.label}</span>
+        {o.tracking && (
+          <div className="flex items-center gap-2 mt-2 mb-2">
+            <span className="text-sm text-secondary">Трек-номер СДЭК:</span>
+            <span className="font-mono font-semibold text-ink px-3 py-1 rounded-lg text-sm" style={{background:'#F2F2F2'}}>{o.tracking}</span>
+          </div>
+        )}
+        {o.address && <p className="text-sm text-secondary">📍 {o.address}</p>}
+        {o.tracking && (
+          <a href="#" onClick={e=>e.preventDefault()} className="btn-o mt-4 px-4 py-2 text-sm font-semibold inline-flex">
+            Отследить в СДЭК →
+          </a>
+        )}
+      </div>
+
+      <div className="bg-white rounded-2xl p-5 border border-gray-100 mb-4">
+        <h3 className="font-semibold text-ink mb-3">Состав заказа</h3>
+        {o.items.map((i,n) => (
+          <div key={n} className="flex justify-between text-sm py-2 border-b border-gray-50 last:border-0">
+            <span className="text-ink">{i.name} <span className="text-secondary">×{i.qty}</span></span>
+            <span className="font-medium">{fmt(i.price*i.qty)}</span>
+          </div>
+        ))}
+        <div className="flex justify-between font-bold text-ink pt-3 border-t border-gray-100 mt-1">
+          <span>Итого</span><span>{fmt(o.total)}</span>
+        </div>
+      </div>
+
+      <div className="flex gap-3">
+        <button onClick={repeat} className="btn-p flex-1 py-3 font-semibold text-sm">🔄 Повторить заказ</button>
+        <a href="#" onClick={e=>e.preventDefault()} className="btn-o flex-1 py-3 font-semibold text-sm text-center">💬 Поддержка</a>
+      </div>
+    </div>
+  );
+}
+
+/* ─── APP ────────────────────────────────────────────────────────────────── */
+function App() {
+  return (
+    <AppProvider>
+      <HashRouter>
+        <Header />
+        <main style={{minHeight:'calc(100vh - 64px)'}}>
+          <Switch>
+            <Route exact path="/" component={HomePage} />
+            <Route exact path="/vitamins" component={VitaminsPage} />
+            <Route exact path="/vitamins/:id" component={VitaminDetail} />
+            <Route exact path="/vitamin-kits/:id" component={KitDetail} />
+            <Route exact path="/cart" component={CartPage} />
+            <Route exact path="/checkout" component={CheckoutPage} />
+            <Route exact path="/payment" component={PaymentPage} />
+            <Route exact path="/order-success" component={OrderSuccess} />
+            <Route exact path="/order-failed" component={OrderFailed} />
+            <Route exact path="/account/orders" component={AccountOrders} />
+            <Route exact path="/account/orders/:id" component={AccountOrderDetail} />
+            <Redirect to="/" />
+          </Switch>
+        </main>
+        <AuthModal />
+        <TestPanel />
+        <Toast />
+      </HashRouter>
+    </AppProvider>
+  );
+}
+
+ReactDOM.render(<App />, document.getElementById('root'));
+</script>
+</body>
+</html>
