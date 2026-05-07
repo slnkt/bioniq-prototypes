@@ -359,35 +359,40 @@ function Header() {
             <path d="M99.4688 83.0625C99.4688 71.4645 90.0667 62.0625 78.4688 62.0625H71.0312V55.0625H78.4688C93.9327 55.0625 106.469 67.5985 106.469 83.0625V129H99.4688V83.0625ZM53.5312 76.9375V31H60.5312V76.9375C60.5312 88.5355 69.9333 97.9375 81.5312 97.9375H88.8115V104.938H81.5312C66.0673 104.938 53.5312 92.4015 53.5312 76.9375Z" fill="#1098D4"/>
           </svg>
         </Link>
-        <nav className="hidden md:flex items-center gap-8">
-          <Link to="/vitamins"
-            className={'text-sm font-medium transition-colors ' + (location.pathname.startsWith('/vitamin')?'text-brand':'text-secondary hover:text-ink')}>
-            Магазин витаминов
-          </Link>
+        <nav className="hidden md:flex items-center gap-8 ml-8">
+          <button onClick={()=>history.push('/vitamins')} className={'flex items-center gap-1 text-sm font-medium transition-colors ' + (location.pathname.startsWith('/vitamin')?'text-ink':'text-ink hover:opacity-60')}>
+            Продукты
+            <svg width="12" height="12" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>
+          </button>
+          <button className="flex items-center gap-1 text-sm font-medium text-ink hover:opacity-60 transition-opacity">
+            О компании
+            <svg width="12" height="12" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>
+          </button>
         </nav>
-        <div className="flex items-center gap-5">
-          <button onClick={() => history.push('/cart')} className="relative text-secondary hover:text-ink transition-colors">
-            <svg width="22" height="22" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24">
+        <div className="flex-1" />
+        <div className="flex items-center gap-4">
+          <button onClick={() => history.push('/cart')} className="relative w-10 h-10 rounded-full hover:bg-gray-100 flex items-center justify-center text-ink transition-colors">
+            <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24">
               <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/>
               <line x1="3" y1="6" x2="21" y2="6"/>
               <path d="M16 10a4 4 0 01-8 0"/>
             </svg>
             {cartCount>0 && (
-              <span className="absolute -top-2 -right-2 bg-brand text-white text-xs w-5 h-5 rounded-full flex items-center justify-center font-bold">
+              <span className="absolute top-1 right-1 text-white text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center" style={{background:'#042033'}}>
                 {cartCount}
               </span>
             )}
           </button>
           {user ? (
-            <div className="flex items-center gap-3">
-              <button onClick={() => history.push('/account/orders')} className="text-secondary hover:text-ink text-sm transition-colors">
-                👤 {user.name}
+            <div className="flex items-center gap-2">
+              <button onClick={() => history.push('/account/orders')} className="w-10 h-10 rounded-full text-white text-sm font-semibold flex items-center justify-center hover:opacity-90 transition-opacity uppercase" style={{background:'#042033'}}>
+                {user.name.slice(0,2)}
               </button>
               <button onClick={logout} className="text-disabled hover:text-secondary text-xs transition-colors">выйти</button>
             </div>
           ) : (
-            <button onClick={() => setAuthOpen(true)} className="text-secondary hover:text-ink transition-colors">
-              <svg width="22" height="22" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24">
+            <button onClick={() => setAuthOpen(true)} className="w-10 h-10 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-ink transition-colors">
+              <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24">
                 <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/>
                 <circle cx="12" cy="7" r="4"/>
               </svg>
@@ -477,70 +482,299 @@ function KitCard({ k }) {
   );
 }
 
-/* ─── HOME PAGE ──────────────────────────────────────────────────────────── */
-function HomePage() {
+/* ─── HERO CAROUSEL ──────────────────────────────────────────────────────── */
+const HERO_SLIDES = [
+  {
+    key: 'vitamins',
+    label: 'Магазин витаминов',
+    title: 'Витамины для вашего здоровья',
+    bullets: [
+      'Липосомальная форма — максимальное усвоение',
+      'Состав согласован с врачами «Союза PreventMed»',
+      'Доставка СДЭК по всей России за 1–3 дня',
+    ],
+    ctaPrimary:   { text: 'Открыть магазин',    go: '/vitamins' },
+    ctaSecondary: { text: 'Подобрать комплекс', go: '/vitamins' },
+    img: '../../shared/photos/bottle-1.jpg',
+  },
+];
+
+function HeroCarousel() {
   const history = useHistory();
+  const [idx, setIdx] = useState(0);
+  const slides = HERO_SLIDES;
+  const s = slides[idx];
+  const prev = () => setIdx(i => (i - 1 + slides.length) % slides.length);
+  const next = () => setIdx(i => (i + 1) % slides.length);
+
   return (
-    <div>
-      {/* HERO */}
-      <section style={{background:'#fafafa'}}>
-        <div className="max-w-[1280px] mx-auto px-8 pt-16 pb-20 grid md:grid-cols-2 gap-16 items-center">
-          <div>
-            <p className="text-xs font-semibold tracking-[0.2em] uppercase mb-5" style={{color:'rgba(0,0,0,0.54)'}}>Персонализированное питание</p>
-            <h1 className="text-ink leading-[1.05] mb-6" style={{fontSize:'56px',fontWeight:700,letterSpacing:'-0.02em'}}>
-              Витамины<br/>для вашего<br/>здоровья
-            </h1>
-            <p className="mb-10 text-[17px] leading-relaxed" style={{color:'rgba(0,0,0,0.54)',maxWidth:'440px'}}>
-              Научно обоснованные нутриенты в липосомальной форме. Состав согласован с врачами превентивной медицины.
-            </p>
-            <div className="flex gap-3">
-              <button onClick={()=>history.push('/vitamins')} className="btn-p px-8 py-4 font-semibold text-base">
-                Открыть магазин
-              </button>
-              <button onClick={()=>history.push('/vitamins')} className="btn-o px-8 py-4 font-semibold text-base">
-                Подобрать комплекс
-              </button>
+    <section className="relative" style={{background:'#fafafa'}}>
+      <div className="max-w-[1280px] mx-auto px-8 pt-12 pb-24 grid md:grid-cols-2 gap-12 items-center">
+        <div>
+          <p className="text-xs font-semibold tracking-[0.2em] uppercase mb-5" style={{color:'rgba(0,0,0,0.54)'}}>{s.label}</p>
+          <h1 className="text-ink leading-[1.05] mb-8" style={{fontSize:'56px',fontWeight:700,letterSpacing:'-0.02em'}}>
+            {s.title}
+          </h1>
+          <ul className="space-y-3 mb-10">
+            {s.bullets.map((b, i) => (
+              <li key={i} className="flex items-start gap-3">
+                <div className="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5" style={{background:'#042033'}}>
+                  <svg width="12" height="12" fill="none" stroke="white" strokeWidth="3" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>
+                </div>
+                <span className="text-[15px]" style={{color:'rgba(0,0,0,0.87)'}}>{b}</span>
+              </li>
+            ))}
+          </ul>
+          <div className="flex gap-3">
+            <button onClick={()=>history.push(s.ctaPrimary.go)} className="btn-p px-8 py-4 font-semibold text-base">
+              {s.ctaPrimary.text}
+            </button>
+            <button onClick={()=>history.push(s.ctaSecondary.go)} className="px-8 py-4 font-semibold text-base bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors text-ink">
+              {s.ctaSecondary.text}
+            </button>
+          </div>
+        </div>
+        <div className="relative flex items-center justify-center" style={{minHeight:'520px'}}>
+          <div className="absolute inset-8 rounded-[32px]" style={{background:'#f0f0f0'}} />
+          <img src={s.img} alt="" className="relative z-10 max-h-[480px] object-contain" style={{filter:'drop-shadow(0 30px 50px rgba(0,0,0,0.25))'}} />
+        </div>
+      </div>
+
+      <div className="absolute left-0 right-0 bottom-8 max-w-[1280px] mx-auto px-8 flex items-center justify-between pointer-events-none">
+        <div className="flex gap-2 pointer-events-auto">
+          {slides.map((_, i) => (
+            <button key={i} onClick={()=>setIdx(i)} className="transition-all" style={{
+              width: i===idx ? '28px' : '8px',
+              height: '8px',
+              borderRadius: '999px',
+              background: i===idx ? '#042033' : 'rgba(0,0,0,0.18)',
+            }} aria-label={'Слайд '+(i+1)} />
+          ))}
+        </div>
+        {slides.length > 1 && (
+          <div className="flex gap-2 pointer-events-auto">
+            <button onClick={prev} className="w-11 h-11 rounded-full bg-white border border-gray-200 flex items-center justify-center hover:bg-gray-50 transition-colors" aria-label="Предыдущий">
+              <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg>
+            </button>
+            <button onClick={next} className="w-11 h-11 rounded-full bg-white border border-gray-200 flex items-center justify-center hover:bg-gray-50 transition-colors" aria-label="Следующий">
+              <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg>
+            </button>
+          </div>
+        )}
+      </div>
+    </section>
+  );
+}
+
+/* ─── STATS SECTION ──────────────────────────────────────────────────────── */
+function StatsSection() {
+  return (
+    <section className="max-w-[1280px] mx-auto px-8 py-24">
+      <div className="text-center mb-12 max-w-2xl mx-auto">
+        <h2 className="text-ink mb-4" style={{fontSize:'40px',fontWeight:700,letterSpacing:'-0.02em',lineHeight:1.1}}>
+          Диагностика на базе исследований
+        </h2>
+        <p className="text-[15px] leading-relaxed" style={{color:'rgba(0,0,0,0.54)'}}>
+          Мы объединяем глобальную базу данных и опыт врачей, чтобы найти скрытые причины вашего самочувствия.
+        </p>
+      </div>
+
+      <div className="grid md:grid-cols-2 gap-5">
+        <div className="space-y-3">
+          <div className="rounded-3xl p-10 relative overflow-hidden" style={{background:'#E5EDF2'}}>
+            <div className="text-ink mb-2" style={{fontSize:'72px',fontWeight:700,letterSpacing:'-0.04em',lineHeight:1}}>250<span className="text-[36px] ml-2 font-medium">тыс.</span></div>
+            <p className="text-[15px] mt-3" style={{color:'rgba(0,0,0,0.54)'}}>Клиентов по всему миру</p>
+            <svg className="absolute right-4 top-4 opacity-40" width="100" height="60" viewBox="0 0 100 60" fill="none">
+              <path d="M0 50 Q25 30 50 35 T100 10" stroke="#042033" strokeWidth="2" fill="none"/>
+              <path d="M0 50 Q25 30 50 35 T100 10 L100 60 L0 60 Z" fill="#042033" opacity="0.1"/>
+            </svg>
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div className="rounded-3xl p-6" style={{background:'#f5f5f5'}}>
+              <div className="text-ink" style={{fontSize:'40px',fontWeight:700,letterSpacing:'-0.03em',lineHeight:1}}>6 млн</div>
+              <p className="text-[13px] mt-2" style={{color:'rgba(0,0,0,0.54)'}}>Биохимических данных</p>
+            </div>
+            <div className="rounded-3xl p-6" style={{background:'#f5f5f5'}}>
+              <div className="text-ink" style={{fontSize:'40px',fontWeight:700,letterSpacing:'-0.03em',lineHeight:1}}>10 лет</div>
+              <p className="text-[13px] mt-2" style={{color:'rgba(0,0,0,0.54)'}}>Лет исследований</p>
             </div>
           </div>
-          <div className="relative flex items-center justify-center" style={{minHeight:'520px'}}>
-            <div className="absolute inset-8 rounded-[32px]" style={{background:'#f0f0f0'}} />
-            <img src="../../shared/photos/bottle-1.jpg" alt="Bioniq" className="relative z-10 max-h-[480px] object-contain" style={{filter:'drop-shadow(0 30px 50px rgba(0,0,0,0.25))'}} />
-          </div>
         </div>
-      </section>
 
-      {/* FEATURED PRODUCTS */}
-      <section className="max-w-[1280px] mx-auto px-8 py-20">
-        <div className="flex items-end justify-between mb-10">
-          <div>
-            <p className="text-xs font-semibold tracking-[0.2em] uppercase mb-3" style={{color:'rgba(0,0,0,0.54)'}}>Бестселлеры</p>
-            <h2 className="text-ink" style={{fontSize:'40px',fontWeight:700,letterSpacing:'-0.02em',lineHeight:1.1}}>Популярные комплексы</h2>
-          </div>
-          <Link to="/vitamins" className="text-sm font-semibold hover:underline" style={{color:'#042033'}}>Все витамины →</Link>
-        </div>
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
-          {VITAMINS.slice(0,4).map(v => <VitCard key={v.id} v={v} />)}
-        </div>
-      </section>
-
-      {/* TRUST */}
-      <section style={{background:'#f5f5f5'}}>
-        <div className="max-w-[1280px] mx-auto px-8 py-20 grid md:grid-cols-3 gap-12">
+        <div className="space-y-3">
           {[
-            ['Научный подход','Формулы разрабатываются нутрициологами совместно с врачами «Союза PreventMed».'],
-            ['Доставка СДЭК','Доставка по России за 1–3 дня. По Москве — день в день.'],
-            ['Сертифицировано','EAC и ISO 22000. Производство на сертифицированных GMP-площадках.']
+            ['Видим то, что пропускают другие','Анализы пропускают через нашу AI-систему. Мы находим дефициты, которые упускает врач в поликлинике.'],
+            ['Врач, а не робот','Каждый отчёт расшифровывает живой эндокринолог: не просто числа, а понятные шаги.'],
+            ['Лабораторное качество клиник','Забор и анализы — в KDL, Invitro, Hemotest, Abbott и Roche.'],
           ].map(([t,d]) => (
-            <div key={t}>
-              <div className="w-12 h-12 rounded-full mb-5 flex items-center justify-center" style={{background:'#042033'}}>
-                <svg width="20" height="20" fill="none" stroke="white" strokeWidth="2" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>
+            <div key={t} className="rounded-3xl p-6 flex gap-4" style={{background:'#f5f5f5'}}>
+              <div className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0" style={{background:'#042033'}}>
+                <svg width="16" height="16" fill="none" stroke="white" strokeWidth="2.5" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>
               </div>
-              <h3 className="text-ink mb-3" style={{fontSize:'22px',fontWeight:700,letterSpacing:'-0.01em'}}>{t}</h3>
-              <p className="text-[15px] leading-relaxed" style={{color:'rgba(0,0,0,0.54)'}}>{d}</p>
+              <div>
+                <h3 className="text-ink mb-1" style={{fontSize:'17px',fontWeight:700,letterSpacing:'-0.01em'}}>{t}</h3>
+                <p className="text-[14px] leading-relaxed" style={{color:'rgba(0,0,0,0.54)'}}>{d}</p>
+              </div>
             </div>
           ))}
         </div>
-      </section>
+      </div>
+    </section>
+  );
+}
+
+/* ─── PLAN SECTION ───────────────────────────────────────────────────────── */
+function PlanSection() {
+  return (
+    <section className="max-w-[1280px] mx-auto px-8 py-24">
+      <div className="grid md:grid-cols-2 gap-16 items-center">
+        <div>
+          <h2 className="text-ink mb-10" style={{fontSize:'40px',fontWeight:700,letterSpacing:'-0.02em',lineHeight:1.1}}>
+            Не просто анализы —<br/>а план действий
+          </h2>
+          <ul className="space-y-6">
+            {[
+              ['Результат за 30 секунд','Каждый дефицит — на одном экране. Зелёное — норма, жёлтое — пограничные значения, красное — нужно действовать.'],
+              ['Врач переводит цифры в конкретные шаги','Что принимать, от чего отказаться, какие повторные анализы через 3 месяца. Без шаблонных рекомендаций.'],
+              ['Прогресс, который виден','Все чекапы в профиле. График показывает, как меняется ваше состояние от чекапа к чекапу. Вы видите, что протокол работает.'],
+            ].map(([t,d],i) => (
+              <li key={i} className="flex gap-4">
+                <div className="w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0 mt-1" style={{background:'#042033'}}>
+                  <svg width="14" height="14" fill="none" stroke="white" strokeWidth="2.5" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>
+                </div>
+                <div>
+                  <h3 className="text-ink mb-1" style={{fontSize:'18px',fontWeight:700,letterSpacing:'-0.01em'}}>{t}</h3>
+                  <p className="text-[14px] leading-relaxed" style={{color:'rgba(0,0,0,0.54)'}}>{d}</p>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </div>
+        <div className="flex items-center justify-center">
+          <div className="relative" style={{width:'320px',height:'600px'}}>
+            <div className="absolute inset-0 rounded-[44px]" style={{background:'#0a0a0a',padding:'12px',boxShadow:'0 30px 60px rgba(0,0,0,0.25)'}}>
+              <div className="w-full h-full rounded-[34px] overflow-hidden flex flex-col" style={{background:'#0d1117'}}>
+                <div className="h-7 flex items-center justify-center">
+                  <div className="w-24 h-5 rounded-full" style={{background:'#0a0a0a'}}/>
+                </div>
+                <div className="px-5 pt-2 pb-3 flex items-center justify-between">
+                  <span className="text-white text-xs font-semibold">bioniq</span>
+                  <span className="text-white text-[10px] opacity-60">12:24</span>
+                </div>
+                <div className="px-5 flex-1 flex flex-col gap-3">
+                  <div className="text-white" style={{fontSize:'22px',fontWeight:700,letterSpacing:'-0.01em',lineHeight:1.15}}>Результаты<br/>анализов крови</div>
+                  <div className="grid grid-cols-2 gap-3 mt-2">
+                    <div className="rounded-2xl p-4" style={{background:'#1a3320'}}>
+                      <div className="text-[42px] font-bold text-white" style={{lineHeight:1,letterSpacing:'-0.03em',color:'#46d76b'}}>62%</div>
+                      <p className="text-[10px] mt-2 text-white/70">в норме</p>
+                    </div>
+                    <div className="rounded-2xl p-4" style={{background:'#3a1c1c'}}>
+                      <div className="text-[42px] font-bold" style={{lineHeight:1,letterSpacing:'-0.03em',color:'#ff6b6b'}}>15%</div>
+                      <p className="text-[10px] mt-2 text-white/70">критично</p>
+                    </div>
+                  </div>
+                  <div className="rounded-2xl p-4 mt-1" style={{background:'#1a1f2e'}}>
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-white text-[11px]">Витамин B12</span>
+                      <span className="text-[11px]" style={{color:'#46d76b'}}>норма</span>
+                    </div>
+                    <div className="h-1.5 rounded-full overflow-hidden" style={{background:'#0d1117'}}>
+                      <div className="h-full rounded-full" style={{width:'65%',background:'#46d76b'}}/>
+                    </div>
+                  </div>
+                  <div className="rounded-2xl p-4" style={{background:'#1a1f2e'}}>
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-white text-[11px]">Железо</span>
+                      <span className="text-[11px]" style={{color:'#ff6b6b'}}>дефицит</span>
+                    </div>
+                    <div className="h-1.5 rounded-full overflow-hidden" style={{background:'#0d1117'}}>
+                      <div className="h-full rounded-full" style={{width:'25%',background:'#ff6b6b'}}/>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ─── CHAMPIONS SECTION ──────────────────────────────────────────────────── */
+const CHAMPIONS = [
+  { name:'Криштиану Роналду', cap:'Контролирует биохимию крови с Bioniq c 2022 года', grad:'linear-gradient(135deg, #c0392b 0%, #8b1f1f 100%)', initials:'CR' },
+  { name:'Андрей Кириленко',  cap:'Президент РФБ, использует Bioniq для мониторинга восстановления',          grad:'linear-gradient(135deg, #2c3e50 0%, #1a252e 100%)', initials:'АК' },
+  { name:'Мануэль Нойер',     cap:'Вратарь «Баварии». Доверяет Bioniq в своей подготовке',                  grad:'linear-gradient(135deg, #34495e 0%, #1a2530 100%)', initials:'МН' },
+  { name:'Лаура Филипп',      cap:'Чемпионка по триатлону. Три титула с Bioniq в системе подготовки',       grad:'linear-gradient(135deg, #16a085 0%, #0e6a55 100%)', initials:'ЛФ' },
+];
+
+function ChampionsSection() {
+  const [scroll, setScroll] = useState(null);
+  const ref = useRef(null);
+  const slide = (dir) => {
+    if (!ref.current) return;
+    ref.current.scrollBy({ left: dir * 320, behavior: 'smooth' });
+  };
+  return (
+    <section className="max-w-[1280px] mx-auto px-8 py-20">
+      <div className="flex items-center justify-between mb-10">
+        <h2 className="text-ink" style={{fontSize:'40px',fontWeight:700,letterSpacing:'-0.02em',lineHeight:1.1}}>
+          Чемпионы выбирают <span style={{fontFamily:'inherit'}}>Bioniq</span>
+        </h2>
+        <div className="flex gap-2">
+          <button onClick={()=>slide(-1)} className="w-11 h-11 rounded-full bg-white border border-gray-200 flex items-center justify-center hover:bg-gray-50 transition-colors" aria-label="Назад">
+            <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg>
+          </button>
+          <button onClick={()=>slide(1)} className="w-11 h-11 rounded-full bg-white border border-gray-200 flex items-center justify-center hover:bg-gray-50 transition-colors" aria-label="Вперёд">
+            <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg>
+          </button>
+        </div>
+      </div>
+      <div ref={ref} className="flex gap-5 overflow-x-auto pb-4 -mx-8 px-8 scroll-smooth" style={{scrollbarWidth:'none'}}>
+        {[...CHAMPIONS, ...CHAMPIONS].map((c, i) => (
+          <div key={i} className="flex-shrink-0" style={{width:'288px'}}>
+            <div className="aspect-[3/4] rounded-3xl mb-3 flex items-end p-6 relative overflow-hidden" style={{background:c.grad}}>
+              <div className="absolute top-6 left-6 right-6 text-right">
+                <span className="text-white/80 text-[80px] font-bold leading-none" style={{letterSpacing:'-0.05em'}}>{c.initials}</span>
+              </div>
+            </div>
+            <h3 className="text-ink mb-1" style={{fontSize:'15px',fontWeight:700,letterSpacing:'-0.01em'}}>{c.name}</h3>
+            <p className="text-[12px] leading-snug" style={{color:'rgba(0,0,0,0.54)'}}>{c.cap}</p>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+/* ─── PARTNERS SECTION ───────────────────────────────────────────────────── */
+const PARTNERS = ['ВСК Страхование','МТС Банк','UFC','МЕДСИ','Т-БАНК','REMEDY'];
+
+function PartnersSection() {
+  return (
+    <section className="max-w-[1280px] mx-auto px-8 py-20">
+      <h2 className="text-ink mb-10" style={{fontSize:'32px',fontWeight:700,letterSpacing:'-0.02em',lineHeight:1.1}}>Наши партнёры</h2>
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+        {PARTNERS.map(p => (
+          <div key={p} className="rounded-2xl h-20 flex items-center justify-center text-center px-4" style={{background:'#f5f5f5'}}>
+            <span className="text-[13px] font-semibold uppercase tracking-wider" style={{color:'rgba(0,0,0,0.54)'}}>{p}</span>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+/* ─── HOME PAGE ──────────────────────────────────────────────────────────── */
+function HomePage() {
+  return (
+    <div>
+      <HeroCarousel />
+      <StatsSection />
+      <PlanSection />
+      <ChampionsSection />
+      <PartnersSection />
     </div>
   );
 }
