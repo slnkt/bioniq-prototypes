@@ -602,7 +602,6 @@ function VitCard({ v }) {
   const [qty, setQty]     = useState(1);
   const [imgIdx, setImgIdx] = useState(0);
   const imgs = v.imgs || [];
-  const deliv = delivDate(4);
 
   const reset = () => { setStage('idle'); setQty(1); };
 
@@ -614,6 +613,14 @@ function VitCard({ v }) {
         setStage('confirmed');
         setTimeout(reset, 1500);
       }
+    }
+  };
+  const buyNow = e => {
+    e.stopPropagation();
+    const useQty = stage === 'picking' ? qty : 1;
+    if (addToCart({ id:v.id, type:'vitamin', name:v.name, price:v.price, stock:s, qty:useQty })) {
+      reset();
+      history.push('/checkout');
     }
   };
   const dec = e => { e.stopPropagation(); if (qty>1) setQty(q=>q-1); else reset(); };
@@ -662,7 +669,7 @@ function VitCard({ v }) {
         ) : stage==='idle' ? (
           <>
             <button onClick={onMain} className="btn-p w-full text-[12px] py-2 font-semibold">В корзину</button>
-            <p className="text-[10px] text-center mt-1.5" style={{color:'rgba(0,0,0,0.54)'}}>Доставим с {deliv}</p>
+            <button onClick={buyNow} className="w-full mt-1.5 py-2 text-[12px] font-semibold rounded-lg transition-colors hover:opacity-80" style={{background:'#E5EDF2',color:'#042033'}}>Купить сейчас</button>
           </>
         ) : (
           <>
@@ -674,7 +681,7 @@ function VitCard({ v }) {
                 <button onClick={inc} className={'w-7 h-full flex items-center justify-center font-bold text-[15px] hover:bg-[#d4dee5] ' + (qty>=s?'opacity-30 cursor-not-allowed':'')} style={{color:'#042033'}} aria-label="Увеличить">+</button>
               </div>
             </div>
-            <p className="text-[10px] text-center mt-1.5" style={{color:'rgba(0,0,0,0.54)'}}>Доставим с {deliv}</p>
+            <button onClick={buyNow} className="w-full mt-1.5 py-2 text-[12px] font-semibold rounded-lg transition-colors hover:opacity-80" style={{background:'#E5EDF2',color:'#042033'}}>Купить сейчас</button>
           </>
         )}
       </div>
@@ -692,7 +699,6 @@ function KitCard({ k }) {
   const imgs = k.imgs || [];
   const hasOOS = k.items.some(i => effStock(i.vid)<i.qty);
   const maxQty = Math.min(...k.items.map(i => Math.floor(effStock(i.vid)/i.qty))) || 0;
-  const deliv = delivDate(4);
 
   const reset = () => { setStage('idle'); setQty(1); };
   const onMain = e => {
@@ -705,6 +711,15 @@ function KitCard({ k }) {
       }
       if (ok) { setStage('confirmed'); setTimeout(reset, 1500); }
     }
+  };
+  const buyNow = e => {
+    e.stopPropagation();
+    const useQty = stage === 'picking' ? qty : 1;
+    let ok = true;
+    for (let i=0; i<useQty; i++) {
+      if (!addKitToCart(k)) { ok = false; break; }
+    }
+    if (ok) { reset(); history.push('/checkout'); }
   };
   const dec = e => { e.stopPropagation(); if (qty>1) setQty(q=>q-1); else reset(); };
   const inc = e => { e.stopPropagation(); if (qty<maxQty) setQty(q=>q+1); };
@@ -751,7 +766,7 @@ function KitCard({ k }) {
       ) : stage==='idle' ? (
         <>
           <button onClick={onMain} className="btn-p w-full text-[12px] py-2 font-semibold">В корзину</button>
-          <p className="text-[10px] text-center mt-1.5" style={{color:'rgba(0,0,0,0.54)'}}>Доставим с {deliv}</p>
+          <button onClick={buyNow} className="w-full mt-1.5 py-2 text-[12px] font-semibold rounded-lg transition-colors hover:opacity-80" style={{background:'#E5EDF2',color:'#042033'}}>Купить сейчас</button>
         </>
       ) : (
         <>
@@ -763,7 +778,7 @@ function KitCard({ k }) {
               <button onClick={inc} className={'w-7 h-full flex items-center justify-center font-bold text-[15px] hover:bg-[#d4dee5] ' + (qty>=maxQty?'opacity-30 cursor-not-allowed':'')} style={{color:'#042033'}}>+</button>
             </div>
           </div>
-          <p className="text-[10px] text-center mt-1.5" style={{color:'rgba(0,0,0,0.54)'}}>Доставим с {deliv}</p>
+          <button onClick={buyNow} className="w-full mt-1.5 py-2 text-[12px] font-semibold rounded-lg transition-colors hover:opacity-80" style={{background:'#E5EDF2',color:'#042033'}}>Купить сейчас</button>
         </>
       )}
     </div>
@@ -1210,9 +1225,15 @@ function VitaminDetail() {
                 <span className="text-sm text-secondary">В наличии: {s} шт.</span>
               </div>
               {!added
-                ? <button onClick={add} className="btn-p w-full py-4 font-bold text-base">
-                    Добавить в корзину — {fmt(v.price*qty)}
-                  </button>
+                ? <>
+                    <button onClick={add} className="btn-p w-full py-4 font-bold text-base">
+                      Добавить в корзину — {fmt(v.price*qty)}
+                    </button>
+                    <button onClick={()=>{ if (addToCart({ id:v.id, type:'vitamin', name:v.name, price:v.price, stock:s, qty })) history.push('/checkout'); }}
+                      className="w-full mt-3 py-4 font-bold text-base rounded-lg transition-colors hover:opacity-80" style={{background:'#E5EDF2',color:'#042033'}}>
+                      Купить сейчас
+                    </button>
+                  </>
                 : <div className="flex gap-3">
                     <button onClick={()=>{setAdded(false);setQty(1);}} className="btn-o flex-1 py-4 font-bold">+ Ещё</button>
                     <button onClick={()=>history.push('/cart')} className="btn-p flex-1 py-4 font-bold">Перейти в корзину →</button>
@@ -1296,7 +1317,13 @@ function KitDetail() {
             })}
           </div>
           {!added
-            ? <button onClick={add} className="btn-p w-full py-4 font-bold text-base">Добавить набор в корзину</button>
+            ? <>
+                <button onClick={add} className="btn-p w-full py-4 font-bold text-base">Добавить набор в корзину</button>
+                <button onClick={()=>{ if (addKitToCart(k)) history.push('/checkout'); }}
+                  className="w-full mt-3 py-4 font-bold text-base rounded-lg transition-colors hover:opacity-80" style={{background:'#E5EDF2',color:'#042033'}}>
+                  Купить сейчас
+                </button>
+              </>
             : <div className="flex gap-3">
                 <button onClick={()=>setAdded(false)} className="btn-o flex-1 py-4 font-bold">← Изменить</button>
                 <button onClick={()=>history.push('/cart')} className="btn-p flex-1 py-4 font-bold">Перейти в корзину →</button>
