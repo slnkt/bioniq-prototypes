@@ -63,49 +63,259 @@ const { HashRouter, Switch, Route, Link, useHistory, useParams, useLocation, Red
 
 /* ─── DATA ──────────────────────────────────────────────────────────────── */
 const VITAMINS = [
-  { id:'vit-d3',    name:'Витамин D3',   sub:'Иммунитет и кости',        price:890,  orig:1190, stock:15, count:60, unit:'капсул', period:'на 60 дней',
-    imgs:['../../shared/photos/bottle-1.jpg','../../shared/photos/bottle-4.jpg','../../shared/photos/bottle-2.jpg'], tags:['Иммунитет','Кости'],    cat:'vitamins',
-    desc:'Витамин D3 (холекальциферол) — ключевой нутриент для поддержания иммунной системы, здоровья костей и зубов. Участвует в регуляции более 200 генов.',
-    ingr:[{n:'Холекальциферол (D3)',a:'2000 МЕ',p:'1000%'},{n:'Оливковое масло',a:'200 мг',p:'—'}], dose:'1 капсула в день во время еды' },
-  { id:'vit-c',     name:'Витамин C',    sub:'Антиоксидантная защита',    price:650,  orig:890,  stock:8,  count:90, unit:'капсул', period:'на 60–90 дней',
-    imgs:['../../shared/photos/bottle-2.jpg','../../shared/photos/bottle-5.jpg','../../shared/photos/bottle-3.jpg'], tags:['Антиоксидант','Иммунитет'], cat:'vitamins',
-    desc:'Аскорбиновая кислота — мощный антиоксидант, необходимый для синтеза коллагена и укрепления иммунитета.',
-    ingr:[{n:'Аскорбиновая кислота',a:'500 мг',p:'556%'}], dose:'1–2 капсулы в день' },
-  { id:'vit-omega3',name:'Омега-3',      sub:'Сердце и мозг',             price:1290, orig:1590, stock:20, count:120, unit:'капсул', period:'на 60 дней',
-    imgs:['../../shared/photos/bottle-3.jpg','../../shared/photos/bottle-6.jpg','../../shared/photos/bottle-1.jpg'], tags:['Сердце','Мозг'],        cat:'omega',
-    desc:'Высококонцентрированный рыбий жир EPA и DHA для здоровья сердца и мозга.',
-    ingr:[{n:'EPA',a:'400 мг',p:'—'},{n:'DHA',a:'300 мг',p:'—'}], dose:'2 капсулы в день во время еды' },
-  { id:'vit-mag',   name:'Магний B6',    sub:'Нервная система и сон',     price:790,  orig:990,  stock:12, count:60, unit:'таблеток', period:'на 30 дней',
-    imgs:['../../shared/photos/bottle-4.jpg','../../shared/photos/bottle-1.jpg','../../shared/photos/bottle-5.jpg'], tags:['Стресс','Сон'],          cat:'minerals',
-    desc:'Комплекс магния с витамином B6 для нормальной работы нервной системы и улучшения сна.',
-    ingr:[{n:'Магний (цитрат)',a:'300 мг',p:'71%'},{n:'Витамин B6',a:'2 мг',p:'143%'}], dose:'2 таблетки вечером' },
-  { id:'vit-zinc',  name:'Цинк',         sub:'Иммунитет и кожа',          price:490,  orig:690,  stock:0,  count:30, unit:'таблеток', period:'на 30 дней',
-    imgs:['../../shared/photos/bottle-5.jpg','../../shared/photos/bottle-2.jpg','../../shared/photos/bottle-6.jpg'], tags:['Иммунитет','Кожа'],    cat:'minerals',
-    desc:'Незаменимый микроэлемент для работы иммунной системы и здоровья кожи.',
-    ingr:[{n:'Цинк (глюконат)',a:'15 мг',p:'150%'}], dose:'1 таблетка в день с едой' },
-  { id:'vit-bcomp', name:'B-комплекс',   sub:'Энергия и метаболизм',      price:990,  orig:1290, stock:6,  count:30, unit:'капсул', period:'на 30 дней',
-    imgs:['../../shared/photos/bottle-6.jpg','../../shared/photos/bottle-3.jpg','../../shared/photos/bottle-4.jpg'], tags:['Энергия','Метаболизм'], cat:'vitamins',
-    desc:'Полный комплекс витаминов группы B для энергетического обмена.',
-    ingr:[{n:'B1 (тиамин)',a:'1.1 мг',p:'100%'},{n:'B6',a:'1.4 мг',p:'100%'},{n:'B12',a:'2.5 мкг',p:'100%'}], dose:'1 капсула утром с едой' },
+  { id:'vit-chondro', name:'Хондропротектор', sub:'Суставы и хрящи',
+    price:2890, orig:3490, stock:5, count:60, unit:'капсул', period:'на 20 дней',
+    imgs:['../../shared/photos/bottle-1.jpg','../../shared/photos/bottle-3.jpg','../../shared/photos/bottle-5.jpg'],
+    tags:['Суставы'],
+    desc:'Хондроитин и глюкозамин с МСМ — для здоровья суставов, хрящей и связок. Поддерживает подвижность и снижает дискомфорт при нагрузках.',
+    ingr:[
+      {n:'Хондроитин сульфат',a:'500 мг',p:'—'},
+      {n:'Глюкозамин сульфат',a:'500 мг',p:'—'},
+      {n:'МСМ (метилсульфонилметан)',a:'300 мг',p:'—'},
+      {n:'Витамин C',a:'50 мг',p:'56%'},
+      {n:'Фосфатидилсерин',a:'150 мг',p:'—'},
+    ],
+    dose:'По 3 капсулы в день во время еды, запивая водой' },
+
+  { id:'vit-lcarn', name:'Л-карнитин', sub:'Метаболизм и энергия',
+    price:2390, orig:2890, stock:12, count:60, unit:'капсул', period:'на 30 дней',
+    imgs:['../../shared/photos/bottle-2.jpg','../../shared/photos/bottle-4.jpg','../../shared/photos/bottle-6.jpg'],
+    tags:['Энергия','Метаболизм'],
+    desc:'L-карнитин с альфа-липоевой кислотой и цитруллином — поддерживает жировой обмен, выносливость и работоспособность.',
+    ingr:[
+      {n:'L-карнитина L-тартрат',a:'500 мг',p:'—'},
+      {n:'α-Липоевая кислота',a:'50 мг',p:'—'},
+      {n:'Цитруллин',a:'300 мг',p:'—'},
+      {n:'Фосфатидилсерин',a:'150 мг',p:'—'},
+    ],
+    dose:'По 2 капсулы в день во время еды' },
+
+  { id:'vit-zma', name:'ZMA', sub:'Магний, цинк, B6',
+    price:2090, orig:2490, stock:0, count:60, unit:'капсул', period:'на 30 дней',
+    imgs:['../../shared/photos/bottle-3.jpg','../../shared/photos/bottle-5.jpg','../../shared/photos/bottle-1.jpg'],
+    tags:['Сон','Антистресс'],
+    desc:'Магний бисглицинат, цинк пиколинат и активная форма витамина B6 (p-5-p) — для расслабления, сна и восстановления.',
+    ingr:[
+      {n:'Магний (бисглицинат)',a:'800 мг',p:'190%'},
+      {n:'Цинк (пиколинат)',a:'25 мг',p:'250%'},
+      {n:'Витамин B6 (p-5-p)',a:'6 мг',p:'429%'},
+      {n:'Фосфатидилсерин',a:'150 мг',p:'—'},
+    ],
+    dose:'По 2 капсулы в день во время еды' },
+
+  { id:'vit-curcumin', name:'Куркумин + Биоперин', sub:'Противовоспалительный комплекс',
+    price:1690, orig:1990, stock:18, count:30, unit:'капсул', period:'на 30 дней',
+    imgs:['../../shared/photos/bottle-4.jpg','../../shared/photos/bottle-6.jpg','../../shared/photos/bottle-2.jpg'],
+    tags:['Иммунитет','Воспаление'],
+    desc:'Куркумин с Биоперином, чёрным тмином и бромелайном — мощный противовоспалительный комплекс для иммунитета и общего тонуса.',
+    ingr:[
+      {n:'Куркумин',a:'150 мг',p:'—'},
+      {n:'Биоперин',a:'4 мг',p:'—'},
+      {n:'Чёрный тмин',a:'150 мг',p:'—'},
+      {n:'Бромелайн',a:'100 мг',p:'—'},
+      {n:'Фосфатидилсерин',a:'100 мг',p:'—'},
+    ],
+    dose:'По 1 капсуле в день во время еды' },
+
+  { id:'vit-selen', name:'Селен + Цинк + Тирозин', sub:'Щитовидка, кожа, волосы',
+    price:1490, orig:1790, stock:8, count:30, unit:'капсул', period:'на 30 дней',
+    imgs:['../../shared/photos/bottle-5.jpg','../../shared/photos/bottle-1.jpg','../../shared/photos/bottle-3.jpg'],
+    tags:['Иммунитет','Красота'],
+    desc:'Селенометионин, цинк, медь и L-тирозин — поддержка щитовидной железы, состояния кожи и волос.',
+    ingr:[
+      {n:'Селен (селенометионин)',a:'150 мкг',p:'214%'},
+      {n:'Витамин C',a:'80 мг',p:'89%'},
+      {n:'Цинк (пиколинат)',a:'15 мг',p:'150%'},
+      {n:'L-Тирозин',a:'300 мг',p:'—'},
+      {n:'Медь (хелат)',a:'1,5 мг',p:'150%'},
+      {n:'Фосфатидилсерин',a:'100 мг',p:'—'},
+    ],
+    dose:'По 1 капсуле в день во время еды' },
+
+  { id:'vit-q10', name:'Коэнзим Q10', sub:'Anti-age, энергия клетки',
+    price:2690, orig:3290, stock:15, count:30, unit:'капсул', period:'на 30 дней',
+    imgs:['../../shared/photos/bottle-6.jpg','../../shared/photos/bottle-2.jpg','../../shared/photos/bottle-4.jpg'],
+    tags:['Энергия','Anti-age'],
+    desc:'Q10 убихинон с PQQ и ресвератролом — митохондриальная энергия и защита клеток от старения.',
+    ingr:[
+      {n:'Коэнзим Q10 (убихинон)',a:'100 мг',p:'—'},
+      {n:'PQQ (пирролохинолинхинон)',a:'10 мг',p:'—'},
+      {n:'Ресвератрол',a:'100 мг',p:'—'},
+      {n:'Фосфатидилсерин',a:'150 мг',p:'—'},
+    ],
+    dose:'По 1 капсуле в день во время еды' },
+
+  { id:'vit-bcomp', name:'B-complex', sub:'Нервная система и метаболизм',
+    price:1790, orig:2190, stock:6, count:30, unit:'капсул', period:'на 30 дней',
+    imgs:['../../shared/photos/bottle-1.jpg','../../shared/photos/bottle-4.jpg','../../shared/photos/bottle-6.jpg'],
+    tags:['Энергия','Нервы'],
+    desc:'12 компонентов: все витамины группы B (включая активные формы B6 p-5-p и B9 L-метилфолат), холин, инозитол и витамин C.',
+    ingr:[
+      {n:'B1 (тиамин)',a:'5 мг',p:'455%'},
+      {n:'B2 (рибофлавин)',a:'6 мг',p:'429%'},
+      {n:'B3 (ниацин)',a:'20 мг',p:'125%'},
+      {n:'B5 (пантотенат)',a:'15 мг',p:'250%'},
+      {n:'B6 (p-5-p)',a:'6 мг',p:'429%'},
+      {n:'B7 (биотин)',a:'150 мкг',p:'300%'},
+      {n:'B9 (L-метилфолат)',a:'600 мкг',p:'300%'},
+      {n:'Холин',a:'50 мг',p:'—'},
+      {n:'Инозитол',a:'50 мг',p:'—'},
+      {n:'Витамин C',a:'200 мг',p:'222%'},
+      {n:'Фосфатидилсерин',a:'100 мг',p:'—'},
+    ],
+    dose:'По 1 капсуле в день во время еды' },
+
+  { id:'vit-immune', name:'Иммунитет', sub:'Противовирусная защита',
+    price:2790, orig:3490, stock:20, count:60, unit:'капсул', period:'на 30 дней',
+    imgs:['../../shared/photos/bottle-2.jpg','../../shared/photos/bottle-5.jpg','../../shared/photos/bottle-3.jpg'],
+    tags:['Иммунитет'],
+    desc:'Бетулин, дигидрокверцетин и эхинацея в комплексе с витаминами C, D3, K2 — комплексная поддержка иммунитета.',
+    ingr:[
+      {n:'Бетулин (экстракт коры берёзы)',a:'80 мг',p:'—'},
+      {n:'Дигидрокверцетин',a:'100 мг',p:'—'},
+      {n:'Экстракт эхинацеи',a:'100 мг',p:'—'},
+      {n:'Витамин C',a:'300 мг',p:'333%'},
+      {n:'Витамин D3',a:'600 МЕ',p:'300%'},
+      {n:'Витамин K2',a:'100 мкг',p:'133%'},
+      {n:'Цинк (цитрат)',a:'25 мг',p:'250%'},
+      {n:'Селен (селенометионин)',a:'100 мкг',p:'143%'},
+      {n:'Медь (глицинат)',a:'2,5 мг',p:'250%'},
+      {n:'Фосфатидилсерин',a:'300 мг',p:'—'},
+    ],
+    dose:'По 2 капсулы в день во время еды' },
+
+  { id:'vit-skin', name:'Кожа · Волосы · Ногти', sub:'Beauty-комплекс с коллагеном',
+    price:2590, orig:3190, stock:14, count:60, unit:'капсул', period:'на 30 дней',
+    imgs:['../../shared/photos/bottle-3.jpg','../../shared/photos/bottle-6.jpg','../../shared/photos/bottle-1.jpg'],
+    tags:['Красота'],
+    desc:'L-пролин, глицин и L-лизин для синтеза коллагена + витамины C, E, биотин и микроэлементы для кожи, волос и ногтей.',
+    ingr:[
+      {n:'Витамин C',a:'150 мг',p:'167%'},
+      {n:'Витамин E',a:'15 мг',p:'125%'},
+      {n:'Витамин B7 (биотин)',a:'150 мкг',p:'300%'},
+      {n:'Марганец (глицинат)',a:'2 мг',p:'100%'},
+      {n:'Медь (глицинат)',a:'1,2 мг',p:'120%'},
+      {n:'Цинк (цитрат)',a:'12 мг',p:'120%'},
+      {n:'Ресвератрол',a:'20 мг',p:'—'},
+      {n:'L-пролин, глицин, L-лизин',a:'485 мг',p:'—'},
+      {n:'Фосфатидилсерин',a:'300 мг',p:'—'},
+    ],
+    dose:'По 2 капсулы в день во время еды' },
+
+  { id:'vit-women', name:'Женское здоровье', sub:'Гормональный баланс',
+    price:2990, orig:3690, stock:10, count:60, unit:'капсул', period:'на 30 дней',
+    imgs:['../../shared/photos/bottle-4.jpg','../../shared/photos/bottle-1.jpg','../../shared/photos/bottle-5.jpg'],
+    tags:['Гормоны','Красота'],
+    desc:'15 компонентов для женского здоровья: железо бисглицинат, инозитол, витамины и антиоксиданты для гормонального баланса и репродуктивной системы.',
+    ingr:[
+      {n:'Витамин C',a:'100 мг',p:'111%'},
+      {n:'Витамин E',a:'30 мг',p:'250%'},
+      {n:'Витамин D3',a:'600 МЕ',p:'300%'},
+      {n:'Витамин K2',a:'100 мкг',p:'133%'},
+      {n:'Витамин B6',a:'1,5 мг',p:'107%'},
+      {n:'Витамин B7 (биотин)',a:'100 мкг',p:'200%'},
+      {n:'Витамин B9 (фолиевая кислота)',a:'400 мкг',p:'200%'},
+      {n:'Железо (бисглицинат)',a:'15 мг',p:'107%'},
+      {n:'Инозитол',a:'350 мг',p:'—'},
+      {n:'α-Липоевая кислота',a:'97 мг',p:'—'},
+      {n:'Магний (бисглицинат)',a:'200 мг',p:'48%'},
+      {n:'Медь (глицинат)',a:'1 мг',p:'100%'},
+      {n:'Цинк (цитрат)',a:'10 мг',p:'100%'},
+      {n:'Коэнзим Q10',a:'30 мг',p:'—'},
+      {n:'Фосфатидилсерин',a:'150 мг',p:'—'},
+    ],
+    dose:'По 2 капсулы в день во время еды' },
+
+  { id:'vit-men', name:'Мужское здоровье', sub:'Тестостерон, либидо, кровоток',
+    price:2990, orig:3690, stock:9, count:60, unit:'капсул', period:'на 30 дней',
+    imgs:['../../shared/photos/bottle-5.jpg','../../shared/photos/bottle-2.jpg','../../shared/photos/bottle-6.jpg'],
+    tags:['Гормоны','Энергия'],
+    desc:'12 компонентов: Tongkat Ali, кора йохимбе, ликопин и цитруллин — поддержка тестостерона, либидо и кровотока.',
+    ingr:[
+      {n:'Витамин E',a:'15 мг',p:'125%'},
+      {n:'Витамин D3',a:'600 МЕ',p:'300%'},
+      {n:'Витамин K2',a:'100 мкг',p:'133%'},
+      {n:'Витамин B9',a:'400 мкг',p:'200%'},
+      {n:'Цинк (пиколинат)',a:'15 мг',p:'150%'},
+      {n:'Медь (глицинат)',a:'1,5 мг',p:'150%'},
+      {n:'Ликопин',a:'5 мг',p:'—'},
+      {n:'Экстракт свёклы',a:'250 мг',p:'—'},
+      {n:'Экстракт эврикомы (Tongkat Ali)',a:'200 мг',p:'—'},
+      {n:'Экстракт коры йохимбе',a:'30 мг',p:'—'},
+      {n:'Цитруллин',a:'300 мг',p:'—'},
+      {n:'Фосфатидилсерин',a:'150 мг',p:'—'},
+    ],
+    dose:'По 2 капсулы в день во время еды' },
+
+  { id:'vit-memory', name:'Память и концентрация', sub:'Когнитивная функция',
+    price:2890, orig:3490, stock:11, count:60, unit:'капсул', period:'на 30 дней',
+    imgs:['../../shared/photos/bottle-6.jpg','../../shared/photos/bottle-3.jpg','../../shared/photos/bottle-1.jpg'],
+    tags:['Когнитивная','Нервы'],
+    desc:'Гинкго билоба, активный B9 (L-метилфолат), куркумин и L-теанин — нейропластичность, метилирование и фокус.',
+    ingr:[
+      {n:'Витамин B1 (тиамин)',a:'5 мг',p:'455%'},
+      {n:'Витамин B3 (никотинамид)',a:'20 мг',p:'125%'},
+      {n:'Витамин B6 (p-5-p)',a:'5 мг',p:'357%'},
+      {n:'Витамин B9 (L-метилфолат)',a:'600 мкг',p:'300%'},
+      {n:'Магний (бисглицинат)',a:'270 мг',p:'64%'},
+      {n:'Гинкго билоба',a:'120 мг',p:'—'},
+      {n:'Куркумин',a:'150 мг',p:'—'},
+      {n:'L-теанин',a:'100 мг',p:'—'},
+      {n:'Биоперин',a:'10 мг',p:'—'},
+      {n:'Фосфатидилсерин',a:'300 мг',p:'—'},
+    ],
+    dose:'По 2 капсулы в день во время еды' },
+
+  { id:'vit-sleep', name:'Сон и тревожность', sub:'Засыпание и антистресс',
+    price:2490, orig:2990, stock:13, count:60, unit:'капсул', period:'на 30 дней',
+    imgs:['../../shared/photos/bottle-1.jpg','../../shared/photos/bottle-5.jpg','../../shared/photos/bottle-2.jpg'],
+    tags:['Сон','Антистресс'],
+    desc:'5-HTP, L-теанин, глицин и магний бисглицинат — естественная поддержка сна, серотонина и ГАМК.',
+    ingr:[
+      {n:'5-HTP (5-гидрокситриптофан)',a:'100 мг',p:'—'},
+      {n:'L-теанин',a:'200 мг',p:'—'},
+      {n:'Глицин',a:'300 мг',p:'—'},
+      {n:'Витамин B6 (p-5-p)',a:'2 мг',p:'143%'},
+      {n:'Магний (бисглицинат)',a:'200 мг',p:'48%'},
+      {n:'Экстракт мелиссы и пассифлоры',a:'48 мг',p:'—'},
+      {n:'Фосфатидилсерин',a:'150 мг',p:'—'},
+    ],
+    dose:'По 2 капсулы в день во время еды или за 1–2 часа до сна' },
+
+  { id:'vit-energy', name:'Энергия', sub:'Митохондрии и дневной тонус',
+    price:2790, orig:3290, stock:17, count:60, unit:'капсул', period:'на 30 дней',
+    imgs:['../../shared/photos/bottle-2.jpg','../../shared/photos/bottle-6.jpg','../../shared/photos/bottle-4.jpg'],
+    tags:['Энергия','Anti-age'],
+    desc:'Q10, ацетил L-карнитин, PQQ и янтарная кислота — митохондриальная энергия, тонус и дневная работоспособность без перевозбуждения.',
+    ingr:[
+      {n:'Коэнзим Q10 (убихинон)',a:'100 мг',p:'—'},
+      {n:'Ацетил L-карнитин',a:'400 мг',p:'—'},
+      {n:'Таурин',a:'150 мг',p:'—'},
+      {n:'Янтарная кислота',a:'100 мг',p:'—'},
+      {n:'Магний (бисглицинат)',a:'140 мг',p:'33%'},
+      {n:'PQQ',a:'10 мг',p:'—'},
+      {n:'Фосфатидилсерин',a:'100 мг',p:'—'},
+    ],
+    dose:'По 2 капсулы в первой половине дня (не позднее, чем за 6–8 ч до сна)' },
 ];
 
 const KITS = [
-  { id:'kit-immunity', name:'Иммунитет Про', sub:'Комплексная защита', price:1990, orig:2770, available:true,
-    imgs:['../../shared/photos/bottle-1.jpg','../../shared/photos/bottle-2.jpg','../../shared/photos/bottle-5.jpg'], saving:'780 ₽',
-    desc:'Полный комплекс для поддержки иммунной системы. D3 + C + Цинк — многоуровневая защита.',
-    items:[{vid:'vit-d3',qty:1},{vid:'vit-c',qty:1},{vid:'vit-zinc',qty:1}] },
-  { id:'kit-energy',   name:'Энергия и Фокус', sub:'Заряд на весь день', price:2490, orig:3170, available:true,
-    imgs:['../../shared/photos/bottle-3.jpg','../../shared/photos/bottle-6.jpg','../../shared/photos/bottle-4.jpg'], saving:'680 ₽',
-    desc:'Омега-3, B-комплекс и магний — идеальное трио для высокого уровня энергии и продуктивности.',
-    items:[{vid:'vit-omega3',qty:1},{vid:'vit-bcomp',qty:1},{vid:'vit-mag',qty:1}] },
-  { id:'kit-balance',  name:'Баланс и Сон',    sub:'Восстановление',     price:1690, orig:2070, available:true,
-    imgs:['../../shared/photos/bottle-4.jpg','../../shared/photos/bottle-1.jpg','../../shared/photos/bottle-3.jpg'], saving:'380 ₽',
-    desc:'Магний + D3 + Омега-3. Снижает напряжение, улучшает сон и восстановление нервной системы.',
-    items:[{vid:'vit-mag',qty:1},{vid:'vit-d3',qty:1},{vid:'vit-omega3',qty:1}] },
-  { id:'kit-detox',    name:'Detox',            sub:'Очищение организма',  price:2190, orig:2790, available:false,
-    imgs:['../../shared/photos/bottle-5.jpg'], saving:'600 ₽',
-    desc:'Курс детокса. Временно недоступен.',
-    items:[{vid:'vit-c',qty:1},{vid:'vit-zinc',qty:1}] },
+  { id:'kit-immunity', name:'Иммунитет Про', sub:'Тройной комплекс защиты', price:5990, orig:7390, available:true,
+    imgs:['../../shared/photos/bottle-2.jpg','../../shared/photos/bottle-4.jpg','../../shared/photos/bottle-5.jpg'], saving:'1 400 ₽',
+    desc:'Иммунитет (бетулин, эхинацея, D3) + Куркумин (противовоспалительный) + Селен (микроэлементы для щитовидки и иммунитета).',
+    items:[{vid:'vit-immune',qty:1},{vid:'vit-curcumin',qty:1},{vid:'vit-selen',qty:1}] },
+  { id:'kit-energy',   name:'Энергия и Фокус', sub:'Митохондрии и метаболизм', price:7290, orig:8970, available:true,
+    imgs:['../../shared/photos/bottle-2.jpg','../../shared/photos/bottle-6.jpg','../../shared/photos/bottle-1.jpg'], saving:'1 680 ₽',
+    desc:'Энергия (Q10, PQQ, L-карнитин) + Л-карнитин (метаболизм) + B-complex (нервная система) — стек для активного дня и продуктивности.',
+    items:[{vid:'vit-energy',qty:1},{vid:'vit-lcarn',qty:1},{vid:'vit-bcomp',qty:1}] },
+  { id:'kit-recovery', name:'Восстановление и Сон', sub:'Релакс, сон, регенерация', price:6890, orig:8470, available:true,
+    imgs:['../../shared/photos/bottle-1.jpg','../../shared/photos/bottle-3.jpg','../../shared/photos/bottle-5.jpg'], saving:'1 580 ₽',
+    desc:'Сон (5-HTP, L-теанин, глицин) + ZMA (магний, цинк, B6) + Память (нейропластичность) — для качественного сна и снятия стресса.',
+    items:[{vid:'vit-sleep',qty:1},{vid:'vit-zma',qty:1},{vid:'vit-memory',qty:1}] },
+  { id:'kit-beauty',   name:'Beauty-комплекс',   sub:'Кожа, волосы, гормональный баланс', price:5490, orig:6580, available:false,
+    imgs:['../../shared/photos/bottle-5.jpg'], saving:'1 090 ₽',
+    desc:'Beauty-комплекс. Временно недоступен.',
+    items:[{vid:'vit-skin',qty:1},{vid:'vit-selen',qty:1}] },
 ];
 
 const CHECKUPS = [
@@ -121,8 +331,8 @@ const CHECKUPS = [
 ];
 
 const MOCK_ORDERS = [
-  { id:'ORD-2024-001', date:'2024-11-15', items:[{vid:'vit-d3',qty:2,name:'Витамин D3',price:890},{vid:'vit-omega3',qty:1,name:'Омега-3',price:1290}], total:3070, payStatus:'paid', orderStatus:'delivered', delivStatus:'delivered', tracking:'CDEK123456789', address:'г. Москва, ул. Тверская, д. 1', delivery:350 },
-  { id:'ORD-2024-002', date:'2024-12-03', items:[{vid:'vit-c',qty:1,name:'Витамин C',price:650},{vid:'vit-mag',qty:1,name:'Магний B6',price:790}], total:1790, payStatus:'paid', orderStatus:'shipping', delivStatus:'in_transit', tracking:'CDEK987654321', address:'г. Москва, ул. Арбат, д. 10', delivery:0 },
+  { id:'ORD-2024-001', date:'2024-11-15', items:[{vid:'vit-immune',qty:2,name:'Иммунитет',price:2790},{vid:'vit-curcumin',qty:1,name:'Куркумин + Биоперин',price:1690}], total:7270, payStatus:'paid', orderStatus:'delivered', delivStatus:'delivered', tracking:'CDEK123456789', address:'г. Москва, ул. Тверская, д. 1', delivery:350 },
+  { id:'ORD-2024-002', date:'2024-12-03', items:[{vid:'vit-bcomp',qty:1,name:'B-complex',price:1790},{vid:'vit-sleep',qty:1,name:'Сон и тревожность',price:2490}], total:4280, payStatus:'paid', orderStatus:'shipping', delivStatus:'in_transit', tracking:'CDEK987654321', address:'г. Москва, ул. Арбат, д. 10', delivery:0 },
 ];
 
 const PROMOS = { 'BIONIQ10':10, 'WELCOME15':15 };
@@ -195,13 +405,13 @@ function AppProvider({ children }) {
   }, []);
 
   const isAvailable = vid => {
-    if (ts.outOfStock && (vid==='vit-d3'||vid==='vit-c')) return false;
+    if (ts.outOfStock && (vid==='vit-immune'||vid==='vit-curcumin')) return false;
     return (getV(vid)?.stock ?? 0) > 0;
   };
   const isKitAvailable = kit => kit.available && kit.items.every(i => isAvailable(i.vid));
 
   const effStock = vid => {
-    if (ts.outOfStock && (vid==='vit-d3'||vid==='vit-c')) return 0;
+    if (ts.outOfStock && (vid==='vit-immune'||vid==='vit-curcumin')) return 0;
     const base = getV(vid)?.stock ?? 0;
     const used = cart.reduce((sum, c) => {
       if (c.type === 'vitamin' && c.id === vid) return sum + c.qty;
@@ -645,7 +855,7 @@ function TestPanel() {
       {open && (
         <div className="absolute bottom-12 right-0 bg-white border border-gray-100 rounded-2xl p-4 shadow-2xl w-64 fade-in">
           <p className="text-xs font-bold text-secondary uppercase tracking-wider mb-3">Переключатель состояний</p>
-          {[['outOfStock','Товар закончился (D3, C)'],['payFail','Ошибка оплаты'],['delivErr','Ошибка доставки']].map(([k,l]) => (
+          {[['outOfStock','Товар закончился (Иммунитет, Куркумин)'],['payFail','Ошибка оплаты'],['delivErr','Ошибка доставки']].map(([k,l]) => (
             <label key={k} className="flex items-center gap-3 py-2 cursor-pointer" onClick={() => tog(k)}>
               <div className={'w-10 h-5 rounded-full transition-colors relative flex-shrink-0 ' + (ts[k]?'bg-brand':'bg-gray-200')}>
                 <div className={'absolute top-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform ' + (ts[k]?'translate-x-5':'translate-x-0.5')} />
@@ -1189,8 +1399,9 @@ function VitaminsPage() {
   const FILTERS = [
     { id:'all',         l:'Все' },
     { id:'Иммунитет',   l:'Иммунитет' },
-    { id:'Сердце',      l:'Сердце' },
     { id:'Энергия',     l:'Энергия' },
+    { id:'Сон',         l:'Сон' },
+    { id:'Красота',     l:'Красота' },
   ];
   const shown = VITAMINS.filter(v => isAvailable(v.id) && (filter==='all' || v.tags.includes(filter)));
   const visibleKits = KITS.filter(isKitAvailable);
