@@ -679,7 +679,8 @@ function VitCard({ v }) {
             <span className="text-[13px] font-semibold" style={{color:'#d10714'}}>−{Math.round((1-v.price/v.orig)*100)}%</span>
           </>}
         </div>
-        <h3 className="text-ink mb-3" style={{fontSize:'15px',fontWeight:700,letterSpacing:'-0.01em',lineHeight:1.25}}>{v.name}</h3>
+        <h3 className="text-ink mb-0.5" style={{fontSize:'15px',fontWeight:700,letterSpacing:'-0.01em',lineHeight:1.25}}>{v.name}</h3>
+        {v.count && <p className="text-[12px] text-secondary mb-3">{v.count} {v.unit} · {v.period}</p>}
 
         {s===0 ? (
           <button onClick={e=>{e.stopPropagation();setNotifyProduct({id:v.id,name:v.name});}}
