@@ -1337,10 +1337,12 @@ function KitDetail() {
   const history = useHistory();
   const k = getK(id);
   const [added, setAdded] = useState(false);
+  const [tab,   setTab]   = useState('desc');
 
   if (!k) return <div className="text-center py-24 text-secondary">Набор не найден</div>;
 
   const add = () => { if (addKitToCart(k)) setAdded(true); };
+  const recs = VITAMINS.filter(v => !k.items.find(i => i.vid === v.id)).slice(0,4);
 
   return (
     <div className="max-w-[1280px] mx-auto px-8 py-8 fade-in">
@@ -1404,6 +1406,101 @@ function KitDetail() {
           }
         </div>
       </div>
+
+      <div className="border-b border-gray-200 mt-16 mb-6 flex gap-6">
+        {[['desc','Описание'],['ingr','Состав'],['dose','Применение']].map(([key,label]) => (
+          <button key={key} onClick={()=>setTab(key)}
+            className={'pb-3 text-sm font-medium border-b-2 -mb-px transition-colors ' + (tab===key?'text-ink':'border-transparent text-secondary hover:text-ink')}
+            style={tab===key ? {borderBottomColor:'#042033'} : {}}>
+            {label}
+          </button>
+        ))}
+      </div>
+
+      <div className="max-w-3xl mb-16">
+        {tab==='desc' && (
+          <div className="space-y-4">
+            <p className="text-ink leading-relaxed">{k.desc}</p>
+            <div className="rounded-2xl p-5" style={{background:'#f5f5f5'}}>
+              <p className="text-[13px] uppercase tracking-wider font-semibold mb-3" style={{color:'rgba(0,0,0,0.54)'}}>Что вы получите</p>
+              <ul className="space-y-2">
+                {k.items.map(({vid, qty}) => {
+                  const vv = getV(vid);
+                  return (
+                    <li key={vid} className="flex items-start gap-3">
+                      <div className="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5" style={{background:'#042033'}}>
+                        <svg width="11" height="11" fill="none" stroke="white" strokeWidth="3" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>
+                      </div>
+                      <div>
+                        <span className="font-semibold text-ink text-sm">{vv?.name}</span>
+                        <span className="text-secondary text-sm"> — {vv?.sub.toLowerCase()}</span>
+                      </div>
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+          </div>
+        )}
+
+        {tab==='ingr' && (
+          <div className="space-y-6">
+            {k.items.map(({vid, qty}) => {
+              const vv = getV(vid);
+              if (!vv) return null;
+              return (
+                <div key={vid}>
+                  <div className="flex items-baseline justify-between mb-2 pb-2 border-b border-gray-100">
+                    <h3 className="text-ink" style={{fontSize:'15px',fontWeight:700,letterSpacing:'-0.01em'}}>{vv.name} ×{qty}</h3>
+                    <span className="text-secondary text-xs">{vv.count} {vv.unit}</span>
+                  </div>
+                  <table className="w-full text-sm">
+                    <tbody>
+                      {vv.ingr.map((row, n) => (
+                        <tr key={n} className="border-b border-gray-50 last:border-0">
+                          <td className="py-2 text-ink">{row.n}</td>
+                          <td className="py-2 text-right">{row.a}</td>
+                          <td className="py-2 text-right text-secondary text-xs w-16">{row.p}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              );
+            })}
+          </div>
+        )}
+
+        {tab==='dose' && (
+          <div className="space-y-4">
+            <p className="text-secondary text-sm mb-3">Принимайте каждый компонент по своей схеме. Курс синхронизирован — все компоненты можно начать одновременно.</p>
+            <div className="space-y-3">
+              {k.items.map(({vid, qty}) => {
+                const vv = getV(vid);
+                if (!vv) return null;
+                return (
+                  <div key={vid} className="rounded-xl p-4 border border-gray-100">
+                    <div className="flex items-baseline justify-between mb-1">
+                      <h3 className="text-ink" style={{fontSize:'15px',fontWeight:700}}>{vv.name}</h3>
+                      <span className="text-xs text-disabled">{vv.period}</span>
+                    </div>
+                    <p className="text-sm text-ink">{vv.dose}</p>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+      </div>
+
+      {recs.length > 0 && (
+        <>
+          <h2 className="text-xl font-bold text-ink mb-4">С этим покупают</h2>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-5 mb-16">
+            {recs.map(x => <VitCard key={x.id} v={x} />)}
+          </div>
+        </>
+      )}
     </div>
   );
 }
