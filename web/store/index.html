@@ -1489,9 +1489,10 @@ function VitaminDetail() {
         {tab==='dose' && <p className="text-ink">{v.dose}</p>}
       </div>
 
+      <h2 className="text-ink mb-6" style={{fontSize:'28px',fontWeight:700,letterSpacing:'-0.02em'}}>Рекомендуем также</h2>
       {recKits.length > 0 && (
         <>
-          <h2 className="text-xl font-bold text-ink mb-4">Наборы</h2>
+          <h3 className="text-ink mb-4" style={{fontSize:'18px',fontWeight:700,letterSpacing:'-0.01em'}}>Наборы</h3>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-5 mb-12">
             {recKits.slice(0,4).map(kk => <KitCard key={kk.id} k={kk} />)}
           </div>
@@ -1499,13 +1500,13 @@ function VitaminDetail() {
       )}
       {recVits.length > 0 && (
         <>
-          <h2 className="text-xl font-bold text-ink mb-4">Витамины</h2>
+          <h3 className="text-ink mb-4" style={{fontSize:'18px',fontWeight:700,letterSpacing:'-0.01em'}}>Витамины</h3>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-5 mb-12">
             {recVits.slice(0,4).map(x => <VitCard key={x.id} v={x} />)}
           </div>
         </>
       )}
-      <h2 className="text-xl font-bold text-ink mb-4">Чекапы</h2>
+      <h3 className="text-ink mb-4" style={{fontSize:'18px',fontWeight:700,letterSpacing:'-0.01em'}}>Чекапы</h3>
       <div className="grid grid-cols-2 md:grid-cols-4 gap-5 mb-16">
         {CHECKUPS.map(c => <CheckupCard key={c.id} c={c} />)}
       </div>
@@ -1723,9 +1724,10 @@ function KitDetail() {
         )}
       </div>
 
+      <h2 className="text-ink mb-6" style={{fontSize:'28px',fontWeight:700,letterSpacing:'-0.02em'}}>Рекомендуем также</h2>
       {recKits.length > 0 && (
         <>
-          <h2 className="text-xl font-bold text-ink mb-4">Наборы</h2>
+          <h3 className="text-ink mb-4" style={{fontSize:'18px',fontWeight:700,letterSpacing:'-0.01em'}}>Наборы</h3>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-5 mb-12">
             {recKits.slice(0,4).map(kk => <KitCard key={kk.id} k={kk} />)}
           </div>
@@ -1733,13 +1735,13 @@ function KitDetail() {
       )}
       {recVits.length > 0 && (
         <>
-          <h2 className="text-xl font-bold text-ink mb-4">Витамины</h2>
+          <h3 className="text-ink mb-4" style={{fontSize:'18px',fontWeight:700,letterSpacing:'-0.01em'}}>Витамины</h3>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-5 mb-12">
             {recVits.slice(0,4).map(x => <VitCard key={x.id} v={x} />)}
           </div>
         </>
       )}
-      <h2 className="text-xl font-bold text-ink mb-4">Чекапы</h2>
+      <h3 className="text-ink mb-4" style={{fontSize:'18px',fontWeight:700,letterSpacing:'-0.01em'}}>Чекапы</h3>
       <div className="grid grid-cols-2 md:grid-cols-4 gap-5 mb-16">
         {CHECKUPS.map(c => <CheckupCard key={c.id} c={c} />)}
       </div>
