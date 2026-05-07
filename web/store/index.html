@@ -63,33 +63,43 @@ const { HashRouter, Switch, Route, Link, useHistory, useParams, useLocation, Red
 
 /* ─── DATA ──────────────────────────────────────────────────────────────── */
 const VITAMINS = [
-  { id:'vit-d3',    name:'Витамин D3',   sub:'Иммунитет и кости',        price:890,  orig:1190, stock:15, img:'../../shared/photos/bottle-1.jpg', tags:['Иммунитет','Кости'],    cat:'vitamins',
+  { id:'vit-d3',    name:'Витамин D3',   sub:'Иммунитет и кости',        price:890,  orig:1190, stock:15, imgs:['../../shared/photos/bottle-1.jpg','../../shared/photos/bottle-4.jpg','../../shared/photos/bottle-2.jpg'], tags:['Иммунитет','Кости'],    cat:'vitamins',
     desc:'Витамин D3 (холекальциферол) — ключевой нутриент для поддержания иммунной системы, здоровья костей и зубов. Участвует в регуляции более 200 генов.',
     ingr:[{n:'Холекальциферол (D3)',a:'2000 МЕ',p:'1000%'},{n:'Оливковое масло',a:'200 мг',p:'—'}], dose:'1 капсула в день во время еды' },
-  { id:'vit-c',     name:'Витамин C',    sub:'Антиоксидантная защита',    price:650,  orig:890,  stock:8,  img:'../../shared/photos/bottle-2.jpg', tags:['Антиоксидант','Иммунитет'], cat:'vitamins',
+  { id:'vit-c',     name:'Витамин C',    sub:'Антиоксидантная защита',    price:650,  orig:890,  stock:8,  imgs:['../../shared/photos/bottle-2.jpg','../../shared/photos/bottle-5.jpg','../../shared/photos/bottle-3.jpg'], tags:['Антиоксидант','Иммунитет'], cat:'vitamins',
     desc:'Аскорбиновая кислота — мощный антиоксидант, необходимый для синтеза коллагена и укрепления иммунитета.',
     ingr:[{n:'Аскорбиновая кислота',a:'500 мг',p:'556%'}], dose:'1–2 капсулы в день' },
-  { id:'vit-omega3',name:'Омега-3',      sub:'Сердце и мозг',             price:1290, orig:1590, stock:20, img:'../../shared/photos/bottle-3.jpg', tags:['Сердце','Мозг'],        cat:'omega',
+  { id:'vit-omega3',name:'Омега-3',      sub:'Сердце и мозг',             price:1290, orig:1590, stock:20, imgs:['../../shared/photos/bottle-3.jpg','../../shared/photos/bottle-6.jpg','../../shared/photos/bottle-1.jpg'], tags:['Сердце','Мозг'],        cat:'omega',
     desc:'Высококонцентрированный рыбий жир EPA и DHA для здоровья сердца и мозга.',
     ingr:[{n:'EPA',a:'400 мг',p:'—'},{n:'DHA',a:'300 мг',p:'—'}], dose:'2 капсулы в день во время еды' },
-  { id:'vit-mag',   name:'Магний B6',    sub:'Нервная система и сон',     price:790,  orig:990,  stock:12, img:'../../shared/photos/bottle-4.jpg', tags:['Стресс','Сон'],          cat:'minerals',
+  { id:'vit-mag',   name:'Магний B6',    sub:'Нервная система и сон',     price:790,  orig:990,  stock:12, imgs:['../../shared/photos/bottle-4.jpg','../../shared/photos/bottle-1.jpg','../../shared/photos/bottle-5.jpg'], tags:['Стресс','Сон'],          cat:'minerals',
     desc:'Комплекс магния с витамином B6 для нормальной работы нервной системы и улучшения сна.',
     ingr:[{n:'Магний (цитрат)',a:'300 мг',p:'71%'},{n:'Витамин B6',a:'2 мг',p:'143%'}], dose:'2 таблетки вечером' },
-  { id:'vit-zinc',  name:'Цинк',         sub:'Иммунитет и кожа',          price:490,  orig:690,  stock:0,  img:'../../shared/photos/bottle-5.jpg', tags:['Иммунитет','Кожа'],    cat:'minerals',
+  { id:'vit-zinc',  name:'Цинк',         sub:'Иммунитет и кожа',          price:490,  orig:690,  stock:0,  imgs:['../../shared/photos/bottle-5.jpg','../../shared/photos/bottle-2.jpg','../../shared/photos/bottle-6.jpg'], tags:['Иммунитет','Кожа'],    cat:'minerals',
     desc:'Незаменимый микроэлемент для работы иммунной системы и здоровья кожи.',
     ingr:[{n:'Цинк (глюконат)',a:'15 мг',p:'150%'}], dose:'1 таблетка в день с едой' },
-  { id:'vit-bcomp', name:'B-комплекс',   sub:'Энергия и метаболизм',      price:990,  orig:1290, stock:6,  img:'../../shared/photos/bottle-6.jpg', tags:['Энергия','Метаболизм'], cat:'vitamins',
+  { id:'vit-bcomp', name:'B-комплекс',   sub:'Энергия и метаболизм',      price:990,  orig:1290, stock:6,  imgs:['../../shared/photos/bottle-6.jpg','../../shared/photos/bottle-3.jpg','../../shared/photos/bottle-4.jpg'], tags:['Энергия','Метаболизм'], cat:'vitamins',
     desc:'Полный комплекс витаминов группы B для энергетического обмена.',
     ingr:[{n:'B1 (тиамин)',a:'1.1 мг',p:'100%'},{n:'B6',a:'1.4 мг',p:'100%'},{n:'B12',a:'2.5 мкг',p:'100%'}], dose:'1 капсула утром с едой' },
 ];
 
 const KITS = [
-  { id:'kit-immunity', name:'Иммунитет Про', sub:'Комплексная защита', price:1990, orig:2770, img:'../../shared/photos/bottle-1.jpg', saving:'780 ₽',
+  { id:'kit-immunity', name:'Иммунитет Про', sub:'Комплексная защита', price:1990, orig:2770, available:true,
+    imgs:['../../shared/photos/bottle-1.jpg','../../shared/photos/bottle-2.jpg','../../shared/photos/bottle-5.jpg'], saving:'780 ₽',
     desc:'Полный комплекс для поддержки иммунной системы. D3 + C + Цинк — многоуровневая защита.',
     items:[{vid:'vit-d3',qty:1},{vid:'vit-c',qty:1},{vid:'vit-zinc',qty:1}] },
-  { id:'kit-energy',   name:'Энергия и Фокус', sub:'Заряд на весь день', price:2490, orig:3170, img:'../../shared/photos/bottle-3.jpg', saving:'680 ₽',
+  { id:'kit-energy',   name:'Энергия и Фокус', sub:'Заряд на весь день', price:2490, orig:3170, available:true,
+    imgs:['../../shared/photos/bottle-3.jpg','../../shared/photos/bottle-6.jpg','../../shared/photos/bottle-4.jpg'], saving:'680 ₽',
     desc:'Омега-3, B-комплекс и магний — идеальное трио для высокого уровня энергии и продуктивности.',
     items:[{vid:'vit-omega3',qty:1},{vid:'vit-bcomp',qty:1},{vid:'vit-mag',qty:1}] },
+  { id:'kit-balance',  name:'Баланс и Сон',    sub:'Восстановление',     price:1690, orig:2070, available:true,
+    imgs:['../../shared/photos/bottle-4.jpg','../../shared/photos/bottle-1.jpg','../../shared/photos/bottle-3.jpg'], saving:'380 ₽',
+    desc:'Магний + D3 + Омега-3. Снижает напряжение, улучшает сон и восстановление нервной системы.',
+    items:[{vid:'vit-mag',qty:1},{vid:'vit-d3',qty:1},{vid:'vit-omega3',qty:1}] },
+  { id:'kit-detox',    name:'Detox',            sub:'Очищение организма',  price:2190, orig:2790, available:false,
+    imgs:['../../shared/photos/bottle-5.jpg'], saving:'600 ₽',
+    desc:'Курс детокса. Временно недоступен.',
+    items:[{vid:'vit-c',qty:1},{vid:'vit-zinc',qty:1}] },
 ];
 
 const MOCK_ORDERS = [
@@ -147,14 +157,15 @@ const getK = id => KITS.find(k => k.id === id);
 const Ctx = createContext(null);
 
 function AppProvider({ children }) {
-  const [cart,     setCart]     = useState([]);
-  const [user,     setUser]     = useState(null);
-  const [orders,   setOrders]   = useState(MOCK_ORDERS);
-  const [authOpen, setAuthOpen] = useState(false);
-  const [authCb,   setAuthCb]   = useState(null);
-  const [curOrder, setCurOrder] = useState(null);
-  const [toast,    setToast]    = useState(null);
-  const [ts,       setTs]       = useState({ outOfStock:false, payFail:false, delivErr:false });
+  const [cart,         setCart]         = useState([]);
+  const [user,         setUser]         = useState(null);
+  const [orders,       setOrders]       = useState(MOCK_ORDERS);
+  const [authOpen,     setAuthOpen]     = useState(false);
+  const [authCb,       setAuthCb]       = useState(null);
+  const [callbackOpen, setCallbackOpen] = useState(false);
+  const [curOrder,     setCurOrder]     = useState(null);
+  const [toast,        setToast]        = useState(null);
+  const [ts,           setTs]           = useState({ outOfStock:false, payFail:false, delivErr:false });
 
   const showToast = useCallback((msg, type='ok') => {
     setToast({ msg, type, id: Date.now() });
@@ -186,17 +197,15 @@ function AppProvider({ children }) {
   };
 
   const addKitToCart = kit => {
-    const bad = kit.items.filter(i => effStock(i.vid)<i.qty).map(i => getV(i.vid)?.name);
+    if (!kit.available) { showToast('Набор недоступен', 'err'); return false; }
+    const ex = cart.find(c => c.type==='kit' && c.id===kit.id);
+    const targetQty = (ex?.qty || 0) + 1;
+    const bad = kit.items.filter(i => effStock(i.vid) < i.qty * targetQty).map(i => getV(i.vid)?.name);
     if (bad.length) { showToast('Нет в наличии: ' + bad.join(', '), 'err'); return false; }
     setCart(prev => {
-      let u = [...prev];
-      kit.items.forEach(({ vid, qty }) => {
-        const v = getV(vid); const s = effStock(vid);
-        const ex = u.find(c => c.id===vid);
-        if (ex) u = u.map(c => c.id===vid ? {...c, qty:Math.min(c.qty+qty,s)} : c);
-        else u.push({ id:vid, type:'vitamin', name:v?.name, price:v?.price, qty, stock:s });
-      });
-      return u;
+      const existing = prev.find(c => c.type==='kit' && c.id===kit.id);
+      if (existing) return prev.map(c => c===existing ? {...c, qty:c.qty+1} : c);
+      return [...prev, { type:'kit', id:kit.id, name:kit.name, price:kit.price, qty:1, items:kit.items, imgs:kit.imgs }];
     });
     showToast('Набор «' + kit.name + '» добавлен');
     return true;
@@ -204,8 +213,15 @@ function AppProvider({ children }) {
 
   const updQty = (id, d) => setCart(prev => prev.map(c => {
     if (c.id!==id) return c;
-    const s = effStock(id); const nq = c.qty+d;
+    const nq = c.qty+d;
     if (nq<1) return c;
+    if (c.type==='kit') {
+      const k = getK(id);
+      const out = k?.items.find(i => effStock(i.vid) < i.qty * nq);
+      if (out) { showToast('Недостаточно остатка', 'warn'); return c; }
+      return {...c, qty:nq};
+    }
+    const s = effStock(id);
     if (nq>s) { showToast('Недостаточно остатка', 'warn'); return c; }
     return {...c, qty:nq};
   }));
@@ -241,6 +257,7 @@ function AppProvider({ children }) {
   return (
     <Ctx.Provider value={{ cart, cartCount, cartSubtotal, addToCart, addKitToCart, updQty, removeItem,
       user, login, logout:()=>setUser(null), requireAuth, authOpen, setAuthOpen,
+      callbackOpen, setCallbackOpen,
       orders, placeOrder, curOrder, setCurOrder,
       toast, showToast, ts, setTs, effStock, PROMOS }}>
       {children}
@@ -309,6 +326,94 @@ function AuthModal() {
           </button>
           <p className="text-xs text-secondary text-center">Корзина сохранится после входа</p>
         </div>
+      </div>
+    </div>
+  );
+}
+
+/* ─── CALLBACK MODAL ─────────────────────────────────────────────────────── */
+function CallbackModal() {
+  const { callbackOpen, setCallbackOpen, showToast } = useApp();
+  const [name,  setName]  = useState('');
+  const [phone, setPhone] = useState('');
+  const [agree, setAgree] = useState(true);
+  const [err,   setErr]   = useState({});
+  const [sent,  setSent]  = useState(false);
+
+  if (!callbackOpen) return null;
+
+  const fmtPhone = v => {
+    let d = v.replace(/\D/g,'');
+    if (d.startsWith('8')) d = '7' + d.slice(1);
+    if (!d.startsWith('7')) d = '7' + d;
+    d = d.slice(0,11);
+    let f = '+7';
+    if (d.length>1) f += ' (' + d.slice(1,4);
+    if (d.length>=4) f += ') ' + d.slice(4,7);
+    if (d.length>=7) f += '-' + d.slice(7,9);
+    if (d.length>=9) f += '-' + d.slice(9,11);
+    return f;
+  };
+
+  const close = () => {
+    setCallbackOpen(false);
+    setTimeout(()=>{ setName(''); setPhone(''); setSent(false); setErr({}); }, 200);
+  };
+
+  const submit = () => {
+    const e = {};
+    if (!name.trim()) e.name = 'Введите имя';
+    if (phone.replace(/\D/g,'').length < 11) e.phone = 'Введите телефон';
+    if (!agree) e.agree = 'Необходимо согласие';
+    setErr(e);
+    if (Object.keys(e).length) return;
+    setSent(true);
+    showToast('Заявка принята — мы перезвоним в течение 30 минут');
+    setTimeout(close, 1800);
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center fade-in" style={{background:'rgba(0,0,0,0.5)'}} onClick={close}>
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md mx-4 p-8" onClick={e=>e.stopPropagation()}>
+        {sent ? (
+          <div className="text-center py-8">
+            <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-5">
+              <svg width="28" height="28" fill="none" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7" stroke="#16a34a" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+            </div>
+            <h3 className="text-ink mb-2" style={{fontSize:'22px',fontWeight:700,letterSpacing:'-0.01em'}}>Заявка принята</h3>
+            <p className="text-secondary text-sm">Перезвоним на {phone} в течение 30 минут</p>
+          </div>
+        ) : (
+          <>
+            <div className="flex justify-between items-start mb-3">
+              <h2 className="text-ink" style={{fontSize:'24px',fontWeight:700,letterSpacing:'-0.01em'}}>Обратный звонок</h2>
+              <button onClick={close} className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-xl hover:bg-gray-200 transition-colors">×</button>
+            </div>
+            <p className="text-secondary text-sm mb-6">Оставьте контакты — наш специалист перезвонит в течение 30 минут и поможет подобрать комплекс.</p>
+            <div className="space-y-3 mb-5">
+              <div>
+                <input placeholder="Ваше имя" value={name}
+                  onChange={e=>{setName(e.target.value);setErr(p=>({...p,name:null}));}}
+                  className={'inp ' + (err.name?'inp-err':'')} />
+                {err.name && <p className="text-red-500 text-xs mt-1">{err.name}</p>}
+              </div>
+              <div>
+                <input placeholder="+7 (___) ___-__-__" value={phone}
+                  onChange={e=>{setPhone(fmtPhone(e.target.value));setErr(p=>({...p,phone:null}));}}
+                  className={'inp ' + (err.phone?'inp-err':'')} />
+                {err.phone && <p className="text-red-500 text-xs mt-1">{err.phone}</p>}
+              </div>
+            </div>
+            <label className="flex items-start gap-2 cursor-pointer mb-5" onClick={()=>{setAgree(a=>!a);setErr(p=>({...p,agree:null}));}}>
+              <div className={'mt-0.5 w-4 h-4 rounded border-2 flex items-center justify-center flex-shrink-0 transition-colors ' + (agree?'':'border-gray-300')}
+                style={agree ? {background:'#042033', borderColor:'#042033'} : {}}>
+                {agree && <svg width="9" height="7" fill="none"><path d="M1 3.5l2.5 2.5 4.5-5" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>}
+              </div>
+              <p className="text-xs" style={{color:'rgba(0,0,0,0.54)'}}>Согласен с обработкой персональных данных</p>
+            </label>
+            <button onClick={submit} className="btn-p w-full py-3 font-semibold">Заказать звонок</button>
+          </>
+        )}
       </div>
     </div>
   );
@@ -418,6 +523,8 @@ function VitCard({ v }) {
   const history = useHistory();
   const s = effStock(v.id);
   const [added, setAdded] = useState(false);
+  const [imgIdx, setImgIdx] = useState(0);
+  const imgs = v.imgs || [];
   const add = e => {
     e.stopPropagation();
     if (addToCart({ id:v.id, type:'vitamin', name:v.name, price:v.price, stock:s }))
@@ -425,26 +532,40 @@ function VitCard({ v }) {
   };
   return (
     <div className="bg-white rounded-2xl overflow-hidden card-hover cursor-pointer border border-gray-100"
-      onClick={() => history.push('/vitamins/'+v.id)}>
-      <div className="aspect-square flex items-center justify-center p-6" style={{background:'#f5f5f5'}}>
-        <img src={v.img} alt={v.name} className="max-h-full max-w-full object-contain" style={{filter:'drop-shadow(0 8px 16px rgba(0,0,0,0.12))'}} />
+      onClick={() => history.push('/vitamins/'+v.id)}
+      onMouseLeave={()=>setImgIdx(0)}>
+      <div className="aspect-square flex items-center justify-center p-2 relative" style={{background:'#f5f5f5'}}>
+        <img src={imgs[imgIdx]} alt={v.name} className="max-h-full max-w-full object-contain transition-opacity" style={{filter:'drop-shadow(0 10px 18px rgba(0,0,0,0.18))'}} />
+        {imgs.length > 1 && (
+          <div className="absolute bottom-2 left-1/2 flex gap-1.5" style={{transform:'translateX(-50%)'}} onClick={e=>e.stopPropagation()}>
+            {imgs.map((_, i) => (
+              <button key={i}
+                onMouseEnter={()=>setImgIdx(i)}
+                onClick={()=>setImgIdx(i)}
+                className="rounded-full transition-all"
+                style={{
+                  width: i===imgIdx ? '14px' : '6px',
+                  height: '6px',
+                  background: i===imgIdx ? '#042033' : 'rgba(0,0,0,0.25)',
+                }}
+                aria-label={'Фото '+(i+1)} />
+            ))}
+          </div>
+        )}
       </div>
-      <div className="p-4">
-        <div className="flex flex-wrap gap-1 mb-2">
-          {v.tags.slice(0,2).map(t => <Tag key={t} label={t} />)}
-        </div>
-        <h3 className="font-bold text-ink text-sm mb-0.5">{v.name}</h3>
-        <p className="text-xs text-secondary mb-3">{v.sub}</p>
+      <div className="p-3">
+        <h3 className="text-ink mb-0.5" style={{fontSize:'14px',fontWeight:700,letterSpacing:'-0.01em'}}>{v.name}</h3>
+        <p className="text-[12px] text-secondary mb-3 truncate">{v.sub}</p>
         <div className="flex items-center justify-between">
-          <div>
-            <span className="font-bold text-ink text-sm">{fmt(v.price)}</span>
-            {v.orig>v.price && <span className="text-xs text-disabled line-through ml-1">{fmt(v.orig)}</span>}
+          <div className="leading-tight">
+            <div className="font-bold text-ink text-[14px]">{fmt(v.price)}</div>
+            {v.orig>v.price && <div className="text-[11px] text-disabled line-through">{fmt(v.orig)}</div>}
           </div>
           {s===0
-            ? <span className="text-xs text-disabled">Нет в наличии</span>
+            ? <span className="text-[11px] text-disabled">Нет в наличии</span>
             : <button onClick={add}
-                className={'btn-p text-xs px-3 py-1.5 font-semibold ' + (added?'!bg-green-500':'')}>
-                {added ? '✓ Добавлен' : '+ В корзину'}
+                className={'btn-p text-[12px] px-3 py-1.5 font-semibold ' + (added?'!bg-green-600':'')}>
+                {added ? '✓' : '+ В корзину'}
               </button>
           }
         </div>
@@ -457,25 +578,43 @@ function VitCard({ v }) {
 function KitCard({ k }) {
   const { addKitToCart, effStock } = useApp();
   const history = useHistory();
+  const [imgIdx, setImgIdx] = useState(0);
+  const imgs = k.imgs || [];
   const hasOOS = k.items.some(i => effStock(i.vid)<i.qty);
   return (
-    <div className="bg-white rounded-2xl p-5 border border-gray-100 card-hover cursor-pointer min-w-60"
-      onClick={() => history.push('/vitamin-kits/'+k.id)}>
-      <div className="aspect-[4/3] -mx-5 -mt-5 mb-4 flex items-center justify-center p-6 relative" style={{background:'#f5f5f5'}}>
-        <img src={k.img} alt={k.name} className="max-h-full max-w-full object-contain" style={{filter:'drop-shadow(0 8px 16px rgba(0,0,0,0.12))'}} />
+    <div className="bg-white rounded-2xl p-4 border border-gray-100 card-hover cursor-pointer flex-shrink-0" style={{width:'300px'}}
+      onClick={() => history.push('/vitamin-kits/'+k.id)}
+      onMouseLeave={()=>setImgIdx(0)}>
+      <div className="aspect-[4/3] -mx-4 -mt-4 mb-3 flex items-center justify-center p-3 relative overflow-hidden" style={{background:'#f5f5f5'}}>
+        <img src={imgs[imgIdx]} alt={k.name} className="max-h-full max-w-full object-contain transition-opacity" style={{filter:'drop-shadow(0 10px 18px rgba(0,0,0,0.18))'}} />
         <span className="absolute top-3 right-3 text-white text-xs px-2 py-1 rounded-lg font-semibold" style={{background:'#042033'}}>−{k.saving}</span>
+        {imgs.length > 1 && (
+          <div className="absolute bottom-2 left-1/2 flex gap-1.5" style={{transform:'translateX(-50%)'}} onClick={e=>e.stopPropagation()}>
+            {imgs.map((_, i) => (
+              <button key={i}
+                onMouseEnter={()=>setImgIdx(i)}
+                onClick={()=>setImgIdx(i)}
+                className="rounded-full transition-all"
+                style={{
+                  width: i===imgIdx ? '14px' : '6px',
+                  height: '6px',
+                  background: i===imgIdx ? '#042033' : 'rgba(0,0,0,0.25)',
+                }} />
+            ))}
+          </div>
+        )}
       </div>
-      <h3 className="font-bold text-ink mb-1">{k.name}</h3>
-      <p className="text-xs text-secondary mb-3">{k.items.length} товара</p>
+      <h3 className="text-ink mb-0.5" style={{fontSize:'15px',fontWeight:700,letterSpacing:'-0.01em'}}>{k.name}</h3>
+      <p className="text-[12px] text-secondary mb-3">{k.items.length} продукта</p>
       <div className="flex items-center justify-between">
-        <div>
-          <span className="font-bold text-ink">{fmt(k.price)}</span>
-          <span className="text-xs text-disabled line-through ml-2">{fmt(k.orig)}</span>
+        <div className="leading-tight">
+          <div className="font-bold text-ink text-[15px]">{fmt(k.price)}</div>
+          <div className="text-[11px] text-disabled line-through">{fmt(k.orig)}</div>
         </div>
         {hasOOS
-          ? <span className="text-xs text-orange-500 font-medium">Частично недоступен</span>
+          ? <span className="text-[11px] text-orange-500 font-medium">Часть нет в наличии</span>
           : <button onClick={e=>{e.stopPropagation();addKitToCart(k);}}
-              className="btn-p text-xs px-3 py-1.5 font-semibold">В корзину</button>
+              className="btn-p text-[12px] px-3 py-1.5 font-semibold">+ В корзину</button>
         }
       </div>
     </div>
@@ -493,14 +632,13 @@ const HERO_SLIDES = [
       'Состав согласован с врачами «Союза PreventMed»',
       'Доставка СДЭК по всей России за 1–3 дня',
     ],
-    ctaPrimary:   { text: 'Открыть магазин',    go: '/vitamins' },
-    ctaSecondary: { text: 'Подобрать комплекс', go: '/vitamins' },
     img: '../../shared/photos/bottle-1.jpg',
   },
 ];
 
 function HeroCarousel() {
   const history = useHistory();
+  const { setCallbackOpen } = useApp();
   const [idx, setIdx] = useState(0);
   const slides = HERO_SLIDES;
   const s = slides[idx];
@@ -526,11 +664,11 @@ function HeroCarousel() {
             ))}
           </ul>
           <div className="flex gap-3">
-            <button onClick={()=>history.push(s.ctaPrimary.go)} className="btn-p px-8 py-4 font-semibold text-base">
-              {s.ctaPrimary.text}
+            <button onClick={()=>history.push('/vitamins')} className="btn-p px-8 py-4 font-semibold text-base">
+              Открыть магазин
             </button>
-            <button onClick={()=>history.push(s.ctaSecondary.go)} className="px-8 py-4 font-semibold text-base bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors text-ink">
-              {s.ctaSecondary.text}
+            <button onClick={()=>setCallbackOpen(true)} className="px-8 py-4 font-semibold text-base bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors text-ink">
+              Обратный звонок
             </button>
           </div>
         </div>
@@ -798,8 +936,8 @@ function VitaminsPage() {
         <p className="text-secondary mt-1">Высококачественные нутриенты для здоровья</p>
       </div>
       <div className="mb-10">
-        <h2 className="text-xl font-bold text-ink mb-4">🎁 Наборы</h2>
-        <div className="flex gap-4 overflow-x-auto pb-2">{KITS.map(k => <KitCard key={k.id} k={k} />)}</div>
+        <h2 className="text-ink mb-4" style={{fontSize:'22px',fontWeight:700,letterSpacing:'-0.01em'}}>Наборы</h2>
+        <div className="flex gap-4 overflow-x-auto pb-2">{KITS.filter(k=>k.available).map(k => <KitCard key={k.id} k={k} />)}</div>
       </div>
       <div className="flex gap-2 mb-6 flex-wrap">
         {CATS.map(c => (
@@ -812,7 +950,7 @@ function VitaminsPage() {
           </button>
         ))}
       </div>
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mb-16">
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 mb-16">
         {shown.map(v => <VitCard key={v.id} v={v} />)}
         {shown.length===0 && <p className="col-span-4 text-center py-16 text-secondary">Товары не найдены</p>}
       </div>
@@ -841,9 +979,11 @@ function VitaminDetail() {
   const [qty, setQty]     = useState(1);
   const [added, setAdded] = useState(false);
   const [tab, setTab]     = useState('desc');
+  const [imgIdx, setImgIdx] = useState(0);
 
   if (!v) return <div className="text-center py-24 text-secondary">Товар не найден</div>;
   const s = effStock(id);
+  const imgs = v.imgs || [];
 
   const add = () => {
     if (addToCart({ id:v.id, type:'vitamin', name:v.name, price:v.price, stock:s, qty }))
@@ -858,8 +998,25 @@ function VitaminDetail() {
         ← Назад в магазин
       </button>
       <div className="grid md:grid-cols-2 gap-12 mb-16">
-        <div className="rounded-3xl flex items-center justify-center p-12" style={{background:'#f5f5f5', minHeight:'520px'}}>
-          <img src={v.img} alt={v.name} className="max-h-[460px] max-w-full object-contain" style={{filter:'drop-shadow(0 20px 32px rgba(0,0,0,0.18))'}} />
+        <div>
+          <div className="rounded-3xl flex items-center justify-center p-10 mb-3 relative" style={{background:'#f5f5f5', minHeight:'520px'}}>
+            <img src={imgs[imgIdx]} alt={v.name} className="max-h-[460px] max-w-full object-contain" style={{filter:'drop-shadow(0 20px 32px rgba(0,0,0,0.18))'}} />
+          </div>
+          {imgs.length > 1 && (
+            <div className="grid grid-cols-4 gap-3">
+              {imgs.map((src, i) => (
+                <button key={i} onClick={()=>setImgIdx(i)}
+                  onMouseEnter={()=>setImgIdx(i)}
+                  className="aspect-square rounded-2xl flex items-center justify-center p-2 transition-all"
+                  style={{
+                    background:'#f5f5f5',
+                    border: i===imgIdx ? '2px solid #042033' : '2px solid transparent',
+                  }}>
+                  <img src={src} alt="" className="max-h-full max-w-full object-contain" />
+                </button>
+              ))}
+            </div>
+          )}
         </div>
         <div>
           <div className="flex flex-wrap gap-2 mb-3">
@@ -951,7 +1108,7 @@ function KitDetail() {
       <button onClick={()=>history.push('/vitamins')} className="text-secondary hover:text-ink text-sm mb-6 flex items-center gap-1 transition-colors">← Назад в магазин</button>
       <div className="grid md:grid-cols-2 gap-12">
         <div className="rounded-3xl flex items-center justify-center p-12" style={{background:'#f5f5f5', minHeight:'520px'}}>
-          <img src={k.img} alt={k.name} className="max-h-[460px] max-w-full object-contain" style={{filter:'drop-shadow(0 20px 32px rgba(0,0,0,0.18))'}} />
+          <img src={(k.imgs||[])[0]} alt={k.name} className="max-h-[460px] max-w-full object-contain" style={{filter:'drop-shadow(0 20px 32px rgba(0,0,0,0.18))'}} />
         </div>
         <div>
           <span className="text-white text-sm px-3 py-1 rounded-lg font-semibold mb-4 inline-block" style={{background:'#042033'}}>Набор · Экономия {k.saving}</span>
@@ -969,7 +1126,7 @@ function KitDetail() {
                   className={'flex items-center gap-3 p-3 rounded-xl border cursor-pointer transition-colors ' + (s===0?'border-red-100 bg-red-50':'border-gray-100 bg-gray-50 hover:border-gray-200')}
                   onClick={()=>history.push('/vitamins/'+vid)}>
                   <div className="w-12 h-12 rounded-xl flex items-center justify-center p-1 flex-shrink-0" style={{background:'#fff'}}>
-                    {vv?.img && <img src={vv.img} alt={vv.name} className="max-h-full max-w-full object-contain" />}
+                    {vv?.imgs?.[0] && <img src={vv.imgs[0]} alt={vv.name} className="max-h-full max-w-full object-contain" />}
                   </div>
                   <div className="flex-1"><span className="text-sm font-medium text-ink">{vv?.name}</span><span className="text-xs text-secondary ml-2">×{qty}</span></div>
                   {s===0 ? <span className="text-xs text-red-500 font-medium">Нет в наличии</span>
@@ -1026,22 +1183,29 @@ function CartPage() {
       <div className="grid lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2 space-y-3">
           {cart.map(item => {
-            const s = effStock(item.id); const vv = getV(item.id);
+            const isKit = item.type === 'kit';
+            const s = isKit ? Infinity : effStock(item.id);
+            const vv = isKit ? null : getV(item.id);
+            const photo = isKit ? (item.imgs||[])[0] : vv?.imgs?.[0];
+            const subline = isKit
+              ? 'В наборе: ' + item.items.map(i => getV(i.vid)?.name).join(', ')
+              : fmt(item.price) + ' за штуку';
             return (
               <div key={item.id} className="bg-white rounded-2xl p-4 flex gap-4 border border-gray-100">
-                <div className="w-20 h-20 rounded-xl flex items-center justify-center p-2 flex-shrink-0" style={{background:'#f5f5f5'}}>
-                  {vv?.img && <img src={vv.img} alt={vv.name} className="max-h-full max-w-full object-contain" />}
+                <div className="w-20 h-20 rounded-xl flex items-center justify-center p-2 flex-shrink-0 relative" style={{background:'#f5f5f5'}}>
+                  {photo && <img src={photo} alt={item.name} className="max-h-full max-w-full object-contain" />}
+                  {isKit && <span className="absolute -top-1 -left-1 text-white text-[9px] px-1.5 py-0.5 rounded font-semibold uppercase tracking-wider" style={{background:'#042033'}}>Набор</span>}
                 </div>
                 <div className="flex-1 min-w-0">
                   <h3 className="font-semibold text-ink text-sm mb-0.5">{item.name}</h3>
-                  <p className="text-secondary text-xs mb-2">{fmt(item.price)} за штуку</p>
-                  {s===0 && <p className="text-red-500 text-xs font-medium mb-2">⚠ Товар закончился</p>}
+                  <p className="text-secondary text-xs mb-2 truncate">{subline}</p>
+                  {!isKit && s===0 && <p className="text-red-500 text-xs font-medium mb-2">⚠ Товар закончился</p>}
                   <div className="flex items-center gap-3">
                     <div className="flex items-center border border-gray-200 rounded-lg overflow-hidden bg-white">
                       <button className="w-8 h-8 flex items-center justify-center hover:bg-gray-50 transition-colors text-sm" onClick={()=>updQty(item.id,-1)}>−</button>
                       <span className="w-8 text-center text-sm font-semibold">{item.qty}</span>
-                      <button className={'w-8 h-8 flex items-center justify-center text-sm transition-colors ' + (item.qty<s?'hover:bg-gray-50':'text-disabled cursor-not-allowed')}
-                        onClick={()=>item.qty<s&&updQty(item.id,1)}>+</button>
+                      <button className="w-8 h-8 flex items-center justify-center text-sm hover:bg-gray-50 transition-colors"
+                        onClick={()=>updQty(item.id,1)}>+</button>
                     </div>
                     <button onClick={()=>removeItem(item.id)} className="text-disabled hover:text-red-500 text-xs transition-colors">Удалить</button>
                   </div>
@@ -1072,7 +1236,7 @@ function CartPage() {
                     <div key={vv.id} className="text-center p-3 rounded-xl border border-gray-100 hover:border-gray-200 transition-colors cursor-pointer"
                       onClick={()=>history.push('/vitamins/'+vv.id)}>
                       <div className="aspect-square mb-2 rounded-lg flex items-center justify-center p-2" style={{background:'#f5f5f5'}}>
-                        <img src={vv.img} alt={vv.name} className="max-h-full max-w-full object-contain" />
+                        <img src={vv.imgs[0]} alt={vv.name} className="max-h-full max-w-full object-contain" />
                       </div>
                       <p className="text-xs font-medium text-ink mb-1 leading-tight">{vv.name}</p>
                       <p className="text-xs text-secondary mb-2">{fmt(vv.price)}</p>
@@ -1618,6 +1782,7 @@ function App() {
           </Switch>
         </main>
         <AuthModal />
+        <CallbackModal />
         <TestPanel />
         <Toast />
       </HashRouter>
