@@ -630,8 +630,8 @@ function VitCard({ v }) {
     <div className="bg-white rounded-2xl overflow-hidden card-hover cursor-pointer border border-gray-100"
       onClick={() => history.push('/vitamins/'+v.id)}
       onMouseLeave={()=>setImgIdx(0)}>
-      <div className="aspect-square flex items-center justify-center p-3 relative" style={{background:'#f5f5f5'}}>
-        <img src={imgs[imgIdx]} alt={v.name} className="max-h-full max-w-full object-contain transition-opacity" style={{filter:'drop-shadow(0 10px 18px rgba(0,0,0,0.18))'}} />
+      <div className="aspect-square flex items-center justify-center relative overflow-hidden" style={{background:'#f5f5f5'}}>
+        <img src={imgs[imgIdx]} alt={v.name} className="w-full h-full object-cover transition-opacity" style={{transform:'scale(1.15)'}} />
         {v.orig > v.price && (
           <div className="absolute top-3 left-3 flex items-center gap-1 px-2.5 py-1 rounded-full text-white" style={{background:'#FB1971',fontSize:'11px',fontWeight:600}}>
             <span>🔥</span>
@@ -736,8 +736,8 @@ function KitCard({ k }) {
     <div className="bg-white rounded-2xl p-4 border border-gray-100 card-hover cursor-pointer flex-shrink-0" style={{width:'300px'}}
       onClick={() => history.push('/vitamin-kits/'+k.id)}
       onMouseLeave={()=>setImgIdx(0)}>
-      <div className="aspect-[4/3] -mx-4 -mt-4 mb-3 flex items-center justify-center p-3 relative overflow-hidden" style={{background:'#f5f5f5'}}>
-        <img src={imgs[imgIdx]} alt={k.name} className="max-h-full max-w-full object-contain transition-opacity" style={{filter:'drop-shadow(0 10px 18px rgba(0,0,0,0.18))'}} />
+      <div className="aspect-[4/3] -mx-4 -mt-4 mb-3 flex items-center justify-center relative overflow-hidden" style={{background:'#f5f5f5'}}>
+        <img src={imgs[imgIdx]} alt={k.name} className="w-full h-full object-cover transition-opacity" style={{transform:'scale(1.15)'}} />
         {k.orig > k.price && (
           <div className="absolute top-3 left-3 flex items-center gap-1 px-2.5 py-1 rounded-full text-white" style={{background:'#FB1971',fontSize:'11px',fontWeight:600}}>
             <span>🔥</span>
@@ -1098,16 +1098,14 @@ function HomePage() {
 /* ─── VITAMINS PAGE ──────────────────────────────────────────────────────── */
 function VitaminsPage() {
   const [filter, setFilter] = useState('all');
-  const [selectedTags, setSelectedTags] = useState([]);
   const [faq, setFaq]       = useState(null);
-  const CATS = [{id:'all',l:'Все'},{id:'vitamins',l:'Витамины'},{id:'minerals',l:'Минералы'},{id:'omega',l:'Омега'}];
-  const ALL_TAGS = [...new Set(VITAMINS.flatMap(v => v.tags))].sort((a,b)=>a.localeCompare(b,'ru'));
-  const shown = VITAMINS.filter(v =>
-    (filter==='all' || v.cat===filter) &&
-    (selectedTags.length===0 || v.tags.some(t => selectedTags.includes(t)))
-  );
-  const tagCount = tag => VITAMINS.filter(v => v.tags.includes(tag) && (filter==='all' || v.cat===filter)).length;
-  const toggleTag = t => setSelectedTags(prev => prev.includes(t) ? prev.filter(x=>x!==t) : [...prev, t]);
+  const FILTERS = [
+    { id:'all',         l:'Все' },
+    { id:'Иммунитет',   l:'Иммунитет' },
+    { id:'Сердце',      l:'Сердце' },
+    { id:'Энергия',     l:'Энергия' },
+  ];
+  const shown = VITAMINS.filter(v => filter==='all' || v.tags.includes(filter));
 
   const FAQS = [
     ['Как подобрать витамины?','Рекомендуем пройти наш онлайн-тест или сдать анализы.'],
@@ -1126,75 +1124,26 @@ function VitaminsPage() {
         <div className="flex gap-4 overflow-x-auto pb-2">{KITS.filter(k=>k.available).map(k => <KitCard key={k.id} k={k} />)}</div>
       </div>
 
-      <div className="grid lg:grid-cols-[240px_1fr] gap-8 mb-16">
-        {/* SIDEBAR */}
-        <aside className="sticky top-20 self-start">
-          <div className="bg-white rounded-2xl border border-gray-100 p-5">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-ink" style={{fontSize:'15px',fontWeight:700,letterSpacing:'-0.01em'}}>Фильтры</h3>
-              {selectedTags.length>0 && (
-                <button onClick={()=>setSelectedTags([])} className="text-[12px] hover:underline" style={{color:'#042033'}}>
-                  Сбросить ({selectedTags.length})
-                </button>
-              )}
-            </div>
-            <p className="text-[11px] uppercase tracking-wider font-semibold mb-3" style={{color:'rgba(0,0,0,0.54)'}}>Цели</p>
-            <div className="space-y-2">
-              {ALL_TAGS.map(t => {
-                const count = tagCount(t);
-                const checked = selectedTags.includes(t);
-                const disabled = count===0;
-                return (
-                  <label key={t} className={'flex items-center gap-2.5 cursor-pointer group ' + (disabled?'opacity-40 cursor-not-allowed':'')}
-                    onClick={()=>!disabled && toggleTag(t)}>
-                    <div className={'w-4 h-4 rounded border-2 flex items-center justify-center flex-shrink-0 transition-colors ' + (checked?'':'border-gray-300 group-hover:border-gray-400')}
-                      style={checked ? {background:'#042033', borderColor:'#042033'} : {}}>
-                      {checked && <svg width="9" height="7" fill="none"><path d="M1 3.5l2.5 2.5 4.5-5" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>}
-                    </div>
-                    <span className="text-[13px] text-ink flex-1">{t}</span>
-                    <span className="text-[11px] text-disabled">{count}</span>
-                  </label>
-                );
-              })}
-            </div>
-          </div>
-        </aside>
+      <div className="flex gap-2 mb-6 flex-wrap">
+        {FILTERS.map(f => (
+          <button key={f.id} onClick={()=>setFilter(f.id)}
+            className={'px-4 py-2 rounded-full text-sm font-medium transition-all ' + (filter===f.id
+              ? 'text-white'
+              : 'bg-white text-secondary border border-gray-200 hover:border-gray-400 hover:text-ink')}
+            style={filter===f.id ? {background:'#042033'} : {}}>
+            {f.l}
+          </button>
+        ))}
+      </div>
 
-        {/* MAIN */}
-        <div>
-          <div className="flex gap-2 mb-5 flex-wrap">
-            {CATS.map(c => (
-              <button key={c.id} onClick={()=>setFilter(c.id)}
-                className={'px-4 py-2 rounded-full text-sm font-medium transition-all ' + (filter===c.id
-                  ? 'text-white'
-                  : 'bg-white text-secondary border border-gray-200 hover:border-gray-400 hover:text-ink')}
-                style={filter===c.id ? {background:'#042033'} : {}}>
-                {c.l}
-              </button>
-            ))}
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5 mb-16">
+        {shown.map(v => <VitCard key={v.id} v={v} />)}
+        {shown.length===0 && (
+          <div className="col-span-full text-center py-16">
+            <p className="text-secondary mb-4">По выбранному фильтру ничего не найдено</p>
+            <button onClick={()=>setFilter('all')} className="btn-o px-6 py-2 text-sm font-semibold">Показать все</button>
           </div>
-
-          {selectedTags.length>0 && (
-            <div className="flex gap-2 flex-wrap mb-5">
-              {selectedTags.map(t => (
-                <button key={t} onClick={()=>toggleTag(t)} className="flex items-center gap-1.5 px-3 py-1 rounded-full text-[12px] font-semibold text-white" style={{background:'#042033'}}>
-                  {t}
-                  <span className="text-[14px] leading-none">×</span>
-                </button>
-              ))}
-            </div>
-          )}
-
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-5">
-            {shown.map(v => <VitCard key={v.id} v={v} />)}
-          </div>
-          {shown.length===0 && (
-            <div className="text-center py-16">
-              <p className="text-secondary mb-4">По выбранным фильтрам ничего не найдено</p>
-              <button onClick={()=>{setSelectedTags([]);setFilter('all');}} className="btn-o px-6 py-2 text-sm font-semibold">Сбросить фильтры</button>
-            </div>
-          )}
-        </div>
+        )}
       </div>
 
       <div className="max-w-2xl mx-auto">
