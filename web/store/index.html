@@ -380,6 +380,47 @@ const DELIV_STATUS = {
 const fmt  = n => n.toLocaleString('ru-RU') + ' ₽';
 const getV = id => VITAMINS.find(v => v.id === id);
 const getK = id => KITS.find(k => k.id === id);
+const wordForm = (n, [one, few, many]) => {
+  const m10 = n % 10, m100 = n % 100;
+  if (m10 === 1 && m100 !== 11) return one;
+  if (m10 >= 2 && m10 <= 4 && (m100 < 10 || m100 >= 20)) return few;
+  return many;
+};
+
+const REVIEW_POOL = [
+  { name:'Анна К.',     date:'12 апреля',  rating:5, text:'Прошла курс месяц — стала легче засыпать, утром бодрее. Капсулы небольшие, легко глотаются, никакой горечи.' },
+  { name:'Михаил Т.',   date:'5 апреля',   rating:5, text:'Беру уже второй месяц. Эффект мягкий, но стабильный. Раньше пробовал обычные таблетки — не сравнить, эти точно работают.' },
+  { name:'Елена С.',    date:'28 марта',   rating:4, text:'Понравилось качество упаковки и состав. Цена немного высоковата, но результат того стоит. Рекомендую.' },
+  { name:'Дмитрий Р.',  date:'19 марта',   rating:5, text:'Принимал по рекомендации врача. Через 2 месяца сдал анализы — показатели улучшились. Доволен.' },
+  { name:'Наталья В.',  date:'14 марта',   rating:5, text:'Заказала на сайте — пришло быстро через СДЭК. Капсулы качественные, состав честный. Уже посоветовала маме.' },
+  { name:'Игорь Л.',    date:'2 марта',    rating:4, text:'Хороший комплекс. Состав сбалансированный, дозировки рабочие. Хотелось бы ещё в порошке попробовать.' },
+  { name:'Ольга П.',    date:'24 февраля', rating:5, text:'Замечательно! Принимаю в комплексе с другими витаминами Bioniq. Самочувствие за 2 месяца значительно улучшилось.' },
+  { name:'Сергей М.',   date:'19 февраля', rating:5, text:'Заказал в первый раз — впечатлила упаковка и подробное описание состава. Хороший подход к качеству.' },
+  { name:'Татьяна Б.',  date:'10 февраля', rating:5, text:'Отличный комплекс! Заметила результат уже через 3 недели. Капсулы небольшие, без привкуса. Закажу ещё.' },
+  { name:'Алексей Н.',  date:'1 февраля',  rating:4, text:'Нормальный продукт. Состав соответствует заявленному, дозировки честные. Обычно пью с едой — хорошо переносится.' },
+];
+
+const productRating = id => {
+  const code = id.charCodeAt(id.length - 1) + id.charCodeAt(0);
+  return 4.6 + (code % 5) / 10;
+};
+const productReviewCount = id => 60 + (id.charCodeAt(0) * 7 + id.length * 13) % 220;
+const productReviews = id => {
+  const seed = (id.charCodeAt(0) + id.length) % REVIEW_POOL.length;
+  return [...REVIEW_POOL.slice(seed), ...REVIEW_POOL.slice(0, seed)].slice(0, 4);
+};
+
+function Stars({ rating, size=14 }) {
+  return (
+    <div className="flex gap-0.5">
+      {[1,2,3,4,5].map(i => (
+        <svg key={i} width={size} height={size} viewBox="0 0 24 24" fill={rating >= i - 0.25 ? '#F9AB00' : '#E5E7EB'}>
+          <path d="M12 2l3.09 6.26L22 9.27l-5 4.87L18.18 22 12 18.27 5.82 22 7 14.14l-5-4.87 6.91-1.01L12 2z"/>
+        </svg>
+      ))}
+    </div>
+  );
+}
 const RU_MONTHS = ['января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря'];
 const delivDate = (offset=4) => { const d=new Date(); d.setDate(d.getDate()+offset); return d.getDate()+' '+RU_MONTHS[d.getMonth()]; };
 
@@ -1591,6 +1632,56 @@ function CheckupCard({ c }) {
   );
 }
 
+/* ─── REVIEWS SECTION ────────────────────────────────────────────────────── */
+function ReviewsSection({ productId }) {
+  const { showToast } = useApp();
+  const reviews = productReviews(productId);
+  const rating = productRating(productId);
+  const total = productReviewCount(productId);
+  return (
+    <section className="mb-12">
+      <div className="flex items-end justify-between mb-6 flex-wrap gap-3">
+        <div>
+          <h2 className="text-ink mb-2" style={{fontSize:'24px',fontWeight:700,letterSpacing:'-0.01em'}}>Отзывы покупателей</h2>
+          <div className="flex items-center gap-2.5">
+            <Stars rating={rating} size={18} />
+            <span className="text-[16px] font-semibold text-ink">{rating.toFixed(1)}</span>
+            <span className="text-[13px]" style={{color:'rgba(0,0,0,0.54)'}}>· {total} {wordForm(total, ['отзыв','отзыва','отзывов'])}</span>
+          </div>
+        </div>
+        <button onClick={()=>showToast('Только покупатели могут оставлять отзывы')} className="btn-o px-5 py-2.5 text-sm font-semibold">
+          Написать отзыв
+        </button>
+      </div>
+      <div className="grid md:grid-cols-2 gap-4">
+        {reviews.map((r, i) => (
+          <div key={i} className="rounded-2xl border border-gray-100 p-5">
+            <div className="flex items-start justify-between mb-3">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full text-white text-sm font-semibold flex items-center justify-center flex-shrink-0" style={{background:'#042033'}}>
+                  {r.name.charAt(0)}
+                </div>
+                <div>
+                  <div className="text-[14px] font-semibold text-ink">{r.name}</div>
+                  <div className="text-[12px]" style={{color:'rgba(0,0,0,0.54)'}}>{r.date}</div>
+                </div>
+              </div>
+              <Stars rating={r.rating} size={13} />
+            </div>
+            <p className="text-[13px] leading-relaxed" style={{color:'rgba(0,0,0,0.7)'}}>{r.text}</p>
+          </div>
+        ))}
+      </div>
+      <div className="mt-5 text-center">
+        <button onClick={()=>showToast('Полный список отзывов появится после релиза')} className="text-[13px] font-semibold inline-flex items-center gap-1.5 hover:underline" style={{color:'#042033'}}>
+          Все {total} {wordForm(total, ['отзыв','отзыва','отзывов'])}
+          <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg>
+        </button>
+      </div>
+    </section>
+  );
+}
+
 /* ─── CERTIFICATES SECTION ───────────────────────────────────────────────── */
 function CertificatesSection({ productId }) {
   const { showToast } = useApp();
@@ -1756,7 +1847,12 @@ function VitaminDetail() {
             {v.tags.map(t => <Tag key={t} label={t} />)}
           </div>
           <h1 className="text-3xl font-bold text-ink mb-1">{v.name}</h1>
-          <p className="text-secondary mb-4">{v.sub}</p>
+          <p className="text-secondary mb-3">{v.sub}</p>
+          <div className="flex items-center gap-2 mb-4">
+            <Stars rating={productRating(v.id)} size={14} />
+            <span className="text-[13px] font-semibold text-ink">{productRating(v.id).toFixed(1)}</span>
+            <a href="#reviews" onClick={e=>{e.preventDefault();document.getElementById('reviews-'+v.id)?.scrollIntoView({behavior:'smooth'});}} className="text-[12px] hover:underline" style={{color:'rgba(0,0,0,0.54)'}}>· {productReviewCount(v.id)} {wordForm(productReviewCount(v.id), ['отзыв','отзыва','отзывов'])}</a>
+          </div>
           {v.count && (
             <div className="flex items-center gap-2 mb-6 flex-wrap">
               <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[13px] font-semibold" style={{background:'#f5f5f5',color:'#042033'}}>
@@ -1832,6 +1928,8 @@ function VitaminDetail() {
       <LiposomeBanner />
 
       <CertificatesSection productId={v.id} />
+
+      <div id={'reviews-'+v.id}><ReviewsSection productId={v.id} /></div>
 
       <div className="border-b border-gray-200 mb-6 flex gap-6">
         {[['desc','Описание'],['ingr','Состав'],['dose','Применение']].map(([k,l]) => (
@@ -1915,6 +2013,11 @@ function KitDetail() {
         <div>
           <span className="text-xs font-semibold tracking-[0.2em] uppercase mb-4 inline-block" style={{color:'rgba(0,0,0,0.54)'}}>Набор</span>
           <h1 className="text-3xl font-bold text-ink mb-2">{k.name}</h1>
+          <div className="flex items-center gap-2 mb-3">
+            <Stars rating={productRating(k.id)} size={14} />
+            <span className="text-[13px] font-semibold text-ink">{productRating(k.id).toFixed(1)}</span>
+            <a href="#reviews" onClick={e=>{e.preventDefault();document.getElementById('reviews-'+k.id)?.scrollIntoView({behavior:'smooth'});}} className="text-[12px] hover:underline" style={{color:'rgba(0,0,0,0.54)'}}>· {productReviewCount(k.id)} {wordForm(productReviewCount(k.id), ['отзыв','отзыва','отзывов'])}</a>
+          </div>
           <p className="text-secondary mb-4">{k.desc}</p>
           <div className="flex items-center gap-2 mb-6 flex-wrap">
             <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[13px] font-semibold" style={{background:'#f5f5f5',color:'#042033'}}>
@@ -2005,6 +2108,8 @@ function KitDetail() {
       <LiposomeBanner />
 
       <CertificatesSection productId={k.id} />
+
+      <div id={'reviews-'+k.id}><ReviewsSection productId={k.id} /></div>
 
       <div className="border-b border-gray-200 mb-6 flex gap-6">
         {[['desc','Описание'],['ingr','Состав'],['dose','Применение']].map(([key,label]) => (
