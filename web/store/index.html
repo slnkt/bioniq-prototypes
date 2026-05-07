@@ -172,6 +172,7 @@ function AppProvider({ children }) {
   const [authCb,       setAuthCb]       = useState(null);
   const [callbackOpen, setCallbackOpen] = useState(false);
   const [notifyProduct, setNotifyProduct] = useState(null);
+  const [requestOpen, setRequestOpen] = useState(false);
   const [curOrder,     setCurOrder]     = useState(null);
   const [toast,        setToast]        = useState(null);
   const [ts,           setTs]           = useState({ outOfStock:false, payFail:false, delivErr:false });
@@ -180,6 +181,12 @@ function AppProvider({ children }) {
     setToast({ msg, type, id: Date.now() });
     setTimeout(() => setToast(null), 3000);
   }, []);
+
+  const isAvailable = vid => {
+    if (ts.outOfStock && (vid==='vit-d3'||vid==='vit-c')) return false;
+    return (getV(vid)?.stock ?? 0) > 0;
+  };
+  const isKitAvailable = kit => kit.available && kit.items.every(i => isAvailable(i.vid));
 
   const effStock = vid => {
     if (ts.outOfStock && (vid==='vit-d3'||vid==='vit-c')) return 0;
@@ -276,6 +283,8 @@ function AppProvider({ children }) {
       user, login, logout:()=>setUser(null), requireAuth, authOpen, setAuthOpen,
       callbackOpen, setCallbackOpen,
       notifyProduct, setNotifyProduct,
+      requestOpen, setRequestOpen,
+      isAvailable, isKitAvailable,
       orders, placeOrder, curOrder, setCurOrder,
       toast, showToast, ts, setTs, effStock, PROMOS }}>
       {children}
@@ -512,6 +521,96 @@ function NotifyModal() {
               <p className="text-xs" style={{color:'rgba(0,0,0,0.54)'}}>Согласен с обработкой персональных данных</p>
             </label>
             <button onClick={submit} className="btn-p w-full py-3 font-semibold">Подписаться</button>
+          </>
+        )}
+      </div>
+    </div>
+  );
+}
+
+/* ─── REQUEST PRODUCT MODAL ──────────────────────────────────────────────── */
+function RequestModal() {
+  const { requestOpen, setRequestOpen, showToast, user } = useApp();
+  const [product, setProduct] = useState('');
+  const [contact, setContact] = useState('');
+  const [comment, setComment] = useState('');
+  const [agree,   setAgree]   = useState(true);
+  const [err,     setErr]     = useState({});
+  const [sent,    setSent]    = useState(false);
+
+  useEffect(() => {
+    if (requestOpen && user && !contact) setContact(user.email);
+  }, [requestOpen, user]);
+
+  if (!requestOpen) return null;
+
+  const close = () => {
+    setRequestOpen(false);
+    setTimeout(()=>{ setProduct(''); setContact(''); setComment(''); setSent(false); setErr({}); }, 200);
+  };
+
+  const submit = () => {
+    const e = {};
+    if (!product.trim()) e.product = 'Укажите название';
+    if (!contact.trim()) e.contact = 'Email или телефон';
+    if (!agree) e.agree = 'Необходимо согласие';
+    setErr(e);
+    if (Object.keys(e).length) return;
+    setSent(true);
+    showToast('Запрос отправлен — рассмотрим в ближайшее время');
+    setTimeout(close, 2000);
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center fade-in" style={{background:'rgba(0,0,0,0.5)'}} onClick={close}>
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md mx-4 p-8" onClick={e=>e.stopPropagation()}>
+        {sent ? (
+          <div className="text-center py-8">
+            <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-5">
+              <svg width="28" height="28" fill="none" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7" stroke="#16a34a" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+            </div>
+            <h3 className="text-ink mb-2" style={{fontSize:'22px',fontWeight:700,letterSpacing:'-0.01em'}}>Запрос отправлен</h3>
+            <p className="text-secondary text-sm">Спасибо! Мы рассмотрим вашу заявку и свяжемся, когда товар появится.</p>
+          </div>
+        ) : (
+          <>
+            <div className="flex justify-between items-start mb-3">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0" style={{background:'#E5EDF2'}}>
+                  <svg width="18" height="18" fill="none" stroke="#042033" strokeWidth="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.3-4.3"/></svg>
+                </div>
+                <h2 className="text-ink" style={{fontSize:'22px',fontWeight:700,letterSpacing:'-0.01em'}}>Запросить товар</h2>
+              </div>
+              <button onClick={close} className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-xl hover:bg-gray-200 transition-colors flex-shrink-0">×</button>
+            </div>
+            <p className="text-secondary text-sm mb-6">Расскажите, какой витамин или комплекс вам нужен — добавим в каталог и сообщим вам.</p>
+            <div className="space-y-3 mb-5">
+              <div>
+                <input placeholder="Название товара (например, Селен, Лютеин)" value={product}
+                  onChange={e=>{setProduct(e.target.value);setErr(p=>({...p,product:null}));}}
+                  className={'inp ' + (err.product?'inp-err':'')} />
+                {err.product && <p className="text-red-500 text-xs mt-1">{err.product}</p>}
+              </div>
+              <div>
+                <input placeholder="Email или телефон для связи" value={contact}
+                  onChange={e=>{setContact(e.target.value);setErr(p=>({...p,contact:null}));}}
+                  className={'inp ' + (err.contact?'inp-err':'')} />
+                {err.contact && <p className="text-red-500 text-xs mt-1">{err.contact}</p>}
+              </div>
+              <div>
+                <textarea placeholder="Комментарий (необязательно): дозировка, форма, бренд…" value={comment}
+                  onChange={e=>setComment(e.target.value)}
+                  className="inp resize-none" rows={3} />
+              </div>
+            </div>
+            <label className="flex items-start gap-2 cursor-pointer mb-5" onClick={()=>{setAgree(a=>!a);setErr(p=>({...p,agree:null}));}}>
+              <div className={'mt-0.5 w-4 h-4 rounded border-2 flex items-center justify-center flex-shrink-0 transition-colors ' + (agree?'':'border-gray-300')}
+                style={agree ? {background:'#042033', borderColor:'#042033'} : {}}>
+                {agree && <svg width="9" height="7" fill="none"><path d="M1 3.5l2.5 2.5 4.5-5" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>}
+              </div>
+              <p className="text-xs" style={{color:'rgba(0,0,0,0.54)'}}>Согласен с обработкой персональных данных</p>
+            </label>
+            <button onClick={submit} className="btn-p w-full py-3 font-semibold">Отправить запрос</button>
           </>
         )}
       </div>
@@ -1072,6 +1171,7 @@ function HomePage() {
 
 /* ─── VITAMINS PAGE ──────────────────────────────────────────────────────── */
 function VitaminsPage() {
+  const { isAvailable, isKitAvailable, setRequestOpen } = useApp();
   const [filter, setFilter] = useState('all');
   const [faq, setFaq]       = useState(null);
   const FILTERS = [
@@ -1080,7 +1180,8 @@ function VitaminsPage() {
     { id:'Сердце',      l:'Сердце' },
     { id:'Энергия',     l:'Энергия' },
   ];
-  const shown = VITAMINS.filter(v => filter==='all' || v.tags.includes(filter));
+  const shown = VITAMINS.filter(v => isAvailable(v.id) && (filter==='all' || v.tags.includes(filter)));
+  const visibleKits = KITS.filter(isKitAvailable);
 
   const FAQS = [
     ['Как подобрать витамины?','Рекомендуем пройти наш онлайн-тест или сдать анализы.'],
@@ -1096,7 +1197,7 @@ function VitaminsPage() {
       </div>
       <div className="mb-10">
         <h2 className="text-ink mb-4" style={{fontSize:'22px',fontWeight:700,letterSpacing:'-0.01em'}}>Наборы</h2>
-        <div className="flex gap-4 overflow-x-auto pb-2">{KITS.filter(k=>k.available).map(k => (
+        <div className="flex gap-4 overflow-x-auto pb-2">{visibleKits.map(k => (
           <div key={k.id} className="flex-shrink-0" style={{width:'300px'}}><KitCard k={k} /></div>
         ))}</div>
       </div>
@@ -1113,7 +1214,7 @@ function VitaminsPage() {
         ))}
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5 mb-16">
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5 mb-10">
         {shown.map(v => <VitCard key={v.id} v={v} />)}
         {shown.length===0 && (
           <div className="col-span-full text-center py-16">
@@ -1121,6 +1222,19 @@ function VitaminsPage() {
             <button onClick={()=>setFilter('all')} className="btn-o px-6 py-2 text-sm font-semibold">Показать все</button>
           </div>
         )}
+      </div>
+
+      <div className="rounded-3xl p-8 mb-16 flex flex-col md:flex-row md:items-center gap-6" style={{background:'#E5EDF2'}}>
+        <div className="w-14 h-14 rounded-full flex items-center justify-center flex-shrink-0" style={{background:'#042033'}}>
+          <svg width="24" height="24" fill="none" stroke="white" strokeWidth="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.3-4.3"/></svg>
+        </div>
+        <div className="flex-1">
+          <h3 className="text-ink mb-1" style={{fontSize:'20px',fontWeight:700,letterSpacing:'-0.01em'}}>Не нашли нужное?</h3>
+          <p className="text-[14px]" style={{color:'rgba(0,0,0,0.54)'}}>Расскажите, какой витамин или комплекс вам нужен — добавим в каталог и сообщим, когда появится.</p>
+        </div>
+        <button onClick={()=>setRequestOpen(true)} className="btn-p px-6 py-3 font-semibold text-sm flex-shrink-0">
+          Запросить товар →
+        </button>
       </div>
 
       <div className="max-w-2xl mx-auto">
@@ -1142,7 +1256,7 @@ function VitaminsPage() {
 /* ─── VITAMIN DETAIL ─────────────────────────────────────────────────────── */
 function VitaminDetail() {
   const { id } = useParams();
-  const { addToCart, effStock, setNotifyProduct } = useApp();
+  const { addToCart, effStock, setNotifyProduct, isAvailable, isKitAvailable } = useApp();
   const history = useHistory();
   const v = getV(id);
   const [qty, setQty]     = useState(1);
@@ -1159,8 +1273,8 @@ function VitaminDetail() {
       setAdded(true);
   };
 
-  const recKits = KITS.filter(kk => kk.available);
-  const recVits = VITAMINS.filter(x => x.id !== id);
+  const recKits = KITS.filter(kk => isKitAvailable(kk));
+  const recVits = VITAMINS.filter(x => x.id !== id && isAvailable(x.id));
 
   return (
     <div className="max-w-[1280px] mx-auto px-8 py-8 fade-in">
@@ -1294,7 +1408,7 @@ function VitaminDetail() {
 /* ─── KIT DETAIL ─────────────────────────────────────────────────────────── */
 function KitDetail() {
   const { id } = useParams();
-  const { addKitToCart, effStock, cart } = useApp();
+  const { addKitToCart, effStock, cart, isAvailable, isKitAvailable } = useApp();
   const history = useHistory();
   const k = getK(id);
   const [qty, setQty] = useState(1);
@@ -1313,8 +1427,8 @@ function KitDetail() {
   const buyNow = () => {
     if (addKitToCart(k, clampedQty)) history.push('/checkout');
   };
-  const recKits = KITS.filter(kk => kk.available && kk.id !== k.id);
-  const recVits = VITAMINS;
+  const recKits = KITS.filter(kk => isKitAvailable(kk) && kk.id !== k.id);
+  const recVits = VITAMINS.filter(v => isAvailable(v.id));
 
   return (
     <div className="max-w-[1280px] mx-auto px-8 py-8 fade-in">
@@ -2132,6 +2246,7 @@ function App() {
         <AuthModal />
         <CallbackModal />
         <NotifyModal />
+        <RequestModal />
         <TestPanel />
         <Toast />
       </HashRouter>
