@@ -63,31 +63,31 @@ const { HashRouter, Switch, Route, Link, useHistory, useParams, useLocation, Red
 
 /* ─── DATA ──────────────────────────────────────────────────────────────── */
 const VITAMINS = [
-  { id:'vit-d3',    name:'Витамин D3',   sub:'Иммунитет и кости',        price:890,  orig:1190, stock:15, em:'☀️', bg:'#EBF7FD', tags:['Иммунитет','Кости'],    cat:'vitamins',
+  { id:'vit-d3',    name:'Витамин D3',   sub:'Иммунитет и кости',        price:890,  orig:1190, stock:15, img:'../../shared/photos/bottle-1.jpg', tags:['Иммунитет','Кости'],    cat:'vitamins',
     desc:'Витамин D3 (холекальциферол) — ключевой нутриент для поддержания иммунной системы, здоровья костей и зубов. Участвует в регуляции более 200 генов.',
     ingr:[{n:'Холекальциферол (D3)',a:'2000 МЕ',p:'1000%'},{n:'Оливковое масло',a:'200 мг',p:'—'}], dose:'1 капсула в день во время еды' },
-  { id:'vit-c',     name:'Витамин C',    sub:'Антиоксидантная защита',    price:650,  orig:890,  stock:8,  em:'🍊', bg:'#FFF3E0', tags:['Антиоксидант','Иммунитет'], cat:'vitamins',
+  { id:'vit-c',     name:'Витамин C',    sub:'Антиоксидантная защита',    price:650,  orig:890,  stock:8,  img:'../../shared/photos/bottle-2.jpg', tags:['Антиоксидант','Иммунитет'], cat:'vitamins',
     desc:'Аскорбиновая кислота — мощный антиоксидант, необходимый для синтеза коллагена и укрепления иммунитета.',
     ingr:[{n:'Аскорбиновая кислота',a:'500 мг',p:'556%'}], dose:'1–2 капсулы в день' },
-  { id:'vit-omega3',name:'Омега-3',      sub:'Сердце и мозг',             price:1290, orig:1590, stock:20, em:'🐟', bg:'#E8F4FD', tags:['Сердце','Мозг'],        cat:'omega',
+  { id:'vit-omega3',name:'Омега-3',      sub:'Сердце и мозг',             price:1290, orig:1590, stock:20, img:'../../shared/photos/bottle-3.jpg', tags:['Сердце','Мозг'],        cat:'omega',
     desc:'Высококонцентрированный рыбий жир EPA и DHA для здоровья сердца и мозга.',
     ingr:[{n:'EPA',a:'400 мг',p:'—'},{n:'DHA',a:'300 мг',p:'—'}], dose:'2 капсулы в день во время еды' },
-  { id:'vit-mag',   name:'Магний B6',    sub:'Нервная система и сон',     price:790,  orig:990,  stock:12, em:'🧠', bg:'#F3E8FF', tags:['Стресс','Сон'],          cat:'minerals',
+  { id:'vit-mag',   name:'Магний B6',    sub:'Нервная система и сон',     price:790,  orig:990,  stock:12, img:'../../shared/photos/bottle-4.jpg', tags:['Стресс','Сон'],          cat:'minerals',
     desc:'Комплекс магния с витамином B6 для нормальной работы нервной системы и улучшения сна.',
     ingr:[{n:'Магний (цитрат)',a:'300 мг',p:'71%'},{n:'Витамин B6',a:'2 мг',p:'143%'}], dose:'2 таблетки вечером' },
-  { id:'vit-zinc',  name:'Цинк',         sub:'Иммунитет и кожа',          price:490,  orig:690,  stock:0,  em:'💎', bg:'#E8F5E9', tags:['Иммунитет','Кожа'],    cat:'minerals',
+  { id:'vit-zinc',  name:'Цинк',         sub:'Иммунитет и кожа',          price:490,  orig:690,  stock:0,  img:'../../shared/photos/bottle-5.jpg', tags:['Иммунитет','Кожа'],    cat:'minerals',
     desc:'Незаменимый микроэлемент для работы иммунной системы и здоровья кожи.',
     ingr:[{n:'Цинк (глюконат)',a:'15 мг',p:'150%'}], dose:'1 таблетка в день с едой' },
-  { id:'vit-bcomp', name:'B-комплекс',   sub:'Энергия и метаболизм',      price:990,  orig:1290, stock:6,  em:'⚡', bg:'#FFFDE7', tags:['Энергия','Метаболизм'], cat:'vitamins',
+  { id:'vit-bcomp', name:'B-комплекс',   sub:'Энергия и метаболизм',      price:990,  orig:1290, stock:6,  img:'../../shared/photos/bottle-6.jpg', tags:['Энергия','Метаболизм'], cat:'vitamins',
     desc:'Полный комплекс витаминов группы B для энергетического обмена.',
     ingr:[{n:'B1 (тиамин)',a:'1.1 мг',p:'100%'},{n:'B6',a:'1.4 мг',p:'100%'},{n:'B12',a:'2.5 мкг',p:'100%'}], dose:'1 капсула утром с едой' },
 ];
 
 const KITS = [
-  { id:'kit-immunity', name:'Иммунитет Про', sub:'Комплексная защита', price:1990, orig:2770, em:'🛡️', bg:'#EBF7FD', saving:'780 ₽',
+  { id:'kit-immunity', name:'Иммунитет Про', sub:'Комплексная защита', price:1990, orig:2770, img:'../../shared/photos/bottle-1.jpg', saving:'780 ₽',
     desc:'Полный комплекс для поддержки иммунной системы. D3 + C + Цинк — многоуровневая защита.',
     items:[{vid:'vit-d3',qty:1},{vid:'vit-c',qty:1},{vid:'vit-zinc',qty:1}] },
-  { id:'kit-energy',   name:'Энергия и Фокус', sub:'Заряд на весь день', price:2490, orig:3170, em:'🚀', bg:'#E8F4FD', saving:'680 ₽',
+  { id:'kit-energy',   name:'Энергия и Фокус', sub:'Заряд на весь день', price:2490, orig:3170, img:'../../shared/photos/bottle-3.jpg', saving:'680 ₽',
     desc:'Омега-3, B-комплекс и магний — идеальное трио для высокого уровня энергии и продуктивности.',
     items:[{vid:'vit-omega3',qty:1},{vid:'vit-bcomp',qty:1},{vid:'vit-mag',qty:1}] },
 ];
@@ -353,7 +353,7 @@ function Header() {
   const location = useLocation();
   return (
     <header className="sticky top-0 z-30 bg-white border-b border-gray-100">
-      <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
+      <div className="max-w-[1280px] mx-auto px-8 h-16 flex items-center justify-between">
         <Link to="/" className="flex items-center hover:opacity-80 transition-opacity" aria-label="bioniq">
           <svg width="36" height="36" viewBox="0 0 160 160" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M99.4688 83.0625C99.4688 71.4645 90.0667 62.0625 78.4688 62.0625H71.0312V55.0625H78.4688C93.9327 55.0625 106.469 67.5985 106.469 83.0625V129H99.4688V83.0625ZM53.5312 76.9375V31H60.5312V76.9375C60.5312 88.5355 69.9333 97.9375 81.5312 97.9375H88.8115V104.938H81.5312C66.0673 104.938 53.5312 92.4015 53.5312 76.9375Z" fill="#1098D4"/>
@@ -421,7 +421,9 @@ function VitCard({ v }) {
   return (
     <div className="bg-white rounded-2xl overflow-hidden card-hover cursor-pointer border border-gray-100"
       onClick={() => history.push('/vitamins/'+v.id)}>
-      <div className="h-28 flex items-center justify-center text-5xl" style={{background:v.bg}}>{v.em}</div>
+      <div className="aspect-square flex items-center justify-center p-6" style={{background:'#f5f5f5'}}>
+        <img src={v.img} alt={v.name} className="max-h-full max-w-full object-contain" style={{filter:'drop-shadow(0 8px 16px rgba(0,0,0,0.12))'}} />
+      </div>
       <div className="p-4">
         <div className="flex flex-wrap gap-1 mb-2">
           {v.tags.slice(0,2).map(t => <Tag key={t} label={t} />)}
@@ -454,9 +456,9 @@ function KitCard({ k }) {
   return (
     <div className="bg-white rounded-2xl p-5 border border-gray-100 card-hover cursor-pointer min-w-60"
       onClick={() => history.push('/vitamin-kits/'+k.id)}>
-      <div className="flex items-start justify-between mb-3">
-        <span className="text-3xl">{k.em}</span>
-        <span className="text-white text-xs px-2 py-1 rounded-lg font-semibold" style={{background:'#042033'}}>−{k.saving}</span>
+      <div className="aspect-[4/3] -mx-5 -mt-5 mb-4 flex items-center justify-center p-6 relative" style={{background:'#f5f5f5'}}>
+        <img src={k.img} alt={k.name} className="max-h-full max-w-full object-contain" style={{filter:'drop-shadow(0 8px 16px rgba(0,0,0,0.12))'}} />
+        <span className="absolute top-3 right-3 text-white text-xs px-2 py-1 rounded-lg font-semibold" style={{background:'#042033'}}>−{k.saving}</span>
       </div>
       <h3 className="font-bold text-ink mb-1">{k.name}</h3>
       <p className="text-xs text-secondary mb-3">{k.items.length} товара</p>
@@ -480,48 +482,64 @@ function HomePage() {
   const history = useHistory();
   return (
     <div>
-      <section className="overflow-hidden relative" style={{background:'#1A2E3F'}}>
-        <div className="absolute inset-0 opacity-15" style={{background:'radial-gradient(circle at 70% 50%, #042033 0%, transparent 60%)'}} />
-        <div className="max-w-6xl mx-auto px-6 py-20 grid md:grid-cols-2 gap-12 items-center relative z-10">
+      {/* HERO */}
+      <section style={{background:'#fafafa'}}>
+        <div className="max-w-[1280px] mx-auto px-8 pt-16 pb-20 grid md:grid-cols-2 gap-16 items-center">
           <div>
-            <p className="text-sm font-semibold tracking-widest uppercase mb-4" style={{color:'#042033'}}>Персонализированное питание</p>
-            <h1 className="text-white text-5xl font-bold leading-tight mb-6">Витамины<br/>для вашего<br/>здоровья</h1>
-            <p className="text-gray-400 mb-8 text-lg">Научно обоснованные нутриенты для ваших целей.</p>
-            <button onClick={()=>history.push('/vitamins')} className="btn-p px-8 py-4 font-bold text-base">
-              Открыть магазин →
-            </button>
+            <p className="text-xs font-semibold tracking-[0.2em] uppercase mb-5" style={{color:'rgba(0,0,0,0.54)'}}>Персонализированное питание</p>
+            <h1 className="text-ink leading-[1.05] mb-6" style={{fontSize:'56px',fontWeight:700,letterSpacing:'-0.02em'}}>
+              Витамины<br/>для вашего<br/>здоровья
+            </h1>
+            <p className="mb-10 text-[17px] leading-relaxed" style={{color:'rgba(0,0,0,0.54)',maxWidth:'440px'}}>
+              Научно обоснованные нутриенты в липосомальной форме. Состав согласован с врачами превентивной медицины.
+            </p>
+            <div className="flex gap-3">
+              <button onClick={()=>history.push('/vitamins')} className="btn-p px-8 py-4 font-semibold text-base">
+                Открыть магазин
+              </button>
+              <button onClick={()=>history.push('/vitamins')} className="btn-o px-8 py-4 font-semibold text-base">
+                Подобрать комплекс
+              </button>
+            </div>
           </div>
-          <div className="space-y-4">
-            <div className="rounded-2xl p-5 flex items-center gap-4 cursor-pointer card-hover border"
-              style={{background:'rgba(41,171,226,0.12)', borderColor:'rgba(41,171,226,0.3)'}}
-              onClick={()=>history.push('/vitamins')}>
-              <span className="text-4xl">🛡️</span>
-              <div className="flex-1">
-                <h3 className="text-white font-semibold">Магазин витаминов</h3>
-                <p className="text-gray-400 text-sm">Более 20 витаминов и наборов</p>
-              </div>
-              <button className="btn-p px-4 py-2 text-sm font-semibold">Перейти</button>
-            </div>
-            <div className="rounded-2xl p-5 flex items-center gap-4 border border-white/10" style={{background:'rgba(255,255,255,0.05)'}}>
-              <span className="text-4xl">🧬</span>
-              <div>
-                <h3 className="text-white font-semibold">Персонализация</h3>
-                <p className="text-gray-400 text-sm">Анализ на основе ваших данных</p>
-              </div>
-            </div>
+          <div className="relative flex items-center justify-center" style={{minHeight:'520px'}}>
+            <div className="absolute inset-8 rounded-[32px]" style={{background:'#f0f0f0'}} />
+            <img src="../../shared/photos/bottle-1.jpg" alt="Bioniq" className="relative z-10 max-h-[480px] object-contain" style={{filter:'drop-shadow(0 30px 50px rgba(0,0,0,0.25))'}} />
           </div>
         </div>
       </section>
-      <section className="max-w-6xl mx-auto px-6 py-16 grid md:grid-cols-3 gap-8">
-        {[['🔬','Научный подход','Формулы разработаны совместно с нутрициологами'],
-          ['✈️','Быстрая доставка','СДЭК по всей России за 1–3 дня'],
-          ['🔒','Гарантия качества','Сертифицированное производство']].map(([i,t,d]) => (
-          <div key={t} className="text-center">
-            <div className="text-4xl mb-4">{i}</div>
-            <h3 className="font-bold text-ink mb-2">{t}</h3>
-            <p className="text-secondary text-sm">{d}</p>
+
+      {/* FEATURED PRODUCTS */}
+      <section className="max-w-[1280px] mx-auto px-8 py-20">
+        <div className="flex items-end justify-between mb-10">
+          <div>
+            <p className="text-xs font-semibold tracking-[0.2em] uppercase mb-3" style={{color:'rgba(0,0,0,0.54)'}}>Бестселлеры</p>
+            <h2 className="text-ink" style={{fontSize:'40px',fontWeight:700,letterSpacing:'-0.02em',lineHeight:1.1}}>Популярные комплексы</h2>
           </div>
-        ))}
+          <Link to="/vitamins" className="text-sm font-semibold hover:underline" style={{color:'#042033'}}>Все витамины →</Link>
+        </div>
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
+          {VITAMINS.slice(0,4).map(v => <VitCard key={v.id} v={v} />)}
+        </div>
+      </section>
+
+      {/* TRUST */}
+      <section style={{background:'#f5f5f5'}}>
+        <div className="max-w-[1280px] mx-auto px-8 py-20 grid md:grid-cols-3 gap-12">
+          {[
+            ['Научный подход','Формулы разрабатываются нутрициологами совместно с врачами «Союза PreventMed».'],
+            ['Доставка СДЭК','Доставка по России за 1–3 дня. По Москве — день в день.'],
+            ['Сертифицировано','EAC и ISO 22000. Производство на сертифицированных GMP-площадках.']
+          ].map(([t,d]) => (
+            <div key={t}>
+              <div className="w-12 h-12 rounded-full mb-5 flex items-center justify-center" style={{background:'#042033'}}>
+                <svg width="20" height="20" fill="none" stroke="white" strokeWidth="2" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>
+              </div>
+              <h3 className="text-ink mb-3" style={{fontSize:'22px',fontWeight:700,letterSpacing:'-0.01em'}}>{t}</h3>
+              <p className="text-[15px] leading-relaxed" style={{color:'rgba(0,0,0,0.54)'}}>{d}</p>
+            </div>
+          ))}
+        </div>
       </section>
     </div>
   );
@@ -540,7 +558,7 @@ function VitaminsPage() {
     ['Как быстро доставят?','По Москве 1–2 дня, по России 2–7 дней через СДЭК.'],
   ];
   return (
-    <div className="max-w-6xl mx-auto px-6 py-8 fade-in">
+    <div className="max-w-[1280px] mx-auto px-8 py-8 fade-in">
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-ink">Магазин витаминов</h1>
         <p className="text-secondary mt-1">Высококачественные нутриенты для здоровья</p>
@@ -601,12 +619,14 @@ function VitaminDetail() {
   const recs = VITAMINS.filter(x=>x.id!==id).slice(0,4);
 
   return (
-    <div className="max-w-6xl mx-auto px-6 py-8 fade-in">
+    <div className="max-w-[1280px] mx-auto px-8 py-8 fade-in">
       <button onClick={()=>history.push('/vitamins')} className="text-secondary hover:text-ink text-sm mb-6 flex items-center gap-1 transition-colors">
         ← Назад в магазин
       </button>
       <div className="grid md:grid-cols-2 gap-12 mb-16">
-        <div className="rounded-2xl flex items-center justify-center text-9xl h-72" style={{background:v.bg}}>{v.em}</div>
+        <div className="rounded-3xl flex items-center justify-center p-12" style={{background:'#f5f5f5', minHeight:'520px'}}>
+          <img src={v.img} alt={v.name} className="max-h-[460px] max-w-full object-contain" style={{filter:'drop-shadow(0 20px 32px rgba(0,0,0,0.18))'}} />
+        </div>
         <div>
           <div className="flex flex-wrap gap-2 mb-3">
             {v.tags.map(t => <Tag key={t} label={t} />)}
@@ -693,10 +713,12 @@ function KitDetail() {
   const add = () => { if (addKitToCart(k)) setAdded(true); };
 
   return (
-    <div className="max-w-6xl mx-auto px-6 py-8 fade-in">
+    <div className="max-w-[1280px] mx-auto px-8 py-8 fade-in">
       <button onClick={()=>history.push('/vitamins')} className="text-secondary hover:text-ink text-sm mb-6 flex items-center gap-1 transition-colors">← Назад в магазин</button>
       <div className="grid md:grid-cols-2 gap-12">
-        <div className="rounded-2xl flex items-center justify-center text-9xl h-72" style={{background:k.bg}}>{k.em}</div>
+        <div className="rounded-3xl flex items-center justify-center p-12" style={{background:'#f5f5f5', minHeight:'520px'}}>
+          <img src={k.img} alt={k.name} className="max-h-[460px] max-w-full object-contain" style={{filter:'drop-shadow(0 20px 32px rgba(0,0,0,0.18))'}} />
+        </div>
         <div>
           <span className="text-white text-sm px-3 py-1 rounded-lg font-semibold mb-4 inline-block" style={{background:'#042033'}}>Набор · Экономия {k.saving}</span>
           <h1 className="text-3xl font-bold text-ink mb-2">{k.name}</h1>
@@ -712,7 +734,9 @@ function KitDetail() {
                 <div key={vid}
                   className={'flex items-center gap-3 p-3 rounded-xl border cursor-pointer transition-colors ' + (s===0?'border-red-100 bg-red-50':'border-gray-100 bg-gray-50 hover:border-gray-200')}
                   onClick={()=>history.push('/vitamins/'+vid)}>
-                  <span className="text-2xl">{vv?.em}</span>
+                  <div className="w-12 h-12 rounded-xl flex items-center justify-center p-1 flex-shrink-0" style={{background:'#fff'}}>
+                    {vv?.img && <img src={vv.img} alt={vv.name} className="max-h-full max-w-full object-contain" />}
+                  </div>
                   <div className="flex-1"><span className="text-sm font-medium text-ink">{vv?.name}</span><span className="text-xs text-secondary ml-2">×{qty}</span></div>
                   {s===0 ? <span className="text-xs text-red-500 font-medium">Нет в наличии</span>
                     : <span className="text-xs text-green-600 font-medium">✓ В наличии</span>}
@@ -763,7 +787,7 @@ function CartPage() {
   );
 
   return (
-    <div className="max-w-6xl mx-auto px-6 py-8 fade-in">
+    <div className="max-w-[1280px] mx-auto px-8 py-8 fade-in">
       <h1 className="text-3xl font-bold text-ink mb-8">Корзина <span className="text-secondary text-xl font-normal">{cart.length} поз.</span></h1>
       <div className="grid lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2 space-y-3">
@@ -771,7 +795,9 @@ function CartPage() {
             const s = effStock(item.id); const vv = getV(item.id);
             return (
               <div key={item.id} className="bg-white rounded-2xl p-4 flex gap-4 border border-gray-100">
-                <div className="w-16 h-16 rounded-xl flex items-center justify-center text-3xl flex-shrink-0" style={{background:vv?.bg||'#F2F2F2'}}>{vv?.em||'💊'}</div>
+                <div className="w-20 h-20 rounded-xl flex items-center justify-center p-2 flex-shrink-0" style={{background:'#f5f5f5'}}>
+                  {vv?.img && <img src={vv.img} alt={vv.name} className="max-h-full max-w-full object-contain" />}
+                </div>
                 <div className="flex-1 min-w-0">
                   <h3 className="font-semibold text-ink text-sm mb-0.5">{item.name}</h3>
                   <p className="text-secondary text-xs mb-2">{fmt(item.price)} за штуку</p>
@@ -811,7 +837,9 @@ function CartPage() {
                   return (
                     <div key={vv.id} className="text-center p-3 rounded-xl border border-gray-100 hover:border-gray-200 transition-colors cursor-pointer"
                       onClick={()=>history.push('/vitamins/'+vv.id)}>
-                      <div className="text-2xl mb-1">{vv.em}</div>
+                      <div className="aspect-square mb-2 rounded-lg flex items-center justify-center p-2" style={{background:'#f5f5f5'}}>
+                        <img src={vv.img} alt={vv.name} className="max-h-full max-w-full object-contain" />
+                      </div>
                       <p className="text-xs font-medium text-ink mb-1 leading-tight">{vv.name}</p>
                       <p className="text-xs text-secondary mb-2">{fmt(vv.price)}</p>
                       {s===0 ? <span className="text-xs text-disabled">Нет</span>
@@ -888,7 +916,7 @@ function CheckoutPage() {
   const inactiveDelivCls = 'border-2 border-gray-100 hover:border-gray-200';
 
   return (
-    <div className="max-w-6xl mx-auto px-6 py-8 fade-in">
+    <div className="max-w-[1280px] mx-auto px-8 py-8 fade-in">
       <h1 className="text-3xl font-bold text-ink mb-8">Оформление заказа</h1>
       <div className="grid lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2 space-y-6">
@@ -1035,7 +1063,7 @@ function PaymentPage() {
   const method = PAY_METHODS.find(m=>m.id===payM) || PAY_METHODS[0];
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4 fade-in" style={{background:'#F2F2F2'}}>
+    <div className="min-h-screen flex items-center justify-center px-4 fade-in" style={{background:'#fafafa'}}>
       <div className="bg-white rounded-2xl shadow-xl p-8 w-full max-w-md">
         <div className="text-center mb-8">
           <div className="text-5xl mb-3">{method.icon}</div>
@@ -1110,7 +1138,7 @@ function OrderSuccess() {
   const order = location.state?.order || curOrder;
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4 fade-in" style={{background:'#F2F2F2'}}>
+    <div className="min-h-screen flex items-center justify-center px-4 fade-in" style={{background:'#fafafa'}}>
       <div className="bg-white rounded-2xl shadow-xl p-8 w-full max-w-lg text-center">
         <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
           <svg width="36" height="36" fill="none" viewBox="0 0 24 24">
@@ -1122,7 +1150,7 @@ function OrderSuccess() {
         {order && <p className="font-bold text-lg mb-6" style={{color:'#042033'}}>#{order.id}</p>}
 
         {order && (
-          <div className="rounded-xl p-4 mb-6 text-left" style={{background:'#F2F2F2'}}>
+          <div className="rounded-xl p-4 mb-6 text-left" style={{background:'#fafafa'}}>
             <p className="text-xs font-semibold text-secondary uppercase tracking-wider mb-3">Состав заказа</p>
             {order.items.map((i,n) => (
               <div key={n} className="flex justify-between text-sm py-2 border-b border-gray-100 last:border-0">
@@ -1157,7 +1185,7 @@ function OrderFailed() {
   const location = useLocation();
   const { total, reason='Неизвестная ошибка' } = location.state || {};
   return (
-    <div className="min-h-screen flex items-center justify-center px-4 fade-in" style={{background:'#F2F2F2'}}>
+    <div className="min-h-screen flex items-center justify-center px-4 fade-in" style={{background:'#fafafa'}}>
       <div className="bg-white rounded-2xl shadow-xl p-8 w-full max-w-lg text-center">
         <div className="w-20 h-20 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-6">
           <svg width="36" height="36" fill="none" viewBox="0 0 24 24">
@@ -1167,7 +1195,7 @@ function OrderFailed() {
         <h1 className="text-3xl font-bold text-ink mb-2">Оплата не прошла</h1>
         <p className="text-secondary mb-2">Причина: {reason}</p>
         {total && <p className="text-disabled text-sm mb-6">Сумма заказа: {fmt(total)}</p>}
-        <div className="rounded-xl p-4 mb-6 text-sm text-secondary text-left" style={{background:'#F2F2F2'}}>
+        <div className="rounded-xl p-4 mb-6 text-sm text-secondary text-left" style={{background:'#fafafa'}}>
           ✅ Ваша корзина сохранена. Попробуйте снова или выберите другой способ оплаты.
         </div>
         <div className="space-y-3">
@@ -1301,7 +1329,7 @@ function AccountOrderDetail() {
         {o.tracking && (
           <div className="flex items-center gap-2 mt-2 mb-2">
             <span className="text-sm text-secondary">Трек-номер СДЭК:</span>
-            <span className="font-mono font-semibold text-ink px-3 py-1 rounded-lg text-sm" style={{background:'#F2F2F2'}}>{o.tracking}</span>
+            <span className="font-mono font-semibold text-ink px-3 py-1 rounded-lg text-sm" style={{background:'#fafafa'}}>{o.tracking}</span>
           </div>
         )}
         {o.address && <p className="text-sm text-secondary">📍 {o.address}</p>}
