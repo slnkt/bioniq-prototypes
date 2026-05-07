@@ -425,18 +425,28 @@ function CallbackModal() {
 
 /* ─── NOTIFY MODAL ───────────────────────────────────────────────────────── */
 function NotifyModal() {
-  const { notifyProduct, setNotifyProduct, showToast } = useApp();
+  const { notifyProduct, setNotifyProduct, showToast, user } = useApp();
   const [email, setEmail] = useState('');
   const [agree, setAgree] = useState(true);
   const [err,   setErr]   = useState({});
   const [sent,  setSent]  = useState(false);
 
-  if (!notifyProduct) return null;
-
   const close = () => {
     setNotifyProduct(null);
     setTimeout(()=>{ setEmail(''); setSent(false); setErr({}); }, 200);
   };
+
+  useEffect(() => {
+    if (notifyProduct && user && !sent) {
+      setEmail(user.email);
+      setSent(true);
+      showToast('Подписка оформлена — сообщим о поступлении');
+      const t = setTimeout(close, 1800);
+      return () => clearTimeout(t);
+    }
+  }, [notifyProduct, user]);
+
+  if (!notifyProduct) return null;
 
   const submit = () => {
     const e = {};
