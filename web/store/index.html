@@ -1304,6 +1304,44 @@ function CheckupCard({ c }) {
   );
 }
 
+/* ─── LIPOSOME BANNER ────────────────────────────────────────────────────── */
+function LiposomeBanner() {
+  const items = [
+    { title:'До 5× лучше усвоение', sub:'Биодоступность в 4–5 раз выше, чем у обычных витаминов и таблеток',
+      icon:<><path d="M3 12l3 3 4-4"/><path d="M14 9l3 3 4-4"/><path d="M3 19l3 3 4-4"/><path d="M14 16l3 3 4-4"/></> },
+    { title:'Доставка прямо в клетку', sub:'Фосфолипидная оболочка совпадает с мембраной клеток — нутриент проникает внутрь без потерь',
+      icon:<><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/><path d="M12 3v2M12 19v2M3 12h2M19 12h2"/></> },
+    { title:'Без раздражения ЖКТ', sub:'Капсула проходит желудок защищённой — нет тяжести, горечи или тошноты',
+      icon:<><path d="M12 2a4 4 0 014 4v12a4 4 0 01-8 0V6a4 4 0 014-4z"/><path d="M8 14h8"/></> },
+  ];
+  return (
+    <section className="rounded-3xl p-10 mb-12 relative overflow-hidden" style={{background:'#042033'}}>
+      <div className="absolute -right-20 -top-20 w-80 h-80 rounded-full opacity-20" style={{background:'radial-gradient(circle, #1098D4 0%, transparent 70%)'}} />
+      <div className="relative">
+        <p className="text-xs uppercase tracking-[0.2em] mb-3 font-semibold" style={{color:'rgba(255,255,255,0.6)'}}>Технология</p>
+        <h2 className="text-white mb-4" style={{fontSize:'32px',fontWeight:700,letterSpacing:'-0.02em',lineHeight:1.15}}>Почему липосомальная форма?</h2>
+        <p className="text-white/70 max-w-2xl mb-10 text-[15px] leading-relaxed">
+          Активные компоненты заключены в фосфолипидную оболочку — такую же, как мембрана клеток нашего организма.
+          Такая капсула проходит желудок без потерь и доставляет нутриент прямо в клетку, где он действительно нужен.
+        </p>
+        <div className="grid md:grid-cols-3 gap-6">
+          {items.map(({icon, title, sub}, i) => (
+            <div key={i} className="flex items-start gap-4">
+              <div className="w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0" style={{background:'rgba(255,255,255,0.08)',border:'1px solid rgba(255,255,255,0.12)'}}>
+                <svg width="22" height="22" stroke="white" strokeWidth="1.6" fill="none" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">{icon}</svg>
+              </div>
+              <div>
+                <h3 className="text-white mb-1.5 font-semibold" style={{fontSize:'15px',letterSpacing:'-0.01em'}}>{title}</h3>
+                <p className="text-white/60 text-[13px] leading-snug">{sub}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
 /* ─── TRUST CHIPS (Yandex Split + CDEK) ──────────────────────────────────── */
 function TrustChips() {
   return (
@@ -1468,6 +1506,8 @@ function VitaminDetail() {
           <TrustChips />
         </div>
       </div>
+
+      <LiposomeBanner />
 
       <div className="border-b border-gray-200 mb-6 flex gap-6">
         {[['desc','Описание'],['ingr','Состав'],['dose','Применение']].map(([k,l]) => (
@@ -1638,7 +1678,9 @@ function KitDetail() {
         </div>
       </div>
 
-      <div className="border-b border-gray-200 mt-16 mb-6 flex gap-6">
+      <LiposomeBanner />
+
+      <div className="border-b border-gray-200 mb-6 flex gap-6">
         {[['desc','Описание'],['ingr','Состав'],['dose','Применение']].map(([key,label]) => (
           <button key={key} onClick={()=>setTab(key)}
             className={'pb-3 text-sm font-medium border-b-2 -mb-px transition-colors ' + (tab===key?'text-ink':'border-transparent text-secondary hover:text-ink')}
