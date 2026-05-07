@@ -165,6 +165,7 @@ function AppProvider({ children }) {
   const [authOpen,     setAuthOpen]     = useState(false);
   const [authCb,       setAuthCb]       = useState(null);
   const [callbackOpen, setCallbackOpen] = useState(false);
+  const [notifyProduct, setNotifyProduct] = useState(null);
   const [curOrder,     setCurOrder]     = useState(null);
   const [toast,        setToast]        = useState(null);
   const [ts,           setTs]           = useState({ outOfStock:false, payFail:false, delivErr:false });
@@ -260,6 +261,7 @@ function AppProvider({ children }) {
     <Ctx.Provider value={{ cart, cartCount, cartSubtotal, addToCart, addKitToCart, updQty, removeItem,
       user, login, logout:()=>setUser(null), requireAuth, authOpen, setAuthOpen,
       callbackOpen, setCallbackOpen,
+      notifyProduct, setNotifyProduct,
       orders, placeOrder, curOrder, setCurOrder,
       toast, showToast, ts, setTs, effStock, PROMOS }}>
       {children}
@@ -421,6 +423,78 @@ function CallbackModal() {
   );
 }
 
+/* ─── NOTIFY MODAL ───────────────────────────────────────────────────────── */
+function NotifyModal() {
+  const { notifyProduct, setNotifyProduct, showToast } = useApp();
+  const [email, setEmail] = useState('');
+  const [agree, setAgree] = useState(true);
+  const [err,   setErr]   = useState({});
+  const [sent,  setSent]  = useState(false);
+
+  if (!notifyProduct) return null;
+
+  const close = () => {
+    setNotifyProduct(null);
+    setTimeout(()=>{ setEmail(''); setSent(false); setErr({}); }, 200);
+  };
+
+  const submit = () => {
+    const e = {};
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) e.email = 'Введите корректный email';
+    if (!agree) e.agree = 'Необходимо согласие';
+    setErr(e);
+    if (Object.keys(e).length) return;
+    setSent(true);
+    showToast('Подписка оформлена — сообщим о поступлении');
+    setTimeout(close, 1800);
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center fade-in" style={{background:'rgba(0,0,0,0.5)'}} onClick={close}>
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md mx-4 p-8" onClick={e=>e.stopPropagation()}>
+        {sent ? (
+          <div className="text-center py-8">
+            <div className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-5" style={{background:'#E5EDF2'}}>
+              <svg width="28" height="28" fill="none" stroke="#042033" strokeWidth="2" viewBox="0 0 24 24"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
+            </div>
+            <h3 className="text-ink mb-2" style={{fontSize:'22px',fontWeight:700,letterSpacing:'-0.01em'}}>Подписка оформлена</h3>
+            <p className="text-secondary text-sm">Напишем на {email}, когда «{notifyProduct.name}» снова появится</p>
+          </div>
+        ) : (
+          <>
+            <div className="flex justify-between items-start mb-3">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0" style={{background:'#E5EDF2'}}>
+                  <svg width="18" height="18" fill="none" stroke="#042033" strokeWidth="2" viewBox="0 0 24 24"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
+                </div>
+                <h2 className="text-ink" style={{fontSize:'22px',fontWeight:700,letterSpacing:'-0.01em'}}>Сообщим о поступлении</h2>
+              </div>
+              <button onClick={close} className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-xl hover:bg-gray-200 transition-colors flex-shrink-0">×</button>
+            </div>
+            <p className="text-secondary text-sm mb-6">Введите email — напишем, как только «{notifyProduct.name}» снова появится в наличии.</p>
+            <div className="space-y-3 mb-5">
+              <div>
+                <input type="email" placeholder="Email" value={email}
+                  onChange={e=>{setEmail(e.target.value);setErr(p=>({...p,email:null}));}}
+                  className={'inp ' + (err.email?'inp-err':'')} />
+                {err.email && <p className="text-red-500 text-xs mt-1">{err.email}</p>}
+              </div>
+            </div>
+            <label className="flex items-start gap-2 cursor-pointer mb-5" onClick={()=>{setAgree(a=>!a);setErr(p=>({...p,agree:null}));}}>
+              <div className={'mt-0.5 w-4 h-4 rounded border-2 flex items-center justify-center flex-shrink-0 transition-colors ' + (agree?'':'border-gray-300')}
+                style={agree ? {background:'#042033', borderColor:'#042033'} : {}}>
+                {agree && <svg width="9" height="7" fill="none"><path d="M1 3.5l2.5 2.5 4.5-5" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>}
+              </div>
+              <p className="text-xs" style={{color:'rgba(0,0,0,0.54)'}}>Согласен с обработкой персональных данных</p>
+            </label>
+            <button onClick={submit} className="btn-p w-full py-3 font-semibold">Подписаться</button>
+          </>
+        )}
+      </div>
+    </div>
+  );
+}
+
 /* ─── TEST PANEL ─────────────────────────────────────────────────────────── */
 function TestPanel() {
   const { ts, setTs } = useApp();
@@ -521,7 +595,7 @@ function Tag({ label }) {
 
 /* ─── VITAMIN CARD ───────────────────────────────────────────────────────── */
 function VitCard({ v }) {
-  const { addToCart, effStock } = useApp();
+  const { addToCart, effStock, setNotifyProduct } = useApp();
   const history = useHistory();
   const s = effStock(v.id);
   const [stage, setStage] = useState('idle'); // idle | picking | confirmed
@@ -577,7 +651,12 @@ function VitCard({ v }) {
         </div>
 
         {s===0 ? (
-          <div className="rounded-lg py-2 text-center text-[12px] font-semibold" style={{background:'#f5f5f5',color:'rgba(0,0,0,0.38)'}}>Нет в наличии</div>
+          <button onClick={e=>{e.stopPropagation();setNotifyProduct({id:v.id,name:v.name});}}
+            className="w-full text-[12px] py-2 px-3 font-semibold rounded-lg flex items-center justify-center gap-2 transition-colors"
+            style={{background:'#E5EDF2',color:'#042033'}}>
+            <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
+            Сообщить о поступлении
+          </button>
         ) : stage==='confirmed' ? (
           <button disabled className="w-full text-[12px] py-2 px-3 font-semibold rounded-lg flex items-center justify-center text-white" style={{background:'#16a34a'}}>✓ В корзине</button>
         ) : stage==='idle' ? (
@@ -605,7 +684,7 @@ function VitCard({ v }) {
 
 /* ─── KIT CARD ───────────────────────────────────────────────────────────── */
 function KitCard({ k }) {
-  const { addKitToCart, effStock } = useApp();
+  const { addKitToCart, effStock, setNotifyProduct } = useApp();
   const history = useHistory();
   const [imgIdx, setImgIdx] = useState(0);
   const [stage, setStage] = useState('idle');
@@ -661,7 +740,12 @@ function KitCard({ k }) {
       </div>
 
       {hasOOS ? (
-        <div className="rounded-lg py-2 text-center text-[12px] font-semibold" style={{background:'#fff7ed',color:'#c2410c'}}>Часть товаров недоступна</div>
+        <button onClick={e=>{e.stopPropagation();setNotifyProduct({id:k.id,name:k.name});}}
+          className="w-full text-[12px] py-2 px-3 font-semibold rounded-lg flex items-center justify-center gap-2 transition-colors"
+          style={{background:'#E5EDF2',color:'#042033'}}>
+          <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
+          Сообщить о поступлении
+        </button>
       ) : stage==='confirmed' ? (
         <button disabled className="w-full text-[12px] py-2 font-semibold rounded-lg text-white" style={{background:'#16a34a'}}>✓ В корзине</button>
       ) : stage==='idle' ? (
@@ -1038,7 +1122,7 @@ function VitaminsPage() {
 /* ─── VITAMIN DETAIL ─────────────────────────────────────────────────────── */
 function VitaminDetail() {
   const { id } = useParams();
-  const { addToCart, effStock } = useApp();
+  const { addToCart, effStock, setNotifyProduct } = useApp();
   const history = useHistory();
   const v = getV(id);
   const [qty, setQty]     = useState(1);
@@ -1099,9 +1183,20 @@ function VitaminDetail() {
             </>}
           </div>
           {s===0 ? (
-            <div className="bg-red-50 border border-red-100 rounded-xl p-4 mb-4">
-              <p className="text-red-600 font-semibold">Нет в наличии</p>
-              <p className="text-red-400 text-sm mt-1">Товар временно отсутствует на складе</p>
+            <div className="rounded-2xl p-5 mb-4" style={{background:'#f5f5f5'}}>
+              <div className="flex items-start gap-3 mb-4">
+                <div className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0" style={{background:'#E5EDF2'}}>
+                  <svg width="18" height="18" fill="none" stroke="#042033" strokeWidth="2" viewBox="0 0 24 24"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
+                </div>
+                <div>
+                  <p className="text-ink font-semibold mb-1" style={{fontSize:'15px'}}>Временно нет в наличии</p>
+                  <p className="text-secondary text-sm">Подпишитесь — напишем сразу, как только товар снова появится на складе.</p>
+                </div>
+              </div>
+              <button onClick={()=>setNotifyProduct({id:v.id,name:v.name})} className="btn-p w-full py-3 font-semibold flex items-center justify-center gap-2">
+                <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
+                Сообщить о поступлении
+              </button>
             </div>
           ) : (
             <>
@@ -1848,6 +1943,7 @@ function App() {
         </main>
         <AuthModal />
         <CallbackModal />
+        <NotifyModal />
         <TestPanel />
         <Toast />
       </HashRouter>
