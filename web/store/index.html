@@ -619,36 +619,35 @@ function Tag({ label }) {
 
 /* ─── VITAMIN CARD ───────────────────────────────────────────────────────── */
 function VitCard({ v }) {
-  const { addToCart, effStock, setNotifyProduct } = useApp();
+  const { addToCart, updQty, removeItem, effStock, cart, setNotifyProduct } = useApp();
   const history = useHistory();
   const s = effStock(v.id);
-  const [stage, setStage] = useState('idle'); // idle | picking | confirmed
-  const [qty, setQty]     = useState(1);
+  const cartItem = cart.find(c => c.type==='vitamin' && c.id===v.id);
+  const inCart = cartItem?.qty || 0;
   const [imgIdx, setImgIdx] = useState(0);
   const imgs = v.imgs || [];
 
-  const reset = () => { setStage('idle'); setQty(1); };
-
-  const onMain = e => {
+  const handleAdd = e => {
     e.stopPropagation();
-    if (stage === 'idle') { setStage('picking'); setQty(1); return; }
-    if (stage === 'picking') {
-      if (addToCart({ id:v.id, type:'vitamin', name:v.name, price:v.price, stock:s, qty })) {
-        setStage('confirmed');
-        setTimeout(reset, 1500);
-      }
-    }
+    addToCart({ id:v.id, type:'vitamin', name:v.name, price:v.price });
   };
-  const buyNow = e => {
+  const handleInc = e => {
     e.stopPropagation();
-    const useQty = stage === 'picking' ? qty : 1;
-    if (addToCart({ id:v.id, type:'vitamin', name:v.name, price:v.price, stock:s, qty:useQty })) {
-      reset();
+    updQty(v.id, 1);
+  };
+  const handleDec = e => {
+    e.stopPropagation();
+    if (inCart <= 1) removeItem(v.id);
+    else updQty(v.id, -1);
+  };
+  const handleGoCart = e => { e.stopPropagation(); history.push('/cart'); };
+  const handleBuyNow = e => {
+    e.stopPropagation();
+    if (inCart > 0) { history.push('/checkout'); return; }
+    if (addToCart({ id:v.id, type:'vitamin', name:v.name, price:v.price })) {
       history.push('/checkout');
     }
   };
-  const dec = e => { e.stopPropagation(); if (qty>1) setQty(q=>q-1); else reset(); };
-  const inc = e => { e.stopPropagation(); if (qty<s) setQty(q=>q+1); };
 
   return (
     <div className="bg-white rounded-2xl overflow-hidden card-hover cursor-pointer border border-gray-100"
@@ -690,31 +689,31 @@ function VitCard({ v }) {
         <h3 className="text-ink mb-0.5" style={{fontSize:'15px',fontWeight:700,letterSpacing:'-0.01em',lineHeight:1.25}}>{v.name}</h3>
         {v.count && <p className="text-[12px] text-secondary mb-3">{v.count} {v.unit} · {v.period}</p>}
 
-        {s===0 ? (
+        {s===0 && inCart===0 ? (
           <button onClick={e=>{e.stopPropagation();setNotifyProduct({id:v.id,name:v.name});}}
             className="w-full text-[13px] py-2.5 px-3 font-semibold rounded-lg flex items-center justify-center gap-2 transition-colors"
             style={{background:'#E5EDF2',color:'#042033'}}>
             <svg width="15" height="15" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
             Сообщить о поступлении
           </button>
-        ) : stage==='confirmed' ? (
-          <button disabled className="w-full text-[13px] py-2.5 px-3 font-semibold rounded-lg flex items-center justify-center text-white" style={{background:'#16a34a'}}>✓ В корзине</button>
-        ) : stage==='idle' ? (
+        ) : inCart===0 ? (
           <>
-            <button onClick={onMain} className="btn-p w-full text-[13px] py-2.5 font-semibold">В корзину</button>
-            <button onClick={buyNow} className="w-full mt-2 py-2.5 text-[13px] font-semibold rounded-lg transition-colors hover:opacity-80" style={{background:'#E5EDF2',color:'#042033'}}>Купить сейчас</button>
+            <button onClick={handleAdd} className="btn-p w-full text-[13px] py-2.5 font-semibold">В корзину</button>
+            <button onClick={handleBuyNow} className="w-full mt-2 py-2.5 text-[13px] font-semibold rounded-lg transition-colors hover:opacity-80" style={{background:'#E5EDF2',color:'#042033'}}>Купить сейчас</button>
           </>
         ) : (
           <>
-            <div className="flex gap-2 items-stretch" onClick={e=>e.stopPropagation()}>
-              <button onClick={onMain} className="flex-1 text-[13px] py-2.5 px-2 font-semibold rounded-lg text-white transition-colors" style={{background:'#16a34a'}}>В корзину</button>
+            <div className="flex gap-2 items-stretch">
+              <button onClick={handleGoCart} className="flex-1 text-[13px] py-2.5 px-2 font-semibold rounded-lg text-white transition-colors hover:opacity-90" style={{background:'#16a34a'}}>В корзине</button>
               <div className="flex items-center rounded-lg overflow-hidden" style={{background:'#E5EDF2'}}>
-                <button onClick={dec} className="w-8 h-full flex items-center justify-center font-bold text-[16px] hover:bg-[#d4dee5]" style={{color:'#042033'}} aria-label="Уменьшить">−</button>
-                <span className="w-7 text-center text-[13px] font-bold" style={{color:'#042033'}}>{qty}</span>
-                <button onClick={inc} className={'w-8 h-full flex items-center justify-center font-bold text-[16px] hover:bg-[#d4dee5] ' + (qty>=s?'opacity-30 cursor-not-allowed':'')} style={{color:'#042033'}} aria-label="Увеличить">+</button>
+                <button onClick={handleDec} className="w-8 h-full flex items-center justify-center font-bold text-[16px] hover:bg-[#d4dee5]" style={{color:'#042033'}} aria-label="Уменьшить">−</button>
+                <span className="w-7 text-center text-[13px] font-bold" style={{color:'#042033'}}>{inCart}</span>
+                <button onClick={handleInc} disabled={s===0}
+                  className={'w-8 h-full flex items-center justify-center font-bold text-[16px] hover:bg-[#d4dee5] ' + (s===0?'opacity-30 cursor-not-allowed':'')}
+                  style={{color:'#042033'}} aria-label="Увеличить">+</button>
               </div>
             </div>
-            <button onClick={buyNow} className="w-full mt-2 py-2.5 text-[13px] font-semibold rounded-lg transition-colors hover:opacity-80" style={{background:'#E5EDF2',color:'#042033'}}>Купить сейчас</button>
+            <button onClick={handleBuyNow} className="w-full mt-2 py-2.5 text-[13px] font-semibold rounded-lg transition-colors hover:opacity-80" style={{background:'#E5EDF2',color:'#042033'}}>Купить сейчас</button>
           </>
         )}
       </div>
@@ -724,38 +723,34 @@ function VitCard({ v }) {
 
 /* ─── KIT CARD ───────────────────────────────────────────────────────────── */
 function KitCard({ k }) {
-  const { addKitToCart, effStock, setNotifyProduct } = useApp();
+  const { addKitToCart, updQty, removeItem, effStock, cart, setNotifyProduct } = useApp();
   const history = useHistory();
   const [imgIdx, setImgIdx] = useState(0);
-  const [stage, setStage] = useState('idle');
-  const [qty, setQty] = useState(1);
   const imgs = k.imgs || [];
-  const hasOOS = k.items.some(i => effStock(i.vid)<i.qty);
-  const maxQty = Math.min(...k.items.map(i => Math.floor(effStock(i.vid)/i.qty))) || 0;
+  const hasOOS = k.items.some(i => effStock(i.vid) < i.qty);
+  const cartItem = cart.find(c => c.type==='kit' && c.id===k.id);
+  const inCart = cartItem?.qty || 0;
+  const canAddMore = !hasOOS;
 
-  const reset = () => { setStage('idle'); setQty(1); };
-  const onMain = e => {
+  const handleAdd = e => {
     e.stopPropagation();
-    if (stage==='idle') { setStage('picking'); setQty(1); return; }
-    if (stage==='picking') {
-      let ok = true;
-      for (let i=0; i<qty; i++) {
-        if (!addKitToCart(k)) { ok = false; break; }
-      }
-      if (ok) { setStage('confirmed'); setTimeout(reset, 1500); }
-    }
+    addKitToCart(k, 1);
   };
-  const buyNow = e => {
+  const handleInc = e => {
     e.stopPropagation();
-    const useQty = stage === 'picking' ? qty : 1;
-    let ok = true;
-    for (let i=0; i<useQty; i++) {
-      if (!addKitToCart(k)) { ok = false; break; }
-    }
-    if (ok) { reset(); history.push('/checkout'); }
+    updQty(k.id, 1);
   };
-  const dec = e => { e.stopPropagation(); if (qty>1) setQty(q=>q-1); else reset(); };
-  const inc = e => { e.stopPropagation(); if (qty<maxQty) setQty(q=>q+1); };
+  const handleDec = e => {
+    e.stopPropagation();
+    if (inCart <= 1) removeItem(k.id);
+    else updQty(k.id, -1);
+  };
+  const handleGoCart = e => { e.stopPropagation(); history.push('/cart'); };
+  const handleBuyNow = e => {
+    e.stopPropagation();
+    if (inCart > 0) { history.push('/checkout'); return; }
+    if (addKitToCart(k, 1)) history.push('/checkout');
+  };
 
   return (
     <div className="bg-white rounded-2xl p-4 border border-gray-100 card-hover cursor-pointer h-full"
@@ -794,31 +789,31 @@ function KitCard({ k }) {
         <span className="text-[11px] font-semibold ml-1.5" style={{color:'#d10714'}}>−{Math.round((1-k.price/k.orig)*100)}%</span>
       </div>
 
-      {hasOOS ? (
+      {hasOOS && inCart===0 ? (
         <button onClick={e=>{e.stopPropagation();setNotifyProduct({id:k.id,name:k.name});}}
           className="w-full text-[12px] py-2 px-3 font-semibold rounded-lg flex items-center justify-center gap-2 transition-colors"
           style={{background:'#E5EDF2',color:'#042033'}}>
           <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
           Сообщить о поступлении
         </button>
-      ) : stage==='confirmed' ? (
-        <button disabled className="w-full text-[12px] py-2 font-semibold rounded-lg text-white" style={{background:'#16a34a'}}>✓ В корзине</button>
-      ) : stage==='idle' ? (
+      ) : inCart===0 ? (
         <>
-          <button onClick={onMain} className="btn-p w-full text-[12px] py-2 font-semibold">В корзину</button>
-          <button onClick={buyNow} className="w-full mt-1.5 py-2 text-[12px] font-semibold rounded-lg transition-colors hover:opacity-80" style={{background:'#E5EDF2',color:'#042033'}}>Купить сейчас</button>
+          <button onClick={handleAdd} className="btn-p w-full text-[12px] py-2 font-semibold">В корзину</button>
+          <button onClick={handleBuyNow} className="w-full mt-1.5 py-2 text-[12px] font-semibold rounded-lg transition-colors hover:opacity-80" style={{background:'#E5EDF2',color:'#042033'}}>Купить сейчас</button>
         </>
       ) : (
         <>
-          <div className="flex gap-1.5 items-stretch" onClick={e=>e.stopPropagation()}>
-            <button onClick={onMain} className="flex-1 text-[12px] py-2 px-2 font-semibold rounded-lg text-white" style={{background:'#16a34a'}}>В корзину</button>
+          <div className="flex gap-1.5 items-stretch">
+            <button onClick={handleGoCart} className="flex-1 text-[12px] py-2 px-2 font-semibold rounded-lg text-white hover:opacity-90 transition-opacity" style={{background:'#16a34a'}}>В корзине</button>
             <div className="flex items-center rounded-lg overflow-hidden" style={{background:'#E5EDF2'}}>
-              <button onClick={dec} className="w-7 h-full flex items-center justify-center font-bold text-[15px] hover:bg-[#d4dee5]" style={{color:'#042033'}}>−</button>
-              <span className="w-6 text-center text-[12px] font-bold" style={{color:'#042033'}}>{qty}</span>
-              <button onClick={inc} className={'w-7 h-full flex items-center justify-center font-bold text-[15px] hover:bg-[#d4dee5] ' + (qty>=maxQty?'opacity-30 cursor-not-allowed':'')} style={{color:'#042033'}}>+</button>
+              <button onClick={handleDec} className="w-7 h-full flex items-center justify-center font-bold text-[15px] hover:bg-[#d4dee5]" style={{color:'#042033'}}>−</button>
+              <span className="w-6 text-center text-[12px] font-bold" style={{color:'#042033'}}>{inCart}</span>
+              <button onClick={handleInc} disabled={!canAddMore}
+                className={'w-7 h-full flex items-center justify-center font-bold text-[15px] hover:bg-[#d4dee5] ' + (!canAddMore?'opacity-30 cursor-not-allowed':'')}
+                style={{color:'#042033'}}>+</button>
             </div>
           </div>
-          <button onClick={buyNow} className="w-full mt-1.5 py-2 text-[12px] font-semibold rounded-lg transition-colors hover:opacity-80" style={{background:'#E5EDF2',color:'#042033'}}>Купить сейчас</button>
+          <button onClick={handleBuyNow} className="w-full mt-1.5 py-2 text-[12px] font-semibold rounded-lg transition-colors hover:opacity-80" style={{background:'#E5EDF2',color:'#042033'}}>Купить сейчас</button>
         </>
       )}
     </div>
