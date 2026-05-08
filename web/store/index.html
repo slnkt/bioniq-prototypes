@@ -1460,24 +1460,45 @@ function ProductsSection() {
   const history = useHistory();
   const { setRequestOpen } = useApp();
   const items = [
-    { kicker:'11 видов панелей · от 3 290 ₽', title:'Магазин чекапов', text:'Выезд медсестры на дом или сдача в лаборатории. Расшифровка эндокринологом и динамика биомаркеров в приложении.', cta:'Открыть магазин', go:()=>history.push('/checkups') },
-    { kicker:'14 формул · от 1 690 ₽', title:'Магазин витаминов', text:'Липосомальные формы, разработанные с Союзом PreventMed. GMP-производство, Академгородок. Можно выбрать самостоятельно или получить формулу под результаты чекапа.', cta:'Открыть магазин', go:()=>history.push('/vitamins') },
+    {
+      title:'Магазин чекапов',
+      from:3290,
+      tags:['Сдача дома или в KDL, Инвитро, Медси','Разбор у штатного эндокринолога','Результаты в приложении'],
+      cta:'Открыть магазин',
+      go:()=>history.push('/checkups'),
+    },
+    {
+      title:'Магазин витаминов',
+      from:1690,
+      tags:['Липосомальные формы','Состав с Союзом PreventMed','GMP-производство, Академгородок'],
+      cta:'Открыть магазин',
+      go:()=>history.push('/vitamins'),
+    },
   ];
   return (
     <section id="products" className="max-w-[1280px] mx-auto px-8 py-32" style={{scrollMarginTop:'80px'}}>
       <div className="mb-16">
-        <p className="text-[11px] tracking-[0.2em] uppercase text-secondary">Наши продукты</p>
+        <h2 className="display text-ink" style={{fontSize:'72px',lineHeight:1}}>Наши продукты</h2>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-8 mb-12">
         {items.map((it, i) => (
-          <div key={i} className="bg-white p-10 flex flex-col" style={{aspectRatio:'5 / 4',boxShadow:'0 30px 60px -30px rgba(4,32,51,.10)'}}>
-            <p className="text-[11px] tracking-[0.2em] uppercase mb-5 text-secondary">{it.kicker}</p>
-            <h3 className="display text-ink mb-4" style={{fontSize:'40px',lineHeight:1.05}}>{it.title}</h3>
-            <p className="text-secondary text-[14px] leading-relaxed mb-auto" style={{maxWidth:'52ch'}}>{it.text}</p>
-            <button onClick={it.go} className="text-ink text-[13px] mt-8 self-start flex items-center gap-2 hover:gap-3 transition-all" style={{fontWeight:500,letterSpacing:'-0.005em'}}>
-              {it.cta}
-              <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
-            </button>
+          <div key={i} className="bg-white p-10 flex flex-col" style={{minHeight:'460px',boxShadow:'0 30px 60px -30px rgba(4,32,51,.10)'}}>
+            <h3 className="display text-ink mb-8" style={{fontSize:'44px',lineHeight:1.05}}>{it.title}</h3>
+            <div className="flex flex-wrap gap-2 mb-auto">
+              {it.tags.map(t => (
+                <span key={t} className="px-3.5 py-1.5 text-[12px] text-secondary rounded-full" style={{border:'1px solid rgba(4,32,51,0.12)'}}>{t}</span>
+              ))}
+            </div>
+            <div className="mt-10 pt-6 flex items-baseline justify-between flex-wrap gap-4" style={{borderTop:'1px solid rgba(4,32,51,0.08)'}}>
+              <div className="num">
+                <span className="text-[11px] text-secondary uppercase tracking-[0.1em] mr-2">от</span>
+                <span className="text-ink" style={{fontSize:'24px',fontWeight:500,letterSpacing:'-0.01em'}}>{fmt(it.from)}</span>
+              </div>
+              <button onClick={it.go} className="text-ink text-[13px] flex items-center gap-2 hover:gap-3 transition-all" style={{fontWeight:500,letterSpacing:'-0.005em'}}>
+                {it.cta}
+                <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+              </button>
+            </div>
           </div>
         ))}
       </div>
