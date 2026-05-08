@@ -1458,7 +1458,6 @@ function OutcomesSection() {
 /* ─── PRODUCTS / CYCLE ───────────────────────────────────────────────────── */
 function ProductsSection() {
   const history = useHistory();
-  const { setRequestOpen } = useApp();
   const items = [
     {
       title:'Магазин чекапов',
@@ -1480,7 +1479,7 @@ function ProductsSection() {
       <div className="mb-16">
         <h2 className="display text-ink" style={{fontSize:'72px',lineHeight:1}}>Наши продукты</h2>
       </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-8 mb-12">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-8">
         {items.map((it, i) => (
           <div key={i} className="bg-white p-10 flex flex-col" style={{minHeight:'460px',boxShadow:'0 30px 60px -30px rgba(4,32,51,.10)'}}>
             <h3 className="display text-ink mb-8" style={{fontSize:'44px',lineHeight:1.05}}>{it.title}</h3>
@@ -1501,16 +1500,6 @@ function ProductsSection() {
             </div>
           </div>
         ))}
-      </div>
-      <div className="flex items-center justify-between p-6 flex-wrap gap-4" style={{border:'1px solid rgba(4,32,51,0.08)'}}>
-        <div>
-          <p className="text-[11px] tracking-[0.2em] uppercase mb-2 text-secondary">Для врачей и клиник</p>
-          <h3 className="text-ink" style={{fontSize:'17px',fontWeight:500}}>Агентский кабинет для назначения чекапов и контроля пациентов</h3>
-        </div>
-        <button onClick={()=>setRequestOpen(true)} className="text-ink text-[13px] flex items-center gap-2 hover:gap-3 transition-all" style={{fontWeight:500}}>
-          Узнать подробнее
-          <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
-        </button>
       </div>
     </section>
   );
