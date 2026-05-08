@@ -326,15 +326,165 @@ const KITS = [
 ];
 
 const CHECKUPS = [
-  { id:'check-energy',   name:'Чекап Энергия',   sub:'Узнайте причины усталости и упадка сил',  price:5990,  orig:7990,  markers:34,  days:3, top:true,
-    gradient:'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
-    icon:<path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/> },
-  { id:'check-immunity', name:'Чекап Иммунитет', sub:'Проверка защитной системы организма',     price:6490,  orig:8990,  markers:42,  days:3,
-    gradient:'linear-gradient(135deg, #10b981 0%, #047857 100%)',
-    icon:<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/> },
-  { id:'check-pro',      name:'Чекап PRO',       sub:'Расширенный анализ — все системы',        price:14990, orig:19990, markers:145, days:5, top:true,
-    gradient:'linear-gradient(135deg, #3b82f6 0%, #042033 100%)',
-    icon:<><path d="M3 3v18h18"/><path d="M7 14l4-4 4 4 5-5"/></> },
+  { id:'check-pro',      name:'Чекап Bioniq PRO', sub:'Глубокая диагностика здоровья. Всё, что нужно для осознанного контроля над самочувствием.',
+    price:25000, markers:50, days:3, audience:['m','f'], badges:['PRO','PRO PLUS'], top:true,
+    photo:'../../shared/photos/checkup-pro.jpg',
+    cover:'linear-gradient(135deg, #042033 0%, #0a3550 100%)',
+    short:'Глубокая диагностика по 50+ биомаркерам.',
+    includes:[
+      'Сдача на дому или в лаборатории — бесплатно',
+      'Анализ крови по 50 биомаркерам',
+      'Результаты в личном кабинете и дистанционная консультация врача-диетолога (30 минут)',
+    ],
+    audience_text:[
+      'Тем, кто хочет получить комплексную оценку здоровья и выявить скрытые дефициты.',
+      'Тем, кто планирует оптимизировать питание и выстроить персональную стратегию здоровья.',
+    ],
+    biomarkers:[
+      { group:'Клинический анализ крови с лейкоцитарной формулой (5DIFF)', items:['Эритроциты','Гемоглобин','Гематокрит','MCV','MCH','MCHC','Лейкоциты','Нейтрофилы','Лимфоциты','Моноциты','Эозинофилы','Базофилы','Тромбоциты'] },
+      { group:'Метаболизм', items:['Глюкоза','Инсулин','HOMA-IR','Гликированный гемоглобин (HbA1c)','Холестерин общий','ЛПВП','ЛПНП','Триглицериды'] },
+      { group:'Витамины и микроэлементы', items:['Витамин D (25-OH)','Витамин B12','Фолиевая кислота','Ферритин','Магний','Цинк'] },
+      { group:'Функции печени', items:['АЛТ','АСТ','Билирубин общий','Билирубин прямой','ГГТ','Щелочная фосфатаза'] },
+      { group:'Параметры обмена железа', items:['Сывороточное железо','ОЖСС','Трансферрин','% насыщения трансферрина'] },
+      { group:'Другие параметры', items:['Креатинин','Мочевина','Мочевая кислота','TSH','Свободный T4','C-реактивный белок'] },
+    ],
+  },
+  { id:'check-women',    name:'Женское здоровье', sub:'Анализ уровня женских половых гормонов с учётом выбранной фазы цикла. Создание формулы витаминов и нутриентов на основе результатов.',
+    price:5990, markers:18, days:3, audience:['f'],
+    photo:'../../shared/photos/checkup-women.jpg',
+    cover:'linear-gradient(135deg, #d4a5b8 0%, #a47587 100%)',
+    short:'Гормональный профиль с учётом фазы цикла.',
+    includes:['Анализ крови по 18 биомаркерам','Учёт фазы цикла','Формула витаминов по результатам'],
+    audience_text:['Тем, кто хочет понять причины сбоев цикла, настроения и энергии.','Тем, кто планирует беременность или восстанавливается после родов.'],
+    biomarkers:[
+      { group:'Половые гормоны', items:['Эстрадиол','Прогестерон','ЛГ','ФСГ','Пролактин','Тестостерон общий','ДГЭА-С','Свободный тестостерон'] },
+      { group:'Щитовидная железа', items:['ТТГ','Свободный T4','Свободный T3','Антитела к ТПО'] },
+      { group:'Витамины и обмен', items:['Витамин D','Ферритин','Магний','B12','Гомоцистеин','Глюкоза'] },
+    ],
+  },
+  { id:'check-men',      name:'Мужское здоровье', sub:'Анализ мужского здоровья с учётом возраста и необходимых показателей.',
+    price:6990, markers:22, days:3, audience:['m'],
+    photo:'../../shared/photos/checkup-men.jpg',
+    cover:'linear-gradient(135deg, #5a7a8a 0%, #2c4a5a 100%)',
+    short:'Гормоны, метаболизм, сердечно-сосудистый риск.',
+    includes:['Анализ крови по 22 биомаркерам','Профиль мужских гормонов','Формула витаминов по результатам'],
+    audience_text:['Тем, кто чувствует упадок сил и снижение либидо.','Тем, кто хочет контролировать риск сердечно-сосудистых заболеваний.'],
+    biomarkers:[
+      { group:'Половые гормоны', items:['Тестостерон общий','Свободный тестостерон','Эстрадиол','ЛГ','ФСГ','Пролактин','ДГЭА-С','ГСПГ'] },
+      { group:'Простата', items:['ПСА общий','ПСА свободный'] },
+      { group:'Метаболизм', items:['Глюкоза','Инсулин','HOMA-IR','Холестерин общий','ЛПВП','ЛПНП','Триглицериды'] },
+      { group:'Витамины', items:['Витамин D','B12','Магний','Цинк','Ферритин'] },
+    ],
+  },
+  { id:'check-sport',    name:'Спорт', sub:'Оценка готовности организма к физическим нагрузкам и подбор поддержки на тренировках.',
+    price:6990, markers:28, days:3, audience:['m','f'],
+    photo:'../../shared/photos/checkup-sport.jpg',
+    cover:'linear-gradient(135deg, #c45a3f 0%, #7a3320 100%)',
+    short:'Анализы для тренирующихся: восстановление и выносливость.',
+    includes:['Анализ крови по 28 биомаркерам','Маркеры воспаления и восстановления','Рекомендации по питанию и БАДам'],
+    audience_text:['Тем, кто регулярно тренируется и хочет ускорить восстановление.','Тем, кто готовится к соревнованиям или забегу.'],
+    biomarkers:[
+      { group:'Энергия и метаболизм', items:['Глюкоза','Лактат','Креатинкиназа','Кортизол утренний','ЛДГ'] },
+      { group:'Электролиты', items:['Калий','Натрий','Кальций ионизированный','Магний'] },
+      { group:'Воспаление и восстановление', items:['СРБ высокочувствительный','Ферритин','Витамин D','B12','Гомоцистеин','Тестостерон'] },
+      { group:'Кровь и кислород', items:['Гемоглобин','Эритроциты','Гематокрит','Сывороточное железо','ОЖСС'] },
+    ],
+  },
+  { id:'check-skin',     name:'Кожа, волосы, ногти', sub:'Комплексная проверка причин нарушения, отвечающих за красоту и здоровье волос, ногтей и кожи.',
+    price:15990, markers:32, days:5, audience:['m','f'],
+    photo:'../../shared/photos/checkup-skin.jpg',
+    cover:'linear-gradient(135deg, #e8b894 0%, #c47e52 100%)',
+    short:'Витамины, гормоны и микроэлементы для кожи и волос.',
+    includes:['Анализ крови по 32 биомаркерам','Витаминно-минеральный профиль','Гормональные маркеры'],
+    audience_text:['Тем, кто столкнулся с выпадением волос, ломкостью ногтей или ухудшением кожи.','Тем, кто хочет работать с причиной, а не с симптомом.'],
+    biomarkers:[
+      { group:'Витамины', items:['Витамин D','B12','Биотин','Фолиевая кислота','Витамин A'] },
+      { group:'Микроэлементы', items:['Цинк','Селен','Медь','Железо','Ферритин','Магний'] },
+      { group:'Гормоны', items:['ТТГ','Свободный T4','Тестостерон','ДГЭА-С','Кортизол','Пролактин'] },
+      { group:'Воспаление', items:['СРБ','Гомоцистеин'] },
+    ],
+  },
+  { id:'check-weight',   name:'Здоровье и стройность', sub:'Комплексное исследование для коррекции веса и улучшения метаболизма.',
+    price:15990, markers:30, days:5, audience:['m','f'],
+    photo:'../../shared/photos/checkup-weight.jpg',
+    cover:'linear-gradient(135deg, #b8a890 0%, #8a7a62 100%)',
+    short:'Метаболизм, гормоны и причины набора веса.',
+    includes:['Анализ крови по 30 биомаркерам','Метаболический и гормональный профиль','Консультация эндокринолога'],
+    audience_text:['Тем, кто не может сбросить или удержать вес.','Тем, кто подозревает гормональные нарушения.'],
+    biomarkers:[
+      { group:'Метаболизм', items:['Глюкоза','Инсулин','HOMA-IR','Гликированный гемоглобин','Лептин','Адипонектин'] },
+      { group:'Липиды', items:['Холестерин общий','ЛПВП','ЛПНП','Триглицериды'] },
+      { group:'Щитовидная железа', items:['ТТГ','T4 свободный','T3 свободный','АТ-ТПО'] },
+      { group:'Половые гормоны', items:['Тестостерон','Эстрадиол','ДГЭА-С','Кортизол'] },
+    ],
+  },
+  { id:'check-basic',    name:'Общий уровень здоровья', sub:'Оптимальный чекап для оценки состояния организма.',
+    price:4290, markers:20, days:3, audience:['m','f'],
+    photo:'../../shared/photos/checkup-basic.jpg',
+    cover:'linear-gradient(135deg, #c8b4a0 0%, #8a7560 100%)',
+    short:'Базовая проверка ключевых систем.',
+    includes:['Анализ крови по 20 биомаркерам','Сдача на дому или в лаборатории','Расшифровка в личном кабинете'],
+    audience_text:['Тем, кто хочет начать с базовой проверки.','Тем, кто проходит ежегодный осмотр.'],
+    biomarkers:[
+      { group:'Клинический анализ крови', items:['Гемоглобин','Эритроциты','Лейкоциты','Тромбоциты','СОЭ'] },
+      { group:'Метаболизм', items:['Глюкоза','Холестерин общий','ЛПВП','ЛПНП','Триглицериды'] },
+      { group:'Витамины', items:['Витамин D','B12','Ферритин'] },
+      { group:'Функции органов', items:['АЛТ','АСТ','Креатинин','Мочевина','ТТГ','СРБ'] },
+    ],
+  },
+  { id:'check-vit',      name:'Дефицит витаминов и минералов', sub:'Позволяет выявить нехватку жизненно важных веществ для поддержки здоровья и хорошего самочувствия.',
+    price:5290, markers:14, days:3, audience:['m','f'],
+    photo:'../../shared/photos/checkup-vit.jpg',
+    cover:'linear-gradient(135deg, #e8a558 0%, #c47020 100%)',
+    short:'Витаминно-минеральный профиль.',
+    includes:['Анализ крови по 14 биомаркерам','Подбор формулы БАДов с Превентмед'],
+    audience_text:['Тем, кто чувствует усталость без явной причины.','Тем, кто принимает БАДы наугад и хочет понять, что нужно именно ему.'],
+    biomarkers:[
+      { group:'Витамины', items:['D','B12','B9','A','E'] },
+      { group:'Минералы', items:['Магний','Цинк','Селен','Медь','Кальций ионизированный','Железо','Ферритин'] },
+      { group:'Маркеры', items:['Гомоцистеин','Метилмалоновая кислота'] },
+    ],
+  },
+  { id:'check-genetic',  name:'Генетические исследования', sub:'Генетическая панель для оценки наследуемых обменов веществ и рисков развития генетически детерминированных заболеваний.',
+    price:3290, markers:10, days:14, audience:['m','f'],
+    photo:'../../shared/photos/checkup-genetic.jpg',
+    cover:'linear-gradient(135deg, #d8b890 0%, #a47e58 100%)',
+    short:'ДНК-панель: метаболизм нутриентов и риски.',
+    includes:['Забор слюны или буккального эпителия','Расшифровка в личном кабинете','Консультация генетика по запросу'],
+    audience_text:['Тем, кто хочет понять предрасположенности.','Тем, кто проходит чекапы и хочет сделать персонализацию глубже.'],
+    biomarkers:[
+      { group:'Метаболизм нутриентов', items:['MTHFR (фолаты)','VDR (витамин D)','FTO (вес)','APOE (липиды)'] },
+      { group:'Чувствительность', items:['Лактоза','Глютен','Кофеин','Алкоголь'] },
+      { group:'Риски', items:['Тромбофилия','Гемохроматоз'] },
+    ],
+  },
+  { id:'check-food',     name:'Пищевая непереносимость', sub:'Выявление индивидуальной непереносимости продуктов питания и рекомендации от врача по коррекции рациона.',
+    price:21490, markers:108, days:14, audience:['m','f'],
+    photo:'../../shared/photos/checkup-food.jpg',
+    cover:'linear-gradient(135deg, #c45a3a 0%, #7a3010 100%)',
+    short:'Тест IgG на 108 продуктов.',
+    includes:['Анализ крови IgG на 108 продуктов','Консультация диетолога','План питания'],
+    audience_text:['Тем, у кого вздутие, кожные реакции, мигрени без явной причины.','Тем, кто исключил очевидные триггеры, но не нашёл свой.'],
+    biomarkers:[
+      { group:'Молочные', items:['Молоко коровье','Сыр','Йогурт','Творог','Сливки'] },
+      { group:'Зерновые', items:['Пшеница','Рожь','Овёс','Ячмень','Рис','Гречка'] },
+      { group:'Орехи', items:['Миндаль','Грецкий орех','Фундук','Кешью','Арахис'] },
+      { group:'Мясо и рыба', items:['Говядина','Свинина','Курица','Индейка','Лосось','Треска'] },
+      { group:'Овощи и фрукты', items:['Яблоко','Банан','Цитрусовые','Помидор','Капуста','Морковь'] },
+    ],
+  },
+  { id:'check-thyroid',  name:'Здоровье щитовидной железы', sub:'Комплексное исследование гормонов и антител для раннего выявления нарушений работы щитовидной железы.',
+    price:4590, markers:8, days:3, audience:['m','f'],
+    photo:'../../shared/photos/checkup-thyroid.jpg',
+    cover:'linear-gradient(135deg, #e8d8c8 0%, #b89878 100%)',
+    short:'Полный тиреоидный профиль.',
+    includes:['Анализ крови по 8 биомаркерам','Расшифровка эндокринолога'],
+    audience_text:['Тем, кто чувствует упадок сил, набор веса, выпадение волос.','Тем, у кого в семье болезни щитовидной железы.'],
+    biomarkers:[
+      { group:'Гормоны', items:['ТТГ','T4 свободный','T3 свободный','T4 общий','T3 общий'] },
+      { group:'Антитела', items:['АТ-ТПО','АТ-ТГ','АТ-рТТГ'] },
+    ],
+  },
 ];
 
 const MOCK_ORDERS = [
@@ -943,13 +1093,14 @@ function Header() {
           </svg>
         </Link>
         <nav className="hidden md:flex items-center gap-8 ml-8">
-          <button onClick={()=>history.push('/vitamins')} className={'flex items-center gap-1 text-sm font-medium transition-colors ' + (location.pathname.startsWith('/vitamin')?'text-ink':'text-ink hover:opacity-60')}>
-            Продукты
-            <svg width="12" height="12" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>
+          <button onClick={()=>history.push('/checkups')} className={'text-sm transition-colors ' + (location.pathname.startsWith('/checkup')?'text-ink font-medium':'text-secondary hover:text-ink')}>
+            Чекапы
           </button>
-          <button className="flex items-center gap-1 text-sm font-medium text-ink hover:opacity-60 transition-opacity">
+          <button onClick={()=>history.push('/vitamins')} className={'text-sm transition-colors ' + (location.pathname.startsWith('/vitamin')?'text-ink font-medium':'text-secondary hover:text-ink')}>
+            Витамины
+          </button>
+          <button className="text-sm text-secondary hover:text-ink transition-colors">
             О компании
-            <svg width="12" height="12" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>
           </button>
         </nav>
         <div className="flex-1" />
@@ -1597,29 +1748,304 @@ function VitaminsPage() {
 }
 
 /* ─── CHECKUP CARD ───────────────────────────────────────────────────────── */
+function AudienceIcons({ audience }) {
+  if (!audience) return null;
+  return (
+    <div className="absolute top-4 left-4 flex gap-1.5 z-10">
+      {audience.includes('m') && (
+        <span className="w-7 h-7 rounded-full bg-white/95 flex items-center justify-center text-[11px] font-medium text-ink" title="Мужчины">М</span>
+      )}
+      {audience.includes('f') && (
+        <span className="w-7 h-7 rounded-full bg-white/95 flex items-center justify-center text-[11px] font-medium text-ink" title="Женщины">Ж</span>
+      )}
+    </div>
+  );
+}
+
 function CheckupCard({ c }) {
-  const { showToast } = useApp();
+  const history = useHistory();
   return (
     <div className="bg-white overflow-hidden cursor-pointer card-hover h-full flex flex-col"
-      onClick={()=>showToast('Раздел чекапов скоро будет доступен')}>
-      <div className="relative flex items-center justify-center" style={{background:c.gradient,aspectRatio:'4 / 5'}}>
-        <svg width="84" height="84" fill="none" stroke="white" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24" style={{opacity:0.9}}>
-          {c.icon}
-        </svg>
+      onClick={()=>history.push('/checkups/'+c.id)}>
+      <div className="relative" style={{background:c.cover,aspectRatio:'4 / 5'}}>
+        <AudienceIcons audience={c.audience} />
+        {c.photo && (
+          <img src={c.photo} alt={c.name} className="w-full h-full object-cover"
+            onError={e=>{e.currentTarget.style.display='none';}} />
+        )}
       </div>
       <div className="pt-5 flex-1 flex flex-col">
-        <h3 className="text-[15px] mb-1 text-ink" style={{fontWeight:500,letterSpacing:'-0.01em'}}>{c.name}</h3>
-        <p className="text-[12px] text-secondary mb-3 leading-snug">{c.sub}</p>
-        <div className="text-[11px] mb-3 flex items-center gap-2 flex-wrap text-secondary num">
-          <span className="text-ink">{c.markers} биомаркеров</span>
-          <span>·</span>
-          <span>результат за {c.days} {c.days===1?'день':c.days<5?'дня':'дней'}</span>
-        </div>
+        <h3 className="text-[15px] mb-2 text-ink" style={{fontWeight:500,letterSpacing:'-0.01em'}}>{c.name}</h3>
+        <p className="text-[12px] text-secondary mb-4 leading-snug" style={{display:'-webkit-box',WebkitLineClamp:3,WebkitBoxOrient:'vertical',overflow:'hidden'}}>{c.short || c.sub}</p>
         <div className="mt-auto flex items-baseline gap-2 num">
           <span className="text-[11px] text-disabled">от</span>
           <span className="text-ink" style={{fontSize:'15px',fontWeight:500,letterSpacing:'-0.01em'}}>{fmt(c.price)}</span>
         </div>
       </div>
+    </div>
+  );
+}
+
+/* ─── CHECKUPS PAGE (CATALOG) ────────────────────────────────────────────── */
+function CheckupsPage() {
+  const { setCallbackOpen } = useApp();
+  const [aud, setAud] = useState('all');
+  const filters = [
+    { id:'all', l:'Все' },
+    { id:'f',   l:'Женщинам' },
+    { id:'m',   l:'Мужчинам' },
+  ];
+  const shown = aud==='all' ? CHECKUPS : CHECKUPS.filter(c => c.audience?.includes(aud));
+  return (
+    <div className="fade-in">
+      {/* Hero — dark navy */}
+      <section style={{background:'#042033'}}>
+        <div className="max-w-[1280px] mx-auto px-8 pt-20 pb-24 grid md:grid-cols-2 gap-16 items-center">
+          <div>
+            <p className="text-[11px] tracking-[0.2em] uppercase mb-8" style={{color:'rgba(255,255,255,0.5)'}}>Чекапы</p>
+            <h1 className="display leading-[1] mb-10" style={{fontSize:'72px',color:'#fff'}}>
+              Комплексная<br/>проверка здоровья
+            </h1>
+            <div className="flex flex-wrap gap-2 mb-10">
+              {['Под разные цели','Консультация врача','Все данные в одном месте'].map(t => (
+                <span key={t} className="px-4 py-2 rounded-full text-[13px]" style={{background:'rgba(255,255,255,0.08)',color:'#fff',border:'1px solid rgba(255,255,255,0.15)'}}>{t}</span>
+              ))}
+            </div>
+            <div className="flex gap-3">
+              <a href="#catalog" className="px-8 py-4 font-medium text-[14px] rounded-lg" style={{background:'#fff',color:'#042033'}}>Выбрать чекап</a>
+              <button onClick={()=>setCallbackOpen(true)} className="px-8 py-4 font-medium text-[14px] rounded-lg transition-colors" style={{background:'transparent',color:'#fff',border:'1px solid rgba(255,255,255,0.3)'}}>Подобрать с врачом</button>
+            </div>
+          </div>
+          {/* Phone mockup */}
+          <div className="hidden md:flex items-center justify-center">
+            <div className="relative" style={{width:'320px',height:'600px'}}>
+              <div className="absolute inset-0 rounded-[44px]" style={{background:'#0a0a0a',padding:'12px',boxShadow:'0 30px 60px rgba(0,0,0,0.4)'}}>
+                <div className="w-full h-full rounded-[34px] overflow-hidden flex flex-col" style={{background:'#0d1117'}}>
+                  <div className="h-7 flex items-center justify-center">
+                    <div className="w-24 h-5 rounded-full" style={{background:'#0a0a0a'}}/>
+                  </div>
+                  <div className="px-5 pt-3 pb-2 flex items-center justify-between">
+                    <span className="text-white/60 text-[10px]">12:24</span>
+                  </div>
+                  <div className="px-5 mb-4">
+                    <div className="text-white" style={{fontSize:'24px',fontWeight:500,letterSpacing:'-0.01em'}}>Магний</div>
+                  </div>
+                  <div className="px-5 flex gap-2 mb-3">
+                    <span className="text-[10px] px-3 py-1.5 rounded-full bg-white text-[#042033] font-medium">Сейчас</span>
+                    <span className="text-[10px] px-3 py-1.5 rounded-full text-white/60" style={{border:'1px solid rgba(255,255,255,0.15)'}}>Динамика</span>
+                  </div>
+                  <div className="px-5 mb-2">
+                    <div className="num text-white" style={{fontSize:'42px',fontWeight:300,letterSpacing:'-0.02em',lineHeight:1}}>25 <span className="text-[14px] text-white/50">мг/л</span></div>
+                    <p className="text-[11px] mt-1" style={{color:'#46d76b'}}>Оптимальное</p>
+                  </div>
+                  <div className="px-5 mt-3 flex-1 relative" style={{minHeight:'180px'}}>
+                    <svg viewBox="0 0 280 160" className="w-full h-full" preserveAspectRatio="none">
+                      <path d="M 0 130 L 40 110 L 80 100 L 120 80 L 160 60 L 200 50 L 240 30 L 280 20" fill="none" stroke="#46d76b" strokeWidth="2"/>
+                      <path d="M 0 130 L 40 110 L 80 100 L 120 80 L 160 60 L 200 50 L 240 30 L 280 20 L 280 160 L 0 160 Z" fill="url(#grad)" opacity="0.2"/>
+                      <defs>
+                        <linearGradient id="grad" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="0%" stopColor="#46d76b"/>
+                          <stop offset="100%" stopColor="#46d76b" stopOpacity="0"/>
+                        </linearGradient>
+                      </defs>
+                      <circle cx="240" cy="30" r="4" fill="#46d76b"/>
+                    </svg>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Catalog */}
+      <section id="catalog" className="max-w-[1280px] mx-auto px-8 py-32">
+        <div className="flex items-end justify-between flex-wrap gap-6 mb-16">
+          <div>
+            <p className="text-[11px] tracking-[0.2em] uppercase mb-6 text-secondary">Каталог</p>
+            <h2 className="display text-ink" style={{fontSize:'56px',lineHeight:1.05}}>Все чекапы</h2>
+          </div>
+          <div className="flex gap-1.5 flex-wrap">
+            {filters.map(f => (
+              <button key={f.id} onClick={()=>setAud(f.id)}
+                className={'px-4 py-2 text-[13px] transition-all ' + (aud===f.id ? 'text-white' : 'text-secondary hover:text-ink')}
+                style={aud===f.id
+                  ? {background:'#042033',borderRadius:'999px'}
+                  : {borderRadius:'999px',border:'1px solid rgba(4,32,51,0.12)'}}>
+                {f.l}
+              </button>
+            ))}
+          </div>
+        </div>
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-6 gap-y-16">
+          {shown.map(c => <CheckupCard key={c.id} c={c} />)}
+        </div>
+      </section>
+    </div>
+  );
+}
+
+/* ─── CHECKUP DETAIL ─────────────────────────────────────────────────────── */
+function CheckupDetail() {
+  const { id } = useParams();
+  const history = useHistory();
+  const { showToast, setCallbackOpen } = useApp();
+  const c = CHECKUPS.find(x => x.id === id);
+  const [openGroup, setOpenGroup] = useState(0);
+  const [openPrep, setOpenPrep] = useState(false);
+  if (!c) return <div className="text-center py-24 text-secondary">Чекап не найден</div>;
+
+  const split4 = Math.round(c.price/4);
+
+  const order = () => {
+    showToast('Заявка принята. Менеджер свяжется в течение часа.');
+  };
+
+  return (
+    <div className="max-w-[1280px] mx-auto px-8 py-12 fade-in">
+      <button onClick={()=>history.push('/checkups')} className="flex items-center gap-2 text-secondary hover:text-ink mb-8 text-[14px]">
+        <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg>
+        В чекапы
+      </button>
+
+      <div className="grid md:grid-cols-2 gap-12 mb-16">
+        {/* Photo */}
+        <div className="relative overflow-hidden" style={{background:c.cover,aspectRatio:'4 / 5',borderRadius:'2px'}}>
+          {c.photo && <img src={c.photo} alt={c.name} className="w-full h-full object-cover" onError={e=>{e.currentTarget.style.display='none';}} />}
+        </div>
+        {/* Info */}
+        <div>
+          {c.badges?.length > 0 && (
+            <div className="flex gap-2 mb-5">
+              {c.badges.map(b => (
+                <span key={b} className="px-3 py-1 rounded-full text-[11px] tracking-[0.1em] uppercase" style={{border:'1px solid rgba(4,32,51,0.15)',color:'#042033'}}>{b}</span>
+              ))}
+            </div>
+          )}
+          <h1 className="display text-ink mb-4" style={{fontSize:'48px',lineHeight:1.05}}>{c.name}</h1>
+          <p className="text-secondary text-[15px] leading-relaxed mb-8">{c.sub}</p>
+
+          <div className="flex items-baseline gap-3 mb-2 num">
+            <span className="text-ink" style={{fontSize:'36px',fontWeight:500,letterSpacing:'-0.02em'}}>{fmt(c.price)}</span>
+          </div>
+          <p className="text-[13px] text-secondary mb-8 num">или {fmt(split4)} × 4 в Сплит</p>
+
+          <button onClick={order} className="btn-p w-full py-4 mb-3 text-[14px]" style={{fontWeight:500}}>Заказать</button>
+          <button onClick={()=>setCallbackOpen(true)} className="w-full py-4 text-[14px] rounded-lg transition-colors" style={{background:'#E5EDF2',color:'#042033',fontWeight:500}}>Подобрать с врачом</button>
+
+          <div className="mt-8 pt-8" style={{borderTop:'1px solid rgba(4,32,51,0.08)'}}>
+            <ul className="space-y-4">
+              {c.includes?.map((item, i) => (
+                <li key={i} className="flex items-start gap-3">
+                  <span className="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5" style={{background:'#E5EDF2'}}>
+                    <svg width="12" height="12" fill="none" stroke="#042033" strokeWidth="2.5" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>
+                  </span>
+                  <span className="text-[14px] text-ink leading-relaxed">{item}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      {/* Audience */}
+      {c.audience_text?.length > 0 && (
+        <section className="mb-16">
+          <p className="text-[11px] tracking-[0.2em] uppercase mb-4 text-secondary">Кому подходит</p>
+          <h2 className="display text-ink mb-8" style={{fontSize:'40px',lineHeight:1.05}}>Этот чекап для тех</h2>
+          <div className="grid md:grid-cols-2 gap-4">
+            {c.audience_text.map((t,i) => (
+              <div key={i} className="p-6 rounded-2xl flex items-start gap-3" style={{background:'#E5EDF2'}}>
+                <svg width="18" height="18" fill="none" stroke="#042033" strokeWidth="2" viewBox="0 0 24 24" className="flex-shrink-0 mt-0.5"><path d="M20 6L9 17l-5-5"/></svg>
+                <span className="text-[14px] text-ink leading-relaxed">{t}</span>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* Biomarkers accordion */}
+      {c.biomarkers?.length > 0 && (
+        <section className="mb-16">
+          <div className="flex items-end justify-between mb-8">
+            <div>
+              <p className="text-[11px] tracking-[0.2em] uppercase mb-4 text-secondary">Что измеряем</p>
+              <h2 className="display text-ink" style={{fontSize:'40px',lineHeight:1.05}}>Биомаркеры</h2>
+            </div>
+            <span className="display num text-ink" style={{fontSize:'56px',lineHeight:1}}>{c.markers}</span>
+          </div>
+          <div>
+            {c.biomarkers.map((g,i) => (
+              <div key={i} style={{borderTop:'1px solid rgba(4,32,51,0.08)'}} className={i===c.biomarkers.length-1?'last:border-b':''}>
+                <button onClick={()=>setOpenGroup(openGroup===i?-1:i)} className="w-full text-left py-5 flex items-center justify-between gap-4" style={i===c.biomarkers.length-1?{borderBottom:'1px solid rgba(4,32,51,0.08)'}:{}}>
+                  <div className="flex items-center gap-4">
+                    <span className="text-ink text-[16px]" style={{letterSpacing:'-0.01em'}}>{g.group}</span>
+                    <span className="text-[12px] text-disabled num">{g.items.length}</span>
+                  </div>
+                  <span className="text-xl flex-shrink-0 font-light" style={{color:'#042033'}}>{openGroup===i?'−':'+'}</span>
+                </button>
+                {openGroup===i && (
+                  <div className="pb-6 grid grid-cols-2 md:grid-cols-3 gap-x-4 gap-y-2">
+                    {g.items.map((it,k) => (
+                      <span key={k} className="text-[13px] text-secondary">· {it}</span>
+                    ))}
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* Prep */}
+      <section className="mb-16">
+        <div style={{borderTop:'1px solid rgba(4,32,51,0.08)',borderBottom:'1px solid rgba(4,32,51,0.08)'}}>
+          <button onClick={()=>setOpenPrep(!openPrep)} className="w-full text-left py-6 flex justify-between items-center gap-4">
+            <span className="display text-ink" style={{fontSize:'24px',letterSpacing:'-0.01em'}}>Рекомендации по подготовке</span>
+            <span className="text-xl flex-shrink-0 font-light" style={{color:'#042033'}}>{openPrep?'−':'+'}</span>
+          </button>
+          {openPrep && (
+            <div className="pb-6 text-secondary text-[14px] leading-relaxed space-y-2">
+              <p>· Сдавать кровь натощак, последний приём пищи — за 8–12 часов до анализа.</p>
+              <p>· За сутки отказаться от алкоголя и интенсивных физических нагрузок.</p>
+              <p>· За 1 час до сдачи — не курить.</p>
+              <p>· Вода без газа разрешена в любом количестве.</p>
+              <p>· Сдавать утром, в одно и то же время — это поможет в дальнейшем сравнивать динамику.</p>
+            </div>
+          )}
+        </div>
+      </section>
+
+      {/* How it works */}
+      <section className="mb-16">
+        <p className="text-[11px] tracking-[0.2em] uppercase mb-4 text-secondary">Процесс</p>
+        <h2 className="display text-ink mb-10" style={{fontSize:'40px',lineHeight:1.05}}>Как это работает</h2>
+        <div className="grid md:grid-cols-2 gap-x-12 gap-y-8">
+          {[
+            ['Покупка и первый контакт','После покупки с вами свяжется менеджер.'],
+            ['Запись и сдача анализов','Менеджер запишет вас на сдачу анализов (запись активна 3 дня). Сдайте анализы в лаборатории в течение 3 дней или закажите выезд на дом (бесплатно от 10 000 ₽).'],
+            ['Результаты в личном кабинете','Менеджер загрузит ваши результаты в личный кабинет.'],
+            ['Консультация','После результатов менеджер предложит выбрать время для телефонной консультации со специалистом (если включена в чекап).'],
+          ].map(([t,d],i) => (
+            <div key={i} className="flex gap-5">
+              <span className="display num text-disabled flex-shrink-0" style={{fontSize:'40px',lineHeight:1,fontWeight:300}}>{i+1}</span>
+              <div>
+                <h3 className="text-ink mb-2" style={{fontSize:'17px',fontWeight:500,letterSpacing:'-0.01em'}}>{t}</h3>
+                <p className="text-secondary text-[14px] leading-relaxed">{d}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* Other checkups */}
+      <section className="mb-16">
+        <p className="text-[11px] tracking-[0.2em] uppercase mb-4 text-secondary">Ещё чекапы</p>
+        <h2 className="display text-ink mb-10" style={{fontSize:'40px',lineHeight:1.05}}>Возможно, подойдёт</h2>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-x-6 gap-y-12">
+          {CHECKUPS.filter(x => x.id !== c.id).slice(0,4).map(x => <CheckupCard key={x.id} c={x} />)}
+        </div>
+      </section>
     </div>
   );
 }
@@ -2892,6 +3318,8 @@ function App() {
             <Route exact path="/" component={HomePage} />
             <Route exact path="/vitamins" component={VitaminsPage} />
             <Route exact path="/vitamins/:id" component={VitaminDetail} />
+            <Route exact path="/checkups" component={CheckupsPage} />
+            <Route exact path="/checkups/:id" component={CheckupDetail} />
             <Route exact path="/vitamin-kits/:id" component={KitDetail} />
             <Route exact path="/cart" component={CartPage} />
             <Route exact path="/checkout" component={CheckoutPage} />
