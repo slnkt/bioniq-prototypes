@@ -1509,7 +1509,7 @@ function HomePage() {
 
 /* ─── VITAMINS PAGE ──────────────────────────────────────────────────────── */
 function VitaminsPage() {
-  const { isAvailable, isKitAvailable, setRequestOpen } = useApp();
+  const { isAvailable, setRequestOpen } = useApp();
   const [filter, setFilter] = useState('all');
   const [faq, setFaq]       = useState(null);
   const FILTERS = [
@@ -1520,7 +1520,6 @@ function VitaminsPage() {
     { id:'Красота',     l:'Красота' },
   ];
   const shown = VITAMINS.filter(v => isAvailable(v.id) && (filter==='all' || v.tags.includes(filter)));
-  const visibleKits = KITS.filter(isKitAvailable);
 
   const FAQS = [
     ['Как подобрать витамины?','Рекомендуем пройти наш онлайн-тест или сдать анализы.'],
@@ -1535,18 +1534,12 @@ function VitaminsPage() {
         <h1 className="display text-ink" style={{fontSize:'72px',lineHeight:1}}>Витамины</h1>
         <p className="text-secondary mt-6 max-w-xl text-[15px] leading-relaxed">Липосомальные формы, разработанные с врачами Союза PreventMed. GMP-производство, Академгородок.</p>
       </div>
-      <div className="mb-24">
-        <p className="text-[11px] tracking-[0.2em] uppercase mb-6 text-secondary">Наборы</p>
-        <h2 className="display text-ink mb-10" style={{fontSize:'40px',lineHeight:1.05}}>Готовые программы</h2>
-        <div className="flex gap-6 overflow-x-auto pb-2">{visibleKits.map(k => (
-          <div key={k.id} className="flex-shrink-0" style={{width:'300px'}}><KitCard k={k} /></div>
-        ))}</div>
-      </div>
-
       <div className="mb-12">
-        <p className="text-[11px] tracking-[0.2em] uppercase mb-6 text-secondary">Каталог</p>
         <div className="flex items-end justify-between flex-wrap gap-6 mb-10">
-          <h2 className="display text-ink" style={{fontSize:'40px',lineHeight:1.05}}>Все витамины</h2>
+          <div>
+            <p className="text-[11px] tracking-[0.2em] uppercase mb-6 text-secondary">Каталог</p>
+            <h2 className="display text-ink" style={{fontSize:'40px',lineHeight:1.05}}>Все витамины</h2>
+          </div>
           <div className="flex gap-1.5 flex-wrap">
             {FILTERS.map(f => (
               <button key={f.id} onClick={()=>setFilter(f.id)}
@@ -1944,18 +1937,10 @@ function VitaminDetail() {
       </div>
 
       <div className="mb-10 mt-8"><p className="text-[11px] tracking-[0.2em] uppercase mb-4 text-secondary">Подобрано для вас</p><h2 className="display text-ink" style={{fontSize:'40px',lineHeight:1.05}}>Рекомендуем также</h2></div>
-      {recKits.length > 0 && (
-        <>
-          <h3 className="text-ink mb-4" style={{fontSize:'18px',fontWeight:700,letterSpacing:'-0.01em'}}>Наборы</h3>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-5 mb-12">
-            {recKits.slice(0,4).map(kk => <KitCard key={kk.id} k={kk} />)}
-          </div>
-        </>
-      )}
       {recVits.length > 0 && (
         <>
           <h3 className="text-ink mb-4" style={{fontSize:'18px',fontWeight:700,letterSpacing:'-0.01em'}}>Витамины</h3>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-5 mb-12">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-x-6 gap-y-12 mb-16">
             {recVits.slice(0,4).map(x => <VitCard key={x.id} v={x} />)}
           </div>
         </>
@@ -2189,18 +2174,10 @@ function KitDetail() {
       </div>
 
       <div className="mb-10 mt-8"><p className="text-[11px] tracking-[0.2em] uppercase mb-4 text-secondary">Подобрано для вас</p><h2 className="display text-ink" style={{fontSize:'40px',lineHeight:1.05}}>Рекомендуем также</h2></div>
-      {recKits.length > 0 && (
-        <>
-          <h3 className="text-ink mb-4" style={{fontSize:'18px',fontWeight:700,letterSpacing:'-0.01em'}}>Наборы</h3>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-5 mb-12">
-            {recKits.slice(0,4).map(kk => <KitCard key={kk.id} k={kk} />)}
-          </div>
-        </>
-      )}
       {recVits.length > 0 && (
         <>
           <h3 className="text-ink mb-4" style={{fontSize:'18px',fontWeight:700,letterSpacing:'-0.01em'}}>Витамины</h3>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-5 mb-12">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-x-6 gap-y-12 mb-16">
             {recVits.slice(0,4).map(x => <VitCard key={x.id} v={x} />)}
           </div>
         </>
