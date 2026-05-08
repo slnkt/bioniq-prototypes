@@ -549,16 +549,16 @@ const wordForm = (n, [one, few, many]) => {
 };
 
 const REVIEW_POOL = [
-  { name:'Анна К.',     date:'12 апреля',  rating:5, text:'Прошла курс месяц — стала легче засыпать, утром бодрее. Капсулы небольшие, легко глотаются, никакой горечи.' },
-  { name:'Михаил Т.',   date:'5 апреля',   rating:5, text:'Беру уже второй месяц. Эффект мягкий, но стабильный. Раньше пробовал обычные таблетки — не сравнить, эти точно работают.' },
-  { name:'Елена С.',    date:'28 марта',   rating:4, text:'Понравилось качество упаковки и состав. Цена немного высоковата, но результат того стоит. Рекомендую.' },
-  { name:'Дмитрий Р.',  date:'19 марта',   rating:5, text:'Принимал по рекомендации врача. Через 2 месяца сдал анализы — показатели улучшились. Доволен.' },
-  { name:'Наталья В.',  date:'14 марта',   rating:5, text:'Заказала на сайте — пришло быстро через СДЭК. Капсулы качественные, состав честный. Уже посоветовала маме.' },
-  { name:'Игорь Л.',    date:'2 марта',    rating:4, text:'Хороший комплекс. Состав сбалансированный, дозировки рабочие. Хотелось бы ещё в порошке попробовать.' },
-  { name:'Ольга П.',    date:'24 февраля', rating:5, text:'Замечательно! Принимаю в комплексе с другими витаминами Bioniq. Самочувствие за 2 месяца значительно улучшилось.' },
-  { name:'Сергей М.',   date:'19 февраля', rating:5, text:'Заказал в первый раз — впечатлила упаковка и подробное описание состава. Хороший подход к качеству.' },
-  { name:'Татьяна Б.',  date:'10 февраля', rating:5, text:'Отличный комплекс! Заметила результат уже через 3 недели. Капсулы небольшие, без привкуса. Закажу ещё.' },
-  { name:'Алексей Н.',  date:'1 февраля',  rating:4, text:'Нормальный продукт. Состав соответствует заявленному, дозировки честные. Обычно пью с едой — хорошо переносится.' },
+  { name:'Анна Монгайт',          title:'Телеведущая',                              date:'12 апреля',  rating:5, text:'Две ложки в день вместо 20 таблеток — очень удобно. Не нужно держать в голове, что и когда пить.' },
+  { name:'Алексей Боков',         title:'Событийный продюсер',                      date:'5 апреля',   rating:5, text:'Спасибо bioniq за крепкие ноги и ясные мысли. Замечаю разницу, особенно в плотных периодах.' },
+  { name:'Антон Феоктистов',      title:'Основатель ProTrener',                     date:'28 марта',   rating:5, text:'Я верю, что за персонализацией — наше будущее в спорте и в здоровье. Bioniq делает это удобно.' },
+  { name:'Юлия Барановская',      title:'Телеведущая',                              date:'19 марта',   rating:5, text:'Теперь мне не нужно пить огромное количество витаминов из разных банок. Всё в одной формуле под мои анализы.' },
+  { name:'Полина Аскери',         title:'Галеристка',                               date:'14 марта',   rating:5, text:'Пусть осознанный подход к здоровью станет доступен всем. Это не БАДы наугад — это работа с цифрами.' },
+  { name:'Мария Верник',          title:'Бренд-менеджер GQ',                        date:'6 марта',    rating:5, text:'Мои показатели пришли в норму уже через два месяца. В одном флаконе есть всё, чего мне не хватает именно мне.' },
+  { name:'Бредли Симмондс',       title:'Фитнес-инфлюенсер, персональный тренер GQ',date:'2 марта',    rating:5, text:'Я увидел огромный прогресс в уровне моей энергии. Это особенно важно при моём графике тренировок.' },
+  { name:'Розмари Фергюсон',      title:'Эко-модель, нутрициолог',                   date:'24 февраля', rating:5, text:'Мне нравится персонализированный подход, потому что у нас разные потребности в разном возрасте.' },
+  { name:'Лаура Джугелия',        title:'Журналист, PeopleTalk',                    date:'19 февраля', rating:5, text:'Надо детально посмотреть состав. Я знаю, что bioniq заботится о здоровье на уровне формулы, а не маркетинга.' },
+  { name:'Илья Бачурин',          title:'Продюсер',                                  date:'10 февраля', rating:5, text:'Систематично подсел — стал здоровее. Без ощущения, что «надо попить курс», просто привычка как кофе утром.' },
 ];
 
 const productRating = id => {
@@ -1612,27 +1612,18 @@ function TrustSection() {
 function HomeReviewsSection() {
   const history = useHistory();
   const reviews = REVIEW_POOL.slice(0, 3);
-  // Compute aggregated rating
-  const avgRating = (reviews.reduce((s,r) => s + r.rating, 0) / reviews.length);
   return (
     <section className="max-w-[1280px] mx-auto px-8 py-32">
-      <div className="mb-16 max-w-3xl">
-        <p className="text-[11px] tracking-[0.2em] uppercase mb-6 text-secondary">Отзывы</p>
-        <h2 className="display text-ink mb-6" style={{fontSize:'56px',lineHeight:1.05}}>Что говорят пользователи Bioniq</h2>
-        <div className="flex items-center gap-2 flex-wrap">
-          <Stars rating={avgRating} size={18} />
-          <span className="text-[15px] num text-ink" style={{fontWeight:500}}>{avgRating.toFixed(1)}</span>
-          <span className="text-[12px] ml-2 px-2.5 py-1 rounded-full" style={{background:'#f5f5f5',color:'rgba(0,0,0,0.54)'}}>Только от покупателей</span>
-        </div>
+      <div className="mb-16">
+        <h2 className="display text-ink" style={{fontSize:'72px',lineHeight:1}}>Отзывы</h2>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-px mb-10" style={{background:'rgba(4,32,51,0.08)'}}>
         {reviews.map((r, i) => (
-          <div key={i} className="bg-white p-8 flex flex-col" style={{minHeight:'280px'}}>
-            <Stars rating={r.rating} size={14} />
-            <p className="text-ink text-[15px] leading-relaxed my-5 flex-1" style={{letterSpacing:'-0.005em'}}>{r.text}</p>
+          <div key={i} className="bg-white p-8 flex flex-col" style={{minHeight:'320px'}}>
+            <p className="text-ink text-[16px] leading-relaxed mb-6 flex-1" style={{letterSpacing:'-0.005em'}}>«{r.text}»</p>
             <div>
               <div className="text-ink text-[14px]" style={{fontWeight:500}}>{r.name}</div>
-              <div className="text-[12px] text-secondary mt-0.5 num">{r.date}</div>
+              {r.title && <div className="text-[12px] text-secondary mt-0.5">{r.title}</div>}
             </div>
           </div>
         ))}
@@ -2426,7 +2417,7 @@ function ReviewsSection({ productId }) {
                 </div>
                 <div>
                   <div className="text-[14px] font-semibold text-ink">{r.name}</div>
-                  <div className="text-[12px]" style={{color:'rgba(0,0,0,0.54)'}}>{r.date}</div>
+                  <div className="text-[12px]" style={{color:'rgba(0,0,0,0.54)'}}>{r.title || r.date}</div>
                 </div>
               </div>
               <Stars rating={r.rating} size={13} />
