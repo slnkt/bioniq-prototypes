@@ -1314,8 +1314,8 @@ function Hero() {
             ))}
           </div>
           <div className="flex gap-3 flex-wrap">
-            <button onClick={()=>history.push('/checkups')} className="btn-p px-8 py-4 text-[14px]" style={{fontWeight:500}}>Пройти чекап</button>
-            <button onClick={()=>setCallbackOpen(true)} className="px-8 py-4 text-[14px] bg-white rounded-lg hover:bg-gray-50 transition-colors text-ink" style={{border:'1px solid rgba(4,32,51,0.12)',fontWeight:500}}>Оставить заявку</button>
+            <button onClick={()=>document.getElementById('products')?.scrollIntoView({behavior:'smooth'})} className="btn-p px-8 py-4 text-[14px]" style={{fontWeight:500}}>Выбрать продукт</button>
+            <button onClick={()=>setCallbackOpen(true)} className="px-8 py-4 text-[14px] bg-white rounded-lg hover:bg-gray-50 transition-colors text-ink" style={{border:'1px solid rgba(4,32,51,0.12)',fontWeight:500}}>Обратный звонок</button>
           </div>
         </div>
         <div className="relative flex items-center justify-center" style={{minHeight:'640px'}}>
@@ -1466,7 +1466,7 @@ function ProductsSection() {
     { kicker:'Онлайн и офлайн', title:'Консультации эндокринолога', text:'Врач видит ваши анализы до встречи — объяснит результаты, скорректирует протокол.', cta:'Записаться', go:()=>setCallbackOpen(true) },
   ];
   return (
-    <section className="max-w-[1280px] mx-auto px-8 py-32">
+    <section id="products" className="max-w-[1280px] mx-auto px-8 py-32" style={{scrollMarginTop:'80px'}}>
       <div className="mb-16 max-w-3xl">
         <p className="text-[11px] tracking-[0.2em] uppercase mb-6 text-secondary">Наши продукты</p>
         <h2 className="display text-ink mb-6" style={{fontSize:'56px',lineHeight:1.05}}>Не набор услуг.<br/>Система.</h2>
