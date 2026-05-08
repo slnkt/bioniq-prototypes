@@ -1031,12 +1031,6 @@ function VitCard({ v }) {
             Нет в наличии
           </div>
         )}
-        {v.orig > v.price && !(s===0 && inCart===0) && (
-          <div className="absolute top-3 left-3 flex items-center gap-1 px-2.5 py-1 rounded-full text-white" style={{background:'#FB1971',fontSize:'11px',fontWeight:600}}>
-            <span>🔥</span>
-            <span>Распродажа</span>
-          </div>
-        )}
         {imgs.length > 1 && (
           <div className="absolute bottom-3 left-1/2 flex gap-1.5" style={{transform:'translateX(-50%)'}} onClick={e=>e.stopPropagation()}>
             {imgs.map((_, i) => (
@@ -1109,12 +1103,6 @@ function KitCard({ k }) {
         {hasOOS && inCart===0 && (
           <div className="absolute top-3 right-3 px-2.5 py-1 rounded-full font-semibold" style={{background:'rgba(0,0,0,0.7)',color:'#fff',fontSize:'11px'}}>
             Нет в наличии
-          </div>
-        )}
-        {k.orig > k.price && !(hasOOS && inCart===0) && (
-          <div className="absolute top-3 left-3 flex items-center gap-1 px-2.5 py-1 rounded-full text-white" style={{background:'#FB1971',fontSize:'11px',fontWeight:600}}>
-            <span>🔥</span>
-            <span>Распродажа</span>
           </div>
         )}
         {imgs.length > 1 && (
