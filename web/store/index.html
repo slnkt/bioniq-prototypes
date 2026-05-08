@@ -1458,29 +1458,22 @@ function OutcomesSection() {
 /* ─── PRODUCTS / CYCLE ───────────────────────────────────────────────────── */
 function ProductsSection() {
   const history = useHistory();
-  const { setCallbackOpen, setRequestOpen } = useApp();
+  const { setRequestOpen } = useApp();
   const items = [
-    { kicker:'20+ видов панелей', title:'Чекап на дому', text:'Выезд специалиста в удобное время. 60+ биомаркеров: гормоны, метаболизм, нутриенты, воспаление. Результаты в приложении через 48 часов.', cta:'Выбрать чекап', go:()=>history.push('/checkups') },
-    { kicker:'20+ SKU', label:'Только после чекапа', title:'БАДы под ваши анализы', text:'Не универсальный мультивитамин — формула собирается по вашим биомаркерам. Разработаны совместно с командой Превентмед.', cta:'Смотреть БАДы', go:()=>history.push('/vitamins') },
-    { kicker:'iOS & Android', title:'Аналитика в приложении', text:'Все ваши анализы, динамика биомаркеров и рекомендации в одном месте.', cta:'Скачать приложение', go:()=>{} },
-    { kicker:'Онлайн и офлайн', title:'Консультации эндокринолога', text:'Врач видит ваши анализы до встречи — объяснит результаты, скорректирует протокол.', cta:'Записаться', go:()=>setCallbackOpen(true) },
+    { kicker:'11 видов панелей · от 3 290 ₽', title:'Магазин чекапов', text:'Выезд медсестры на дом или сдача в лаборатории. Расшифровка эндокринологом и динамика биомаркеров в приложении.', cta:'Открыть магазин', go:()=>history.push('/checkups') },
+    { kicker:'14 формул · от 1 690 ₽', title:'Магазин витаминов', text:'Липосомальные формы, разработанные с Союзом PreventMed. GMP-производство, Академгородок. Можно выбрать самостоятельно или получить формулу под результаты чекапа.', cta:'Открыть магазин', go:()=>history.push('/vitamins') },
   ];
   return (
     <section id="products" className="max-w-[1280px] mx-auto px-8 py-32" style={{scrollMarginTop:'80px'}}>
-      <div className="mb-16 max-w-3xl">
-        <p className="text-[11px] tracking-[0.2em] uppercase mb-6 text-secondary">Наши продукты</p>
-        <h2 className="display text-ink mb-6" style={{fontSize:'56px',lineHeight:1.05}}>Не набор услуг.<br/>Система.</h2>
-        <p className="text-secondary text-[15px] leading-relaxed">Каждый продукт Bioniq связан с другим. Чекап определяет протокол. Протокол — состав БАДов. Приложение следит за динамикой.</p>
+      <div className="mb-16">
+        <p className="text-[11px] tracking-[0.2em] uppercase text-secondary">Наши продукты</p>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-8 mb-12">
         {items.map((it, i) => (
           <div key={i} className="bg-white p-10 flex flex-col" style={{aspectRatio:'5 / 4',boxShadow:'0 30px 60px -30px rgba(4,32,51,.10)'}}>
             <p className="text-[11px] tracking-[0.2em] uppercase mb-5 text-secondary">{it.kicker}</p>
-            <h3 className="display text-ink mb-4" style={{fontSize:'32px',lineHeight:1.1}}>{it.title}</h3>
-            {it.label && (
-              <span className="text-[11px] uppercase tracking-[0.1em] mb-3 inline-block self-start px-2.5 py-1 rounded-full" style={{background:'#E5EDF2',color:'#042033'}}>{it.label}</span>
-            )}
-            <p className="text-secondary text-[14px] leading-relaxed mb-auto" style={{maxWidth:'48ch'}}>{it.text}</p>
+            <h3 className="display text-ink mb-4" style={{fontSize:'40px',lineHeight:1.05}}>{it.title}</h3>
+            <p className="text-secondary text-[14px] leading-relaxed mb-auto" style={{maxWidth:'52ch'}}>{it.text}</p>
             <button onClick={it.go} className="text-ink text-[13px] mt-8 self-start flex items-center gap-2 hover:gap-3 transition-all" style={{fontWeight:500,letterSpacing:'-0.005em'}}>
               {it.cta}
               <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
