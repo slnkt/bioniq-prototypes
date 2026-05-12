@@ -3711,8 +3711,15 @@ function OrderSuccess() {
             {order.tracking && (
               <div className="mb-6 pt-6" style={{borderTop:'1px solid rgba(4,32,51,0.08)'}}>
                 <p className="text-[11px] uppercase tracking-[0.15em] text-secondary mb-2">Трек-номер СДЭК</p>
-                <p className="num text-ink text-[15px]" style={{fontWeight:500,letterSpacing:'0.03em'}}>{order.tracking}</p>
-                <p className="text-disabled text-[12px] mt-1">Продублировали в SMS</p>
+                <div className="flex items-baseline justify-between gap-3 flex-wrap">
+                  <p className="num text-ink text-[15px]" style={{fontWeight:500,letterSpacing:'0.03em'}}>{order.tracking}</p>
+                  <a href={'https://www.cdek.ru/ru/tracking?order_id=' + encodeURIComponent(order.tracking)} target="_blank" rel="noopener noreferrer"
+                    className="text-[13px] text-ink inline-flex items-center gap-1.5 hover:gap-2 transition-all" style={{fontWeight:500}}>
+                    Отследить на cdek.ru
+                    <svg width="12" height="12" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><path d="M15 3h6v6M10 14L21 3"/></svg>
+                  </a>
+                </div>
+                <p className="text-disabled text-[12px] mt-2">Продублировали в SMS</p>
               </div>
             )}
           </>
@@ -4032,8 +4039,10 @@ function AccountOrderDetail() {
           </div>
         )}
         {o.tracking && (
-          <a href="#" onClick={e=>e.preventDefault()} className="btn-o mt-4 px-4 py-2 text-sm font-semibold inline-flex">
-            Отследить в СДЭК →
+          <a href={'https://www.cdek.ru/ru/tracking?order_id=' + encodeURIComponent(o.tracking)} target="_blank" rel="noopener noreferrer"
+            className="btn-o mt-4 px-4 py-2 text-sm font-semibold inline-flex items-center gap-2">
+            Отследить в СДЭК
+            <svg width="12" height="12" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><path d="M15 3h6v6M10 14L21 3"/></svg>
           </a>
         )}
       </div>
