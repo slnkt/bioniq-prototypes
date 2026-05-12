@@ -747,6 +747,25 @@ function AppProvider({ children }) {
     return o;
   };
 
+  /* Demo: advance order to the next status in flow */
+  const advanceOrderStatus = (orderId) => {
+    const flow = ['processing','assembly','shipping','delivered'];
+    setOrders(prev => prev.map(o => {
+      if (o.id !== orderId) return o;
+      const i = flow.indexOf(o.orderStatus);
+      if (i < 0 || i >= flow.length-1) return o;
+      const nextStatus = flow[i+1];
+      const patch = { orderStatus: nextStatus };
+      // Sync delivery sub-status + tracking number
+      if (nextStatus === 'shipping') {
+        patch.delivStatus = 'in_transit';
+        if (!o.tracking) patch.tracking = 'CDEK' + Math.floor(Math.random()*900000000 + 100000000);
+      }
+      if (nextStatus === 'delivered') patch.delivStatus = 'delivered';
+      return { ...o, ...patch };
+    }));
+  };
+
   return (
     <Ctx.Provider value={{ cart, cartCount, cartSubtotal, addToCart, addKitToCart, updQty, removeItem,
       user, login, logout:()=>setUser(null), requireAuth, authOpen, setAuthOpen,
@@ -754,7 +773,7 @@ function AppProvider({ children }) {
       notifyProduct, setNotifyProduct,
       requestOpen, setRequestOpen,
       isAvailable, isKitAvailable,
-      orders, placeOrder, curOrder, setCurOrder,
+      orders, placeOrder, advanceOrderStatus, curOrder, setCurOrder,
       toast, showToast, ts, setTs, effStock, PROMOS }}>
       {children}
     </Ctx.Provider>
@@ -3660,9 +3679,8 @@ function OrderSuccess() {
         </div>
 
         <div className="space-y-3">
-          <button onClick={()=>history.push('/account/orders')} className="btn-p w-full py-3 font-semibold">Перейти в личный кабинет</button>
+          <button onClick={()=>history.push(order ? '/account/orders/'+order.id : '/account/orders')} className="btn-p w-full py-3 font-semibold">Отслеживать заказ →</button>
           <button onClick={()=>history.push('/vitamins')} className="btn-o w-full py-3 font-semibold">Вернуться в магазин</button>
-          <button onClick={()=>history.push('/')} className="w-full text-sm text-secondary hover:text-ink transition-colors py-2">На главную</button>
         </div>
       </div>
     </div>
@@ -3814,7 +3832,7 @@ function ReviewItemForm({ item, review, onSubmit }) {
 
 function AccountOrderDetail() {
   const { id } = useParams();
-  const { orders, addToCart, effStock, showToast } = useApp();
+  const { orders, addToCart, effStock, showToast, advanceOrderStatus } = useApp();
   const history = useHistory();
   const [reviews, setReviews] = useState({});
   const o = orders.find(x=>x.id===id);
@@ -3855,7 +3873,7 @@ function AccountOrderDetail() {
       </div>
 
       <div className="bg-white rounded-2xl p-6 border border-gray-100 mb-4">
-        <div className="flex items-center overflow-x-auto">
+        <div className="flex items-center overflow-x-auto mb-2">
           {ORDER_STEPS.map((step,i) => (
             <React.Fragment key={step.key}>
               <div className="flex flex-col items-center flex-shrink-0">
@@ -3869,6 +3887,17 @@ function AccountOrderDetail() {
             </React.Fragment>
           ))}
         </div>
+        {stepIdx >= 0 && stepIdx < ORDER_STEPS.length-1 && (
+          <div className="mt-4 pt-4 flex items-center justify-between gap-3 flex-wrap" style={{borderTop:'1px solid rgba(4,32,51,0.08)'}}>
+            <p className="text-[12px] text-secondary">
+              Демо: следующий этап — <span className="text-ink" style={{fontWeight:500}}>{ORDER_STEPS[stepIdx+1].label}</span>
+            </p>
+            <button onClick={()=>{advanceOrderStatus(o.id);showToast('Статус обновлён: '+ORDER_STEPS[stepIdx+1].label);}}
+              className="px-4 py-2 text-[13px] rounded-lg transition-colors" style={{background:'#E5EDF2',color:'#042033',fontWeight:500}}>
+              Перевести в «{ORDER_STEPS[stepIdx+1].label}» →
+            </button>
+          </div>
+        )}
       </div>
 
       <div className="bg-white rounded-2xl p-5 border border-gray-100 mb-4">
