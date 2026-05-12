@@ -3383,7 +3383,6 @@ function CheckoutPage() {
   const [addr,   setAddr]    = useState('');
   const [pvzOpen,setPvzOpen] = useState(false);
   const [payM,   setPayM]    = useState('card');
-  const [agreed, setAgreed]  = useState(false);
   const [errs,   setErrs]    = useState({});
 
   useEffect(() => { if (!user) requireAuth(()=>{}); }, []);
@@ -3400,7 +3399,6 @@ function CheckoutPage() {
     if (!delType) e.del='Выберите способ доставки';
     if (delType==='pvz' && !pvz) e.pvz='Выберите пункт выдачи';
     if (delType==='courier' && !addr) e.addr='Введите адрес доставки';
-    if (!agreed) e.agreed='Необходимо согласие с офертой';
     return e;
   };
 
@@ -3496,36 +3494,29 @@ function CheckoutPage() {
             </div>
           </div>
 
-          <div className="space-y-1">
-            <label className="flex items-start gap-3 cursor-pointer" onClick={()=>{setAgreed(a=>!a);setErrs(e=>({...e,agreed:null}));}}>
-              <div className={'mt-0.5 w-5 h-5 rounded border-2 flex items-center justify-center flex-shrink-0 transition-colors ' + (agreed?'':'border-gray-300')}
-                style={agreed ? {background:'#042033', borderColor:'#042033'} : {}}>
-                {agreed && <svg width="10" height="8" fill="none"><path d="M1 4l3 3 5-6" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>}
-              </div>
-              <p className="text-sm text-secondary">Я согласен с <a href="#" onClick={e=>e.preventDefault()} className="hover:underline" style={{color:'#042033'}}>условиями оферты</a> и <a href="#" onClick={e=>e.preventDefault()} className="hover:underline" style={{color:'#042033'}}>политикой конфиденциальности</a></p>
-            </label>
-            {errs.agreed && <p className="text-red-500 text-xs ml-8">{errs.agreed}</p>}
-          </div>
         </div>
 
         <div className="sticky top-20">
           <div className="bg-white rounded-2xl p-6 border border-gray-100">
             <h2 className="font-bold text-ink text-lg mb-4">Ваш заказ</h2>
             <div className="space-y-2 text-sm mb-4">
-              {cart.map(i=><div key={i.id} className="flex justify-between"><span className="text-secondary truncate mr-2">{i.name} ×{i.qty}</span><span>{fmt(i.price*i.qty)}</span></div>)}
+              {cart.map(i=><div key={i.id} className="flex justify-between"><span className="text-secondary truncate mr-2">{i.name} ×{i.qty}</span><span className="num">{fmt(i.price*i.qty)}</span></div>)}
             </div>
             <div className="border-t border-gray-100 pt-3 space-y-2 text-sm">
-              <div className="flex justify-between"><span className="text-secondary">Товары</span><span>{fmt(cart.reduce((s,i)=>s+i.price*i.qty,0))}</span></div>
-              {discount>0 && <div className="flex justify-between text-green-600"><span>Скидка</span><span>−{fmt(discount)}</span></div>}
+              <div className="flex justify-between"><span className="text-secondary">Товары</span><span className="num">{fmt(cart.reduce((s,i)=>s+i.price*i.qty,0))}</span></div>
+              {discount>0 && <div className="flex justify-between" style={{color:'#042033'}}><span>Скидка</span><span className="num">−{fmt(discount)}</span></div>}
               <div className="flex justify-between">
                 <span className="text-secondary">Доставка</span>
-                <span>{delivCost===null?'—':delivCost===0?'Бесплатно':fmt(delivCost)}</span>
+                <span className="num">{delivCost===null?'—':delivCost===0?'Бесплатно':fmt(delivCost)}</span>
               </div>
             </div>
             <div className="border-t border-gray-100 mt-3 pt-3 mb-6">
-              <div className="flex justify-between font-bold text-ink text-lg"><span>Итого</span><span>{fmt(total)}</span></div>
+              <div className="flex justify-between font-bold text-ink text-lg"><span>Итого</span><span className="num">{fmt(total)}</span></div>
             </div>
             <button onClick={submit} className="btn-p w-full py-4 font-bold text-base">Оплатить {fmt(total)}</button>
+            <p className="text-[11px] text-disabled mt-3 leading-relaxed">
+              Нажимая «Оплатить», вы принимаете условия <a href="#" onClick={e=>e.preventDefault()} className="underline hover:text-secondary">публичной оферты</a>.
+            </p>
           </div>
         </div>
       </div>
