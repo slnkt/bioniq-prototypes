@@ -617,10 +617,21 @@ const delivDate = (offset=4) => { const d=new Date(); d.setDate(d.getDate()+offs
 /* ─── CONTEXT ──────────────────────────────────────────────────────────── */
 const Ctx = createContext(null);
 
+/* localStorage helpers */
+const LS = {
+  get(key, fallback) {
+    try { const v = localStorage.getItem(key); return v === null ? fallback : JSON.parse(v); }
+    catch { return fallback; }
+  },
+  set(key, value) {
+    try { localStorage.setItem(key, JSON.stringify(value)); } catch {}
+  },
+};
+
 function AppProvider({ children }) {
-  const [cart,         setCart]         = useState([]);
-  const [user,         setUser]         = useState(null);
-  const [orders,       setOrders]       = useState(MOCK_ORDERS);
+  const [cart,         setCart]         = useState(() => LS.get('bioniq.cart',   []));
+  const [user,         setUser]         = useState(() => LS.get('bioniq.user',   null));
+  const [orders,       setOrders]       = useState(() => LS.get('bioniq.orders', MOCK_ORDERS));
   const [authOpen,     setAuthOpen]     = useState(false);
   const [authCb,       setAuthCb]       = useState(null);
   const [callbackOpen, setCallbackOpen] = useState(false);
@@ -634,6 +645,11 @@ function AppProvider({ children }) {
     setToast({ msg, type, id: Date.now() });
     setTimeout(() => setToast(null), 3000);
   }, []);
+
+  /* Persist cart / user / orders in localStorage */
+  useEffect(() => { LS.set('bioniq.cart',   cart);   }, [cart]);
+  useEffect(() => { LS.set('bioniq.user',   user);   }, [user]);
+  useEffect(() => { LS.set('bioniq.orders', orders); }, [orders]);
 
   const isAvailable = vid => {
     if (ts.outOfStock && (vid==='vit-immune'||vid==='vit-curcumin')) return false;
@@ -1077,6 +1093,14 @@ function TestPanel() {
   const [open, setOpen] = useState(false);
   const tog = k => setTs(p => ({...p, [k]:!p[k]}));
   const reset = () => setTs({ outOfStock:false, payFail:false, delivErr:false });
+  const clearStorage = () => {
+    try {
+      localStorage.removeItem('bioniq.cart');
+      localStorage.removeItem('bioniq.user');
+      localStorage.removeItem('bioniq.orders');
+      window.location.reload();
+    } catch {}
+  };
   return (
     <div className="fixed bottom-4 right-4 z-40">
       <button onClick={() => setOpen(o=>!o)}
@@ -1095,7 +1119,10 @@ function TestPanel() {
             </label>
           ))}
           <button onClick={reset} className="mt-3 w-full text-xs text-secondary hover:text-ink border border-gray-100 rounded-lg py-2 transition-colors">
-            Сбросить всё
+            Сбросить флаги
+          </button>
+          <button onClick={clearStorage} className="mt-2 w-full text-xs text-secondary hover:text-ink border border-gray-100 rounded-lg py-2 transition-colors">
+            Очистить корзину и логин
           </button>
         </div>
       )}
