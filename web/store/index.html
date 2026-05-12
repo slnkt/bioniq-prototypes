@@ -499,15 +499,44 @@ const MOCK_ORDERS = [
 const PROMOS = { 'BIONIQ10':10, 'WELCOME15':15 };
 
 const DELIVERY_OPTS = [
-  { id:'pvz',     label:'Пункт выдачи СДЭК', price:0,   days:'2–3 дня', icon:'📦' },
-  { id:'courier', label:'Курьер СДЭК',         price:350, days:'1–2 дня', icon:'🚚' },
-  { id:'express', label:'Экспресс-доставка',   price:690, days:'сегодня',  icon:'⚡' },
+  { id:'pvz',     label:'ПВЗ или постамат',   sub:'СДЭК',          price:0,   days:'2–3 дня' },
+  { id:'courier', label:'Курьер до двери',    sub:'СДЭК',          price:350, days:'1–2 дня' },
+  { id:'express', label:'Экспресс по Москве', sub:'в день заказа', price:690, days:'сегодня' },
+];
+
+/* СДЭК — мок ПВЗ для виджета. Координаты относительные (0-100) внутри SVG-карты города. */
+const CITIES = [
+  { id:'msk', name:'Москва',          full:'Москва',              ru:'г. Москва' },
+  { id:'spb', name:'Санкт-Петербург', full:'Санкт-Петербург',     ru:'г. Санкт-Петербург' },
+  { id:'ekb', name:'Екатеринбург',    full:'Екатеринбург',        ru:'г. Екатеринбург' },
+  { id:'nsk', name:'Новосибирск',     full:'Новосибирск',         ru:'г. Новосибирск' },
+  { id:'kzn', name:'Казань',          full:'Казань',              ru:'г. Казань' },
 ];
 
 const PVZ = [
-  { id:'p1', name:'СДЭК Тверская',    addr:'ул. Тверская, 15',       h:'09:00–21:00' },
-  { id:'p2', name:'СДЭК Арбат',       addr:'ул. Арбат, 24',          h:'08:00–22:00' },
-  { id:'p3', name:'СДЭК Кутузовская', addr:'Кутузовский пр., 32',    h:'10:00–20:00' },
+  // Москва
+  { id:'msk-1', city:'msk', name:'СДЭК Тверская',     addr:'ул. Тверская, 15',           h:'Пн–Вс 09:00–21:00', type:'office',  cash:true,  card:true,  fitting:true,  phone:'+7 (495) 000-00-15', x:42, y:48 },
+  { id:'msk-2', city:'msk', name:'СДЭК Арбат',        addr:'ул. Арбат, 24',              h:'Пн–Вс 08:00–22:00', type:'office',  cash:true,  card:true,  fitting:true,  phone:'+7 (495) 000-00-24', x:30, y:54 },
+  { id:'msk-3', city:'msk', name:'СДЭК Кутузовская',  addr:'Кутузовский пр., 32',        h:'Пн–Пт 10:00–20:00 · Сб 10:00–18:00', type:'office',  cash:false, card:true,  fitting:true,  phone:'+7 (495) 000-00-32', x:18, y:62 },
+  { id:'msk-4', city:'msk', name:'Постамат Чистые пруды', addr:'Чистопрудный б-р, 8',    h:'круглосуточно',     type:'postamat', cash:false, card:true,  fitting:false, phone:'',                  x:54, y:40 },
+  { id:'msk-5', city:'msk', name:'СДЭК Тульская',     addr:'ул. Большая Тульская, 13',   h:'Пн–Сб 10:00–20:00', type:'office',  cash:true,  card:true,  fitting:false, phone:'+7 (495) 000-00-13', x:48, y:74 },
+  { id:'msk-6', city:'msk', name:'Постамат Парк культуры', addr:'Зубовский б-р, 27',     h:'круглосуточно',     type:'postamat', cash:false, card:true,  fitting:false, phone:'',                  x:36, y:60 },
+  // Санкт-Петербург
+  { id:'spb-1', city:'spb', name:'СДЭК Невский',      addr:'Невский пр., 88',            h:'Пн–Вс 09:00–21:00', type:'office',  cash:true,  card:true,  fitting:true,  phone:'+7 (812) 000-00-88', x:54, y:50 },
+  { id:'spb-2', city:'spb', name:'СДЭК Петроградская',addr:'Каменноостровский пр., 35',  h:'Пн–Сб 10:00–20:00', type:'office',  cash:true,  card:true,  fitting:false, phone:'+7 (812) 000-00-35', x:38, y:42 },
+  { id:'spb-3', city:'spb', name:'Постамат Сенная',   addr:'Сенная пл., 7',              h:'круглосуточно',     type:'postamat', cash:false, card:true,  fitting:false, phone:'',                  x:48, y:56 },
+  { id:'spb-4', city:'spb', name:'СДЭК Васильевский', addr:'6-я линия В.О., 23',         h:'Пн–Пт 10:00–20:00', type:'office',  cash:false, card:true,  fitting:true,  phone:'+7 (812) 000-00-23', x:30, y:52 },
+  // Екатеринбург
+  { id:'ekb-1', city:'ekb', name:'СДЭК 8 Марта',      addr:'ул. 8 Марта, 51',            h:'Пн–Вс 09:00–21:00', type:'office',  cash:true,  card:true,  fitting:true,  phone:'+7 (343) 000-00-51', x:48, y:50 },
+  { id:'ekb-2', city:'ekb', name:'СДЭК Уралмаш',      addr:'ул. Машиностроителей, 4',    h:'Пн–Сб 10:00–20:00', type:'office',  cash:true,  card:true,  fitting:false, phone:'+7 (343) 000-00-04', x:54, y:30 },
+  { id:'ekb-3', city:'ekb', name:'Постамат ТРЦ Гринвич', addr:'ул. 8 Марта, 46',         h:'10:00–22:00',       type:'postamat', cash:false, card:true,  fitting:false, phone:'',                  x:46, y:52 },
+  // Новосибирск
+  { id:'nsk-1', city:'nsk', name:'СДЭК Красный пр.',  addr:'Красный пр., 52',            h:'Пн–Вс 09:00–21:00', type:'office',  cash:true,  card:true,  fitting:true,  phone:'+7 (383) 000-00-52', x:50, y:46 },
+  { id:'nsk-2', city:'nsk', name:'СДЭК Академгородок',addr:'пр. Лаврентьева, 17',        h:'Пн–Пт 10:00–19:00', type:'office',  cash:true,  card:true,  fitting:false, phone:'+7 (383) 000-00-17', x:72, y:70 },
+  { id:'nsk-3', city:'nsk', name:'Постамат Аура',     addr:'ул. Военная, 5',             h:'10:00–22:00',       type:'postamat', cash:false, card:true,  fitting:false, phone:'',                  x:54, y:48 },
+  // Казань
+  { id:'kzn-1', city:'kzn', name:'СДЭК Баумана',      addr:'ул. Баумана, 70',            h:'Пн–Вс 09:00–21:00', type:'office',  cash:true,  card:true,  fitting:true,  phone:'+7 (843) 000-00-70', x:48, y:48 },
+  { id:'kzn-2', city:'kzn', name:'СДЭК Декабристов',  addr:'ул. Декабристов, 85',        h:'Пн–Сб 10:00–20:00', type:'office',  cash:false, card:true,  fitting:false, phone:'+7 (843) 000-00-85', x:54, y:32 },
 ];
 
 const PAY_METHODS = [
@@ -3130,6 +3159,173 @@ function CartPage() {
   );
 }
 
+/* ─── CDEK WIDGET MOCK ───────────────────────────────────────────────────── */
+function CdekWidget({ selected, onChoose, cartWeight=0.3 }) {
+  const [cityId, setCityId] = useState('msk');
+  const [search, setSearch] = useState('');
+  const [filters, setFilters] = useState({ cash:false, fitting:false, postamat:false });
+  const [hoverId, setHoverId] = useState(null);
+  const [openId,  setOpenId]  = useState(selected?.id || null);
+
+  const city = CITIES.find(c => c.id === cityId);
+  const cityPoints = PVZ.filter(p => p.city === cityId);
+
+  const filtered = cityPoints.filter(p => {
+    if (filters.cash     && !p.cash) return false;
+    if (filters.fitting  && !p.fitting) return false;
+    if (filters.postamat && p.type !== 'postamat') return false;
+    if (search) {
+      const q = search.toLowerCase();
+      if (!p.name.toLowerCase().includes(q) && !p.addr.toLowerCase().includes(q)) return false;
+    }
+    return true;
+  });
+
+  const opened = filtered.find(p => p.id === openId) || filtered[0];
+
+  // Псевдо-расчёт цены/срока на основе города и веса
+  const calcPrice = (p) => {
+    const base = { msk: 0, spb: 200, ekb: 350, nsk: 450, kzn: 290 }[p.city] || 350;
+    const weightAdj = Math.round(cartWeight * 50);
+    return p.type === 'postamat' ? base + weightAdj : base + weightAdj + 30;
+  };
+  const calcDays = (p) => ({ msk:'1–2 дня', spb:'2–3 дня', ekb:'3–4 дня', nsk:'4–5 дней', kzn:'2–3 дня' }[p.city]);
+
+  return (
+    <div className="overflow-hidden" style={{border:'1px solid rgba(4,32,51,0.12)',borderRadius:'14px',background:'#fff'}}>
+      {/* Toolbar */}
+      <div className="flex items-center gap-3 p-3 flex-wrap" style={{borderBottom:'1px solid rgba(4,32,51,0.08)',background:'#fafafa'}}>
+        <span className="text-[11px] uppercase tracking-[0.15em] text-secondary px-2" style={{fontWeight:500}}>СДЭК</span>
+        {/* City selector */}
+        <div className="relative">
+          <select value={cityId} onChange={e=>{setCityId(e.target.value);setOpenId(null);}}
+            className="text-[13px] py-2 px-3 pr-8 rounded-lg appearance-none cursor-pointer" style={{background:'#fff',border:'1px solid rgba(4,32,51,0.15)'}}>
+            {CITIES.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+          </select>
+          <svg className="absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none" width="12" height="12" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>
+        </div>
+        {/* Search */}
+        <div className="relative flex-1 min-w-[180px]">
+          <svg className="absolute left-3 top-1/2 -translate-y-1/2 text-disabled" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.3-4.3"/></svg>
+          <input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Поиск по адресу или названию"
+            className="w-full text-[13px] py-2 pl-9 pr-3 rounded-lg" style={{background:'#fff',border:'1px solid rgba(4,32,51,0.15)'}} />
+        </div>
+        {/* Filters */}
+        <div className="flex gap-1.5">
+          {[
+            { k:'postamat', l:'Постаматы' },
+            { k:'cash',     l:'Наличные' },
+            { k:'fitting',  l:'Примерочная' },
+          ].map(f => (
+            <button key={f.k} onClick={()=>setFilters(F=>({...F,[f.k]:!F[f.k]}))}
+              className={'text-[12px] px-3 py-1.5 rounded-full transition-all ' + (filters[f.k]?'text-white':'text-secondary hover:text-ink')}
+              style={filters[f.k]?{background:'#042033'}:{border:'1px solid rgba(4,32,51,0.12)'}}>
+              {f.l}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Map + list */}
+      <div className="grid md:grid-cols-[1fr_320px]" style={{minHeight:'420px'}}>
+        {/* Map */}
+        <div className="relative overflow-hidden" style={{background:'#eef2f4',backgroundImage:'linear-gradient(rgba(4,32,51,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(4,32,51,0.04) 1px, transparent 1px)',backgroundSize:'40px 40px'}}>
+          {/* Fake roads */}
+          <svg viewBox="0 0 100 100" preserveAspectRatio="none" className="absolute inset-0 w-full h-full">
+            <path d="M 0 50 Q 30 30 60 50 T 100 45" fill="none" stroke="#d4dde2" strokeWidth="0.6" />
+            <path d="M 50 0 Q 45 30 55 60 T 50 100" fill="none" stroke="#d4dde2" strokeWidth="0.6" />
+            <path d="M 0 30 L 100 70" stroke="#d4dde2" strokeWidth="0.4" />
+            <path d="M 0 70 L 100 30" stroke="#d4dde2" strokeWidth="0.4" />
+            <circle cx="50" cy="50" r="22" fill="none" stroke="#d4dde2" strokeWidth="0.4" strokeDasharray="0.8 1.2" />
+          </svg>
+          <div className="absolute top-3 left-3 text-[11px] uppercase tracking-[0.15em] text-secondary px-2 py-1 rounded" style={{background:'rgba(255,255,255,0.85)',fontWeight:500}}>
+            {city.full}
+          </div>
+          {/* Pins */}
+          {filtered.map(p => {
+            const isOpen = opened?.id === p.id;
+            const isHover = hoverId === p.id;
+            return (
+              <button key={p.id}
+                onClick={()=>setOpenId(p.id)}
+                onMouseEnter={()=>setHoverId(p.id)}
+                onMouseLeave={()=>setHoverId(null)}
+                className="absolute transition-all"
+                style={{
+                  left: `${p.x}%`,
+                  top: `${p.y}%`,
+                  transform: `translate(-50%, -100%) scale(${isOpen||isHover?1.15:1})`,
+                  zIndex: isOpen?10:1,
+                }} aria-label={p.name}>
+                <svg width="28" height="36" viewBox="0 0 28 36" fill="none">
+                  <path d="M14 0C6.27 0 0 6.27 0 14c0 9.5 14 22 14 22s14-12.5 14-22c0-7.73-6.27-14-14-14z"
+                    fill={isOpen?'#042033':p.type==='postamat'?'#1098D4':'#fff'}
+                    stroke="#042033" strokeWidth="1.5" />
+                  <circle cx="14" cy="14" r="4.5" fill={isOpen?'#fff':'#042033'} />
+                </svg>
+              </button>
+            );
+          })}
+          {filtered.length === 0 && (
+            <div className="absolute inset-0 flex items-center justify-center text-secondary text-[13px]">
+              Под фильтр ничего не нашлось
+            </div>
+          )}
+          {/* Map controls (decorative) */}
+          <div className="absolute right-3 top-3 flex flex-col gap-px overflow-hidden" style={{borderRadius:'6px',border:'1px solid rgba(4,32,51,0.12)',background:'rgba(4,32,51,0.08)'}}>
+            <button className="w-8 h-8 bg-white text-ink text-lg leading-none" aria-label="Приблизить">+</button>
+            <button className="w-8 h-8 bg-white text-ink text-lg leading-none" aria-label="Отдалить">−</button>
+          </div>
+        </div>
+
+        {/* List */}
+        <div className="overflow-y-auto" style={{maxHeight:'420px',borderLeft:'1px solid rgba(4,32,51,0.08)'}}>
+          {filtered.map(p => {
+            const isOpen = opened?.id === p.id;
+            return (
+              <div key={p.id} onClick={()=>setOpenId(p.id)}
+                className="p-4 cursor-pointer transition-colors"
+                style={{
+                  borderBottom:'1px solid rgba(4,32,51,0.06)',
+                  background: isOpen ? '#E5EDF2' : 'transparent',
+                }}>
+                <div className="flex items-start justify-between gap-2 mb-1">
+                  <div className="text-ink text-[13px]" style={{fontWeight:500,letterSpacing:'-0.005em'}}>{p.name}</div>
+                  {p.type==='postamat' && <span className="text-[10px] uppercase tracking-[0.1em] flex-shrink-0" style={{color:'#1098D4'}}>Постамат</span>}
+                </div>
+                <p className="text-[12px] text-secondary mb-2 leading-snug">{p.addr}</p>
+                <div className="flex items-center justify-between">
+                  <span className="text-[11px] text-disabled">{p.h.split(' · ')[0]}</span>
+                  <span className="text-[12px] text-ink num">от {fmt(calcPrice(p))}</span>
+                </div>
+                {isOpen && (
+                  <div className="mt-3 pt-3" style={{borderTop:'1px solid rgba(4,32,51,0.08)'}}>
+                    <div className="flex items-center gap-3 text-[11px] text-secondary mb-3 flex-wrap">
+                      {p.cash    && <span className="flex items-center gap-1"><svg width="11" height="11" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>Наличные</span>}
+                      {p.card    && <span className="flex items-center gap-1"><svg width="11" height="11" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>Картой</span>}
+                      {p.fitting && <span className="flex items-center gap-1"><svg width="11" height="11" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>Примерочная</span>}
+                    </div>
+                    <div className="flex items-center justify-between text-[12px] mb-3">
+                      <span className="text-secondary">Срок</span>
+                      <span className="text-ink">{calcDays(p)}</span>
+                    </div>
+                    {p.phone && <p className="text-[11px] text-disabled mb-3">{p.phone}</p>}
+                    <button onClick={(e)=>{e.stopPropagation();onChoose({...p, price:calcPrice(p), days:calcDays(p)});}}
+                      className="w-full py-2.5 text-[13px] rounded-lg transition-colors text-white"
+                      style={{background: selected?.id===p.id ? '#0a3550' : '#042033',fontWeight:500}}>
+                      {selected?.id===p.id ? '✓ Выбран этот ПВЗ' : 'Выбрать этот ПВЗ'}
+                    </button>
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 /* ─── CHECKOUT PAGE ──────────────────────────────────────────────────────── */
 function CheckoutPage() {
   const { cart, user, requireAuth, ts } = useApp();
@@ -3148,7 +3344,9 @@ function CheckoutPage() {
   if (cart.length===0) { history.push('/cart'); return null; }
 
   const subtotal  = cart.reduce((s,i)=>s+i.price*i.qty,0) - discount;
-  const delivCost = delType ? (DELIVERY_OPTS.find(d=>d.id===delType)?.price??0) : null;
+  const delivCost = !delType ? null
+    : delType === 'pvz' ? (pvz?.price ?? null)
+    : (DELIVERY_OPTS.find(d=>d.id===delType)?.price ?? 0);
   const total     = subtotal + (delivCost||0);
 
   const validate = () => {
@@ -3188,43 +3386,36 @@ function CheckoutPage() {
               {DELIVERY_OPTS.map(opt => (
                 <label key={opt.id}
                   className={'flex items-center gap-4 p-4 rounded-xl cursor-pointer transition-all ' + (delType===opt.id ? activeDelivCls : inactiveDelivCls)}
-                  style={delType===opt.id ? {borderColor:'#042033', background:'#F0F9FF'} : {}}
+                  style={delType===opt.id ? {borderColor:'#042033', background:'#E5EDF2'} : {}}
                   onClick={()=>{setDelType(opt.id);setErrs(e=>({...e,del:null}));}}>
                   <div className={'w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 ' + (delType===opt.id?'':'border-gray-300')}
                     style={delType===opt.id ? {borderColor:'#042033'} : {}}>
                     {delType===opt.id && <div className="w-2.5 h-2.5 rounded-full" style={{background:'#042033'}} />}
                   </div>
-                  <span className="text-xl">{opt.icon}</span>
                   <div className="flex-1">
-                    <p className="font-medium text-ink text-sm">{opt.label}</p>
-                    <p className="text-xs text-secondary">{opt.days}</p>
+                    <p className="font-medium text-ink text-sm">{opt.label} <span className="text-secondary font-normal">· {opt.sub}</span></p>
+                    <p className="text-xs text-secondary mt-0.5">{opt.days}</p>
                   </div>
-                  <span className="font-semibold text-ink text-sm">{opt.price===0?'Бесплатно':fmt(opt.price)}</span>
+                  <span className="font-semibold text-ink text-sm num">{opt.id==='pvz' ? 'от 0 ₽' : opt.price===0?'Бесплатно':fmt(opt.price)}</span>
                 </label>
               ))}
             </div>
             {errs.del && <p className="text-red-500 text-xs mb-2">{errs.del}</p>}
 
             {delType==='pvz' && (
-              <div className="mt-2">
-                <button onClick={()=>setPvzOpen(o=>!o)}
-                  className={'w-full border-2 rounded-xl p-4 text-left text-sm transition-colors ' + (pvz?'border-green-400 bg-green-50':'border-dashed border-gray-200 hover:border-gray-300')}>
-                  {pvz ? <><span className="font-medium text-ink">{pvz.name}</span><br/><span className="text-secondary text-xs">{pvz.addr} · {pvz.h}</span></>
-                    : <span className="text-secondary">📍 Выбрать пункт выдачи</span>}
-                </button>
-                {pvzOpen && (
-                  <div className="mt-2 border border-gray-200 rounded-xl overflow-hidden shadow-sm">
-                    {PVZ.map(p => (
-                      <div key={p.id} className={'p-4 cursor-pointer transition-colors border-b last:border-0 ' + (pvz?.id===p.id?'bg-brand-tint':'hover:bg-gray-50')}
-                        onClick={()=>{setPvz(p);setPvzOpen(false);setErrs(e=>({...e,pvz:null}));}}>
-                        <p className="font-medium text-ink text-sm">{p.name}</p>
-                        <p className="text-xs text-secondary">{p.addr}</p>
-                        <p className="text-xs text-disabled">{p.h}</p>
-                      </div>
-                    ))}
+              <div className="mt-4">
+                <CdekWidget selected={pvz} onChoose={p=>{setPvz(p);setErrs(e=>({...e,pvz:null}));}} cartWeight={cart.reduce((s,i)=>s+0.15*i.qty,0)} />
+                {pvz && (
+                  <div className="mt-3 p-4 rounded-xl flex items-start gap-3" style={{background:'#E5EDF2'}}>
+                    <svg width="18" height="18" fill="none" stroke="#042033" strokeWidth="2" viewBox="0 0 24 24" className="flex-shrink-0 mt-0.5"><path d="M20 6L9 17l-5-5"/></svg>
+                    <div className="flex-1">
+                      <p className="text-ink text-[14px]" style={{fontWeight:500}}>{pvz.name}</p>
+                      <p className="text-secondary text-[12px] mt-0.5">{pvz.addr} · {pvz.h.split(' · ')[0]}</p>
+                      <p className="text-secondary text-[12px] mt-0.5 num">Доставка от {fmt(pvz.price)} · {pvz.days}</p>
+                    </div>
                   </div>
                 )}
-                {errs.pvz && <p className="text-red-500 text-xs mt-1">{errs.pvz}</p>}
+                {errs.pvz && <p className="text-red-500 text-xs mt-2">{errs.pvz}</p>}
               </div>
             )}
             {delType==='courier' && (
