@@ -2678,8 +2678,6 @@ function VitaminDetail() {
 
       <CertificatesSection productId={v.id} />
 
-      <div id={'reviews-'+v.id}><ReviewsSection productId={v.id} /></div>
-
       <div className="border-b border-gray-200 mb-6 flex gap-6">
         {[['desc','Описание'],['ingr','Состав'],['dose','Применение']].map(([k,l]) => (
           <button key={k} onClick={()=>setTab(k)}
@@ -2699,6 +2697,8 @@ function VitaminDetail() {
         )}
         {tab==='dose' && <p className="text-ink">{v.dose}</p>}
       </div>
+
+      <div id={'reviews-'+v.id}><ReviewsSection productId={v.id} /></div>
 
       <div className="mb-10 mt-8"><p className="text-[11px] tracking-[0.2em] uppercase mb-4 text-secondary">Подобрано для вас</p><h2 className="display text-ink" style={{fontSize:'40px',lineHeight:1.05}}>Рекомендуем также</h2></div>
       {recVits.length > 0 && (
