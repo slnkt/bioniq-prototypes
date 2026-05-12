@@ -3374,7 +3374,7 @@ function CdekWidget({ selected, onChoose, cartWeight=0.3 }) {
 
 /* ─── CHECKOUT PAGE ──────────────────────────────────────────────────────── */
 function CheckoutPage() {
-  const { cart, user, requireAuth, ts } = useApp();
+  const { cart, user, requireAuth, ts, showToast } = useApp();
   const history  = useHistory();
   const location = useLocation();
   const { discount=0, promo=null } = location.state || {};
@@ -3403,7 +3403,14 @@ function CheckoutPage() {
   };
 
   const submit = () => {
-    const e=validate(); if (Object.keys(e).length){setErrs(e);return;}
+    const e=validate();
+    if (Object.keys(e).length) {
+      setErrs(e);
+      // Surface the first error so the user knows why nothing happened
+      const firstMsg = e.del || e.pvz || e.addr;
+      if (firstMsg) showToast(firstMsg, 'err');
+      return;
+    }
     const address = delType==='pvz' ? pvz?.addr : addr;
     history.push('/payment', { total, delivCost, address, payM, discount, promo });
   };
@@ -3526,29 +3533,42 @@ function CheckoutPage() {
 
 /* ─── PAYMENT PAGE ───────────────────────────────────────────────────────── */
 function PaymentPage() {
-  const { placeOrder, ts } = useApp();
+  const { placeOrder, ts, cart } = useApp();
   const history  = useHistory();
   const location = useLocation();
-  const { total, delivCost, address, payM } = location.state || {};
+  const state = location.state || {};
+  // Fallback: if state lost (refresh, etc), compute from cart so user can still pay
+  const cartTotal = cart.reduce((s,i)=>s+i.price*i.qty,0);
+  const total     = state.total     ?? cartTotal;
+  const delivCost = state.delivCost ?? 0;
+  const address   = state.address   ?? '';
+  const payM      = state.payM      ?? 'card';
   const [card, setCard] = useState('');
   const [exp,  setExp]  = useState('');
   const [cvv,  setCvv]  = useState('');
   const [loading, setLoading] = useState(false);
 
-  if (!total) { history.push('/cart'); return null; }
+  // If user really has nothing — empty cart AND no state — bounce to cart
+  if (!total && cart.length===0) { history.push('/cart'); return null; }
 
   const fmtCard = v => v.replace(/\D/g,'').slice(0,16).replace(/(\d{4})(?=\d)/g,'$1 ');
   const fmtExp  = v => { const d=v.replace(/\D/g,''); return d.length>=2?d.slice(0,2)+'/'+d.slice(2,4):d; };
 
   const pay = () => {
+    if (loading) return;
     setLoading(true);
     setTimeout(() => {
       setLoading(false);
-      if (ts.payFail) {
-        history.push('/order-failed', { total, reason:'Отклонено банком' });
-      } else {
+      try {
+        if (ts.payFail) {
+          history.push('/order-failed', { total, reason:'Отклонено банком' });
+          return;
+        }
         const order = placeOrder({ total, delivCost, address });
         history.push('/order-success', { order });
+      } catch (err) {
+        console.error('Payment error:', err);
+        history.push('/order-success');
       }
     }, 800);
   };
