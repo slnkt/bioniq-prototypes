@@ -4031,8 +4031,11 @@ function AccountOrderDetail() {
       <div className="bg-white rounded-2xl p-5 border border-gray-100 mb-4">
         <h3 className="font-semibold text-ink mb-3">Доставка</h3>
         {(() => {
-          const d = (o.delivery && Object.keys(o.delivery).length>0) ? o.delivery : (o.address ? {address:o.address} : null);
-          if (!d) return null;
+          // Legacy fallback: orders before delivery refactor may lack delivery object — fill in sensible defaults
+          const hasDelivery = o.delivery && Object.keys(o.delivery).length > 0;
+          const d = hasDelivery
+            ? o.delivery
+            : { label: 'Доставка СДЭК', address: o.address || '', days: '2–3 дня' };
           // ETA: build date range from o.date + delivery.days (e.g. '1–2 дня')
           const m = (d.days || '').match(/(\d+)[\s\S]*?(\d+)?/);
           let eta = '';
