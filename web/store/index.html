@@ -1198,7 +1198,7 @@ function Header() {
           </button>
           {user ? (
             <div className="flex items-center gap-2">
-              <button onClick={() => history.push('/account/orders')} className="w-10 h-10 rounded-full text-white text-sm font-semibold flex items-center justify-center hover:opacity-90 transition-opacity uppercase" style={{background:'#042033'}}>
+              <button onClick={() => history.push('/account')} className="w-10 h-10 rounded-full text-white text-sm font-semibold flex items-center justify-center hover:opacity-90 transition-opacity uppercase" style={{background:'#042033'}}>
                 {user.name.slice(0,2)}
               </button>
               <button onClick={logout} className="text-disabled hover:text-secondary text-xs transition-colors">выйти</button>
@@ -3751,37 +3751,107 @@ function OrderFailed() {
 }
 
 /* ─── ACCOUNT ORDERS ─────────────────────────────────────────────────────── */
-function AccountOrders() {
-  const { orders, user, requireAuth } = useApp();
+const ACCOUNT_NAV = [
+  { path:'/account/orders',    label:'История заказов' },
+  { path:'/account/analytics', label:'Аналитика' },
+  { path:'/account/checkups',  label:'Мои чекапы' },
+  { path:'/account/recipes',   label:'Рецепты' },
+  { path:'/account/profile',   label:'Профиль' },
+];
+
+function AccountLayout({ children }) {
+  const { user, requireAuth } = useApp();
   const history = useHistory();
+  const location = useLocation();
   useEffect(() => { if (!user) requireAuth(()=>{}); }, []);
 
   if (!user) return (
     <div className="max-w-md mx-auto px-6 py-24 text-center">
-      <div className="text-5xl mb-4">🔒</div>
-      <p className="text-secondary mb-6">Войдите, чтобы просмотреть заказы</p>
-      <button onClick={()=>requireAuth(()=>{})} className="btn-p px-6 py-3 font-semibold text-sm">Войти в аккаунт</button>
+      <p className="text-secondary mb-6">Войдите, чтобы перейти в личный кабинет</p>
+      <button onClick={()=>requireAuth(()=>{})} className="btn-p px-6 py-3 text-sm">Войти</button>
     </div>
   );
 
   return (
-    <div className="max-w-3xl mx-auto px-6 py-8 fade-in">
-      <div className="flex items-center gap-4 mb-8">
-        <div className="w-12 h-12 rounded-full flex items-center justify-center text-xl" style={{background:'#E5EDF2'}}>👤</div>
-        <div>
-          <h1 className="text-2xl font-bold text-ink">{user.name}</h1>
-          <p className="text-secondary text-sm">{user.email}</p>
-        </div>
+    <div className="fade-in">
+      <div className="max-w-[1280px] mx-auto px-8 pt-12 pb-8">
+        <p className="text-[11px] tracking-[0.2em] uppercase mb-3 text-secondary">Личный кабинет</p>
+        <h1 className="display text-ink" style={{fontSize:'56px',lineHeight:1}}>Добро пожаловать, <span style={{fontStyle:'italic'}}>{user.name}</span></h1>
       </div>
-      <h2 className="text-xl font-bold text-ink mb-4">История заказов</h2>
+      <div className="max-w-[1280px] mx-auto px-8 sticky top-16 z-10" style={{background:'#fafafa',borderBottom:'1px solid rgba(4,32,51,0.08)'}}>
+        <nav className="flex gap-8 overflow-x-auto">
+          {ACCOUNT_NAV.map(item => {
+            const active = location.pathname === item.path
+              || (item.path === '/account/orders' && location.pathname.startsWith('/account/orders'));
+            return (
+              <button key={item.path}
+                onClick={()=>history.push(item.path)}
+                className="py-4 text-[14px] whitespace-nowrap transition-colors relative"
+                style={{
+                  color: active ? '#042033' : 'rgba(0,0,0,0.54)',
+                  fontWeight: active ? 500 : 400,
+                }}>
+                {item.label}
+                {active && <span className="absolute left-0 right-0 bottom-0 h-px" style={{background:'#042033'}}/>}
+              </button>
+            );
+          })}
+        </nav>
+      </div>
+      <div>{children}</div>
+    </div>
+  );
+}
+
+function AccountStub({ title, hint }) {
+  return (
+    <div className="max-w-[1280px] mx-auto px-8 py-20">
+      <h2 className="display text-ink mb-4" style={{fontSize:'40px',lineHeight:1.05}}>{title}</h2>
+      <p className="text-secondary text-[15px] max-w-xl leading-relaxed">{hint}</p>
+    </div>
+  );
+}
+
+const AccountAnalytics = () => <AccountStub title="Аналитика" hint="Здесь появятся графики динамики ваших биомаркеров и расшифровка анализов. Раздел открывается после первого чекапа." />;
+const AccountCheckupsHistory = () => <AccountStub title="Мои чекапы" hint="Результаты сданных чекапов и история повторных исследований. После сдачи первого анализа здесь появятся ваши биомаркеры и рекомендации врача." />;
+const AccountRecipes = () => <AccountStub title="Рецепты" hint="Персональные рекомендации по питанию от врачей-нутрициологов Bioniq на основе ваших биомаркеров." />;
+
+function AccountProfile() {
+  const { user } = useApp();
+  return (
+    <div className="max-w-2xl mx-auto px-8 py-12">
+      <h2 className="display text-ink mb-10" style={{fontSize:'40px',lineHeight:1.05}}>Профиль</h2>
+      <div className="space-y-6">
+        {[
+          ['Имя', user?.name || ''],
+          ['Телефон', user?.phone || ''],
+          ['Email', user?.email || ''],
+          ['Дата рождения', ''],
+          ['Пол', ''],
+        ].map(([l, v], i) => (
+          <div key={i} className="flex justify-between items-baseline gap-4" style={{borderBottom:'1px solid rgba(4,32,51,0.08)',paddingBottom:'12px'}}>
+            <span className="text-[13px] text-secondary">{l}</span>
+            <span className="text-ink text-[15px]">{v || <span className="text-disabled">не указано</span>}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function AccountOrders() {
+  const { orders } = useApp();
+  const history = useHistory();
+
+  return (
+    <div className="max-w-[1280px] mx-auto px-8 py-10">
       {orders.length===0 ? (
-        <div className="text-center py-16">
-          <div className="text-5xl mb-4">📦</div>
+        <div className="text-center py-20">
           <p className="text-secondary mb-6">У вас пока нет заказов</p>
-          <Link to="/vitamins" className="btn-p px-6 py-3 font-semibold text-sm">Перейти в магазин</Link>
+          <Link to="/vitamins" className="btn-p px-6 py-3 text-sm">Перейти в магазин</Link>
         </div>
       ) : (
-        <div className="space-y-3">
+        <div className="space-y-3 max-w-3xl">
           {orders.map(o => {
             const st = ORDER_STATUS[o.orderStatus] || ORDER_STATUS.processing;
             return (
@@ -3789,8 +3859,8 @@ function AccountOrders() {
                 onClick={()=>history.push('/account/orders/'+o.id)}>
                 <div className="flex items-start justify-between mb-3">
                   <div>
-                    <p className="font-bold text-ink">#{o.id}</p>
-                    <p className="text-xs text-secondary mt-0.5">{o.date}</p>
+                    <p className="text-ink num" style={{fontWeight:500}}>№ {o.id}</p>
+                    <p className="text-xs text-secondary mt-0.5 num">{o.date}</p>
                   </div>
                   <span className={'inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold ' + st.cls}>{st.label}</span>
                 </div>
@@ -3799,8 +3869,8 @@ function AccountOrders() {
                   {o.items.length>2 && ` + ещё ${o.items.length-2}`}
                 </p>
                 <div className="flex items-center justify-between">
-                  <span className="font-bold text-ink">{fmt(o.total)}</span>
-                  {o.tracking && <span className="text-xs text-secondary">📦 {o.tracking}</span>}
+                  <span className="font-bold text-ink num">{fmt(o.total)}</span>
+                  {o.tracking && <span className="text-xs text-secondary num">{o.tracking}</span>}
                 </div>
               </div>
             );
@@ -3896,12 +3966,12 @@ function AccountOrderDetail() {
   };
 
   return (
-    <div className="max-w-2xl mx-auto px-6 py-8 fade-in">
+    <div className="max-w-2xl mx-auto px-6 py-10">
       <button onClick={()=>history.push('/account/orders')} className="text-secondary hover:text-ink text-sm mb-6 flex items-center gap-1 transition-colors">← К заказам</button>
       <div className="flex items-start justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-ink">#{o.id}</h1>
-          <p className="text-secondary text-sm">от {o.date}</p>
+          <h2 className="text-ink num" style={{fontSize:'22px',fontWeight:500,letterSpacing:'-0.005em'}}>№ {o.id}</h2>
+          <p className="text-secondary text-sm mt-0.5 num">от {o.date}</p>
         </div>
         <span className={'inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold ' + st.cls}>{st.label}</span>
       </div>
@@ -4007,8 +4077,19 @@ function App() {
             <Route exact path="/payment" component={PaymentPage} />
             <Route exact path="/order-success" component={OrderSuccess} />
             <Route exact path="/order-failed" component={OrderFailed} />
-            <Route exact path="/account/orders" component={AccountOrders} />
-            <Route exact path="/account/orders/:id" component={AccountOrderDetail} />
+            <Route path="/account" render={() => (
+              <AccountLayout>
+                <Switch>
+                  <Route exact path="/account" render={() => <Redirect to="/account/orders" />} />
+                  <Route exact path="/account/orders" component={AccountOrders} />
+                  <Route exact path="/account/orders/:id" component={AccountOrderDetail} />
+                  <Route exact path="/account/analytics" component={AccountAnalytics} />
+                  <Route exact path="/account/checkups" component={AccountCheckupsHistory} />
+                  <Route exact path="/account/recipes" component={AccountRecipes} />
+                  <Route exact path="/account/profile" component={AccountProfile} />
+                </Switch>
+              </AccountLayout>
+            )} />
             <Redirect to="/" />
           </Switch>
         </main>
