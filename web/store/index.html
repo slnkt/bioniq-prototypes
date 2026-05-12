@@ -546,18 +546,18 @@ const PAY_METHODS = [
 ];
 
 const ORDER_STEPS = [
-  { key:'processing', label:'Оформлен' },
-  { key:'assembly',   label:'В сборке'  },
-  { key:'shipping',   label:'В доставке'},
-  { key:'delivered',  label:'Доставлен' },
+  { key:'shipping',  label:'В доставке' },
+  { key:'delivered', label:'Доставлен'  },
 ];
 
 const ORDER_STATUS = {
-  processing:{ label:'В обработке', cls:'bg-yellow-100 text-yellow-700' },
-  assembly:  { label:'В сборке',    cls:'bg-blue-100 text-blue-700' },
-  shipping:  { label:'В доставке',  cls:'bg-purple-100 text-purple-700' },
-  delivered: { label:'Доставлен',   cls:'bg-green-100 text-green-700' },
-  cancelled: { label:'Отменён',     cls:'bg-red-100 text-red-600' },
+  // Legacy fallbacks (orders created in old flow)
+  processing:{ label:'В доставке', cls:'bg-blue-100 text-blue-700' },
+  assembly:  { label:'В доставке', cls:'bg-blue-100 text-blue-700' },
+  // Current flow
+  shipping:  { label:'В доставке', cls:'bg-blue-100 text-blue-700' },
+  delivered: { label:'Доставлен',  cls:'bg-green-100 text-green-700' },
+  cancelled: { label:'Отменён',    cls:'bg-red-100 text-red-600' },
 };
 
 const DELIV_STATUS = {
@@ -744,7 +744,7 @@ function AppProvider({ children }) {
       total: data.total, delivCost: data.delivCost,
       delivery: d,
       address: d.address || '',
-      payStatus:'paid', orderStatus:'processing', delivStatus:'pending', tracking:trackNum,
+      payStatus:'paid', orderStatus:'shipping', delivStatus:'in_transit', tracking:trackNum,
     };
     setOrders(prev => [o, ...prev]);
     setCurOrder(o);
@@ -754,18 +754,13 @@ function AppProvider({ children }) {
 
   /* Demo: advance order to the next status in flow */
   const advanceOrderStatus = (orderId) => {
-    const flow = ['processing','assembly','shipping','delivered'];
+    const flow = ['shipping','delivered'];
     setOrders(prev => prev.map(o => {
       if (o.id !== orderId) return o;
       const i = flow.indexOf(o.orderStatus);
       if (i < 0 || i >= flow.length-1) return o;
       const nextStatus = flow[i+1];
       const patch = { orderStatus: nextStatus };
-      // Sync delivery sub-status + tracking number
-      if (nextStatus === 'shipping') {
-        patch.delivStatus = 'in_transit';
-        if (!o.tracking) patch.tracking = 'CDEK' + Math.floor(Math.random()*900000000 + 100000000);
-      }
       if (nextStatus === 'delivered') patch.delivStatus = 'delivered';
       return { ...o, ...patch };
     }));
@@ -4049,14 +4044,30 @@ function AccountOrderDetail() {
 
       <div className="bg-white rounded-2xl p-5 border border-gray-100 mb-4">
         <h3 className="font-semibold text-ink mb-3">Состав заказа</h3>
-        {o.items.map((i,n) => (
-          <div key={n} className="flex justify-between text-sm py-2 border-b border-gray-50 last:border-0">
-            <span className="text-ink">{i.name} <span className="text-secondary">×{i.qty}</span></span>
-            <span className="font-medium">{fmt(i.price*i.qty)}</span>
-          </div>
-        ))}
-        <div className="flex justify-between font-bold text-ink pt-3 border-t border-gray-100 mt-1">
-          <span>Итого</span><span>{fmt(o.total)}</span>
+        {o.items.map((i,n) => {
+          const vv = getV(i.vid);
+          const img = vv?.imgs?.[0];
+          const clickable = !!vv;
+          return (
+            <div key={n}
+              className={'flex items-center gap-3 py-3 border-b border-gray-50 last:border-0 ' + (clickable ? 'cursor-pointer group' : '')}
+              onClick={clickable ? () => history.push('/vitamins/'+i.vid) : undefined}>
+              <div className="w-12 h-12 rounded-xl flex items-center justify-center overflow-hidden flex-shrink-0" style={{background:'#f4f2ee'}}>
+                {img && <img src={img} alt={i.name} className="w-full h-full object-cover" />}
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className={'text-ink text-sm ' + (clickable ? 'group-hover:underline' : '')} style={{fontWeight:500}}>{i.name}</p>
+                <p className="text-secondary text-xs num">×{i.qty}</p>
+              </div>
+              <span className="text-ink text-sm num" style={{fontWeight:500}}>{fmt(i.price*i.qty)}</span>
+              {clickable && (
+                <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24" className="text-disabled group-hover:text-secondary flex-shrink-0"><path d="M9 18l6-6-6-6"/></svg>
+              )}
+            </div>
+          );
+        })}
+        <div className="flex justify-between text-ink pt-3 border-t border-gray-100 mt-1" style={{fontWeight:500}}>
+          <span>Итого</span><span className="num">{fmt(o.total)}</span>
         </div>
       </div>
 
@@ -4075,10 +4086,7 @@ function AccountOrderDetail() {
         </div>
       )}
 
-      <div className="flex gap-3">
-        <button onClick={repeat} className="btn-p flex-1 py-3 font-semibold text-sm">🔄 Повторить заказ</button>
-        <a href="#" onClick={e=>e.preventDefault()} className="btn-o flex-1 py-3 font-semibold text-sm text-center">💬 Поддержка</a>
-      </div>
+      <button onClick={repeat} className="btn-p w-full py-3 text-sm" style={{fontWeight:500}}>Повторить заказ</button>
     </div>
   );
 }
