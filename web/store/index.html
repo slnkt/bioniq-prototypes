@@ -3000,26 +3000,32 @@ function CartPage() {
               ? 'В наборе: ' + item.items.map(i => getV(i.vid)?.name).join(', ')
               : fmt(item.price) + ' за штуку';
             return (
-              <div key={item.id} className="bg-white rounded-2xl p-4 flex gap-4 border border-gray-100">
-                <div className="w-20 h-20 rounded-xl flex items-center justify-center p-2 flex-shrink-0 relative" style={{background:'#f5f5f5'}}>
+              <div key={item.id} className="bg-white rounded-2xl p-4 flex gap-4 border border-gray-100 relative">
+                <button onClick={()=>removeItem(item.id)} aria-label="Удалить" title="Удалить"
+                  className="absolute top-3 right-3 w-7 h-7 rounded-full flex items-center justify-center transition-colors text-disabled hover:text-ink hover:bg-gray-100">
+                  <svg width="13" height="13" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6l-12 12"/></svg>
+                </button>
+                <div className="w-20 h-20 rounded-xl flex items-center justify-center p-2 flex-shrink-0 relative overflow-hidden" style={{background:'#f4f2ee'}}>
                   {photo && <img src={photo} alt={item.name} className="max-h-full max-w-full object-contain" />}
                   {isKit && <span className="absolute -top-1 -left-1 text-white text-[9px] px-1.5 py-0.5 rounded font-semibold uppercase tracking-wider" style={{background:'#042033'}}>Набор</span>}
                 </div>
-                <div className="flex-1 min-w-0">
+                <div className="flex-1 min-w-0 pr-8">
                   <h3 className="font-semibold text-ink text-sm mb-0.5">{item.name}</h3>
                   <p className="text-secondary text-xs mb-2 truncate">{subline}</p>
                   {!isKit && s===0 && <p className="text-red-500 text-xs font-medium mb-2">⚠ Товар закончился</p>}
                   <div className="flex items-center gap-3">
                     <div className="flex items-center border border-gray-200 rounded-lg overflow-hidden bg-white">
-                      <button className="w-8 h-8 flex items-center justify-center hover:bg-gray-50 transition-colors text-sm" onClick={()=>updQty(item.id,-1)}>−</button>
-                      <span className="w-8 text-center text-sm font-semibold">{item.qty}</span>
+                      <button
+                        disabled={item.qty<=1}
+                        className={'w-8 h-8 flex items-center justify-center text-sm transition-colors ' + (item.qty<=1 ? 'opacity-30 cursor-not-allowed' : 'hover:bg-gray-50')}
+                        onClick={()=>{ if (item.qty>1) updQty(item.id,-1); }}>−</button>
+                      <span className="w-8 text-center text-sm font-semibold num">{item.qty}</span>
                       <button className="w-8 h-8 flex items-center justify-center text-sm hover:bg-gray-50 transition-colors"
                         onClick={()=>updQty(item.id,1)}>+</button>
                     </div>
-                    <button onClick={()=>removeItem(item.id)} className="text-disabled hover:text-red-500 text-xs transition-colors">Удалить</button>
                   </div>
                 </div>
-                <div className="flex-shrink-0"><span className="font-bold text-ink">{fmt(item.price*item.qty)}</span></div>
+                <div className="flex-shrink-0 self-end"><span className="font-bold text-ink num">{fmt(item.price*item.qty)}</span></div>
               </div>
             );
           })}
