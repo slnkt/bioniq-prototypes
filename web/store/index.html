@@ -3540,7 +3540,7 @@ function PaymentPage() {
         const order = placeOrder({ total, delivCost, address });
         history.push('/order-success', { order });
       }
-    }, 2000);
+    }, 800);
   };
 
   const method = PAY_METHODS.find(m=>m.id===payM) || PAY_METHODS[0];
@@ -3549,10 +3549,9 @@ function PaymentPage() {
     <div className="min-h-screen flex items-center justify-center px-4 fade-in" style={{background:'#fafafa'}}>
       <div className="bg-white rounded-2xl shadow-xl p-8 w-full max-w-md">
         <div className="text-center mb-8">
-          <div className="text-5xl mb-3">{method.icon}</div>
-          <h1 className="text-2xl font-bold text-ink">Оплата заказа</h1>
-          <p className="text-secondary text-sm mt-1">{method.label}</p>
-          <p className="text-3xl font-bold mt-3" style={{color:'#042033'}}>{fmt(total)}</p>
+          <p className="text-[11px] uppercase tracking-[0.15em] text-secondary mb-3">{method.label}</p>
+          <h1 className="display text-ink mb-2" style={{fontSize:'32px',lineHeight:1}}>Оплата заказа</h1>
+          <p className="num" style={{fontSize:'36px',fontWeight:500,letterSpacing:'-0.02em',color:'#042033'}}>{fmt(total)}</p>
         </div>
 
         {payM==='card' && (
