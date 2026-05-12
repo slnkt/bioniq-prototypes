@@ -3411,10 +3411,10 @@ function CheckoutPage() {
       if (firstMsg) showToast(firstMsg, 'err');
       return;
     }
-    const optLabel = DELIVERY_OPTS.find(d=>d.id===delType)?.label || '';
+    const opt = DELIVERY_OPTS.find(d=>d.id===delType);
     const delivery = delType === 'pvz'
-      ? { type:'pvz',     label:'Пункт выдачи СДЭК', name:pvz?.name, address:pvz?.addr, hours:pvz?.h }
-      : { type:delType,   label:optLabel,            address:addr };
+      ? { type:'pvz',     label:'Пункт выдачи СДЭК', name:pvz?.name, address:pvz?.addr, hours:pvz?.h, days: pvz?.days }
+      : { type:delType,   label:opt?.label || '',    address:addr,                                    days: opt?.days };
     history.push('/payment', { total, delivCost, delivery, payM, discount, promo });
   };
 
@@ -3696,6 +3696,22 @@ function OrderSuccess() {
 
             <div className="mb-6 pt-6" style={{borderTop:'1px solid rgba(4,32,51,0.08)'}}>
               <p className="text-[11px] uppercase tracking-[0.15em] text-secondary mb-3">Доставка</p>
+              {(() => {
+                const m = (d.days || '').match(/(\d+)[\s\S]*?(\d+)?/);
+                let eta = '';
+                if (m) {
+                  const base = order.date ? new Date(order.date) : new Date();
+                  const min = parseInt(m[1],10);
+                  const max = m[2] ? parseInt(m[2],10) : min;
+                  const d1 = new Date(base); d1.setDate(d1.getDate()+min);
+                  const d2 = new Date(base); d2.setDate(d2.getDate()+max);
+                  const fmtD = dt => dt.getDate()+' '+RU_MONTHS[dt.getMonth()];
+                  eta = (min===max) ? fmtD(d1) : (fmtD(d1)+' – '+fmtD(d2));
+                } else if ((d.days||'').includes('сегодня')) {
+                  eta = 'сегодня';
+                }
+                return eta ? <p className="text-ink text-[16px] mb-3" style={{fontWeight:500,letterSpacing:'-0.005em'}}>Ожидаем {eta}</p> : null;
+              })()}
               {d.label && <p className="text-ink text-[14px] mb-1" style={{fontWeight:500}}>{d.label}</p>}
               {d.name && <p className="text-ink text-[14px]">{d.name}</p>}
               {d.address && <p className="text-secondary text-[13px] leading-relaxed">{d.address}</p>}
@@ -4014,12 +4030,31 @@ function AccountOrderDetail() {
 
       <div className="bg-white rounded-2xl p-5 border border-gray-100 mb-4">
         <h3 className="font-semibold text-ink mb-3">Доставка</h3>
-        <span className={'inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold mb-3 ' + dst.cls}>{dst.label}</span>
         {(() => {
           const d = (o.delivery && Object.keys(o.delivery).length>0) ? o.delivery : (o.address ? {address:o.address} : null);
           if (!d) return null;
+          // ETA: build date range from o.date + delivery.days (e.g. '1–2 дня')
+          const m = (d.days || '').match(/(\d+)[\s\S]*?(\d+)?/);
+          let eta = '';
+          if (m) {
+            const base = o.date ? new Date(o.date) : new Date();
+            const min = parseInt(m[1],10);
+            const max = m[2] ? parseInt(m[2],10) : min;
+            const d1 = new Date(base); d1.setDate(d1.getDate()+min);
+            const d2 = new Date(base); d2.setDate(d2.getDate()+max);
+            const fmtD = dt => dt.getDate()+' '+RU_MONTHS[dt.getMonth()];
+            eta = (min===max) ? fmtD(d1) : (fmtD(d1)+' – '+fmtD(d2));
+          } else if ((d.days||'').includes('сегодня')) {
+            eta = 'сегодня';
+          }
           return (
-            <div className="mt-3 text-sm">
+            <div className="text-sm">
+              {eta && (
+                <div className="mb-3 pb-3" style={{borderBottom:'1px solid rgba(4,32,51,0.06)'}}>
+                  <p className="text-[11px] uppercase tracking-[0.1em] text-secondary mb-1">Ожидаемая дата</p>
+                  <p className="text-ink" style={{fontSize:'16px',fontWeight:500,letterSpacing:'-0.005em'}}>{eta}</p>
+                </div>
+              )}
               {d.label && <p className="text-ink" style={{fontWeight:500}}>{d.label}</p>}
               {d.name && <p className="text-ink">{d.name}</p>}
               {d.address && <p className="text-secondary mt-1">{d.address}</p>}
