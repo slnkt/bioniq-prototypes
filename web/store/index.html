@@ -3658,40 +3658,63 @@ function OrderSuccess() {
   const order = location.state?.order || curOrder;
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4 fade-in" style={{background:'#fafafa'}}>
-      <div className="bg-white rounded-2xl shadow-xl p-8 w-full max-w-lg text-center">
-        <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
-          <svg width="36" height="36" fill="none" viewBox="0 0 24 24">
-            <path d="M5 13l4 4L19 7" stroke="#16a34a" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
-          </svg>
+    <div className="min-h-screen flex items-center justify-center px-4 py-12 fade-in" style={{background:'#fafafa'}}>
+      <div className="bg-white rounded-2xl shadow-xl p-8 w-full max-w-lg">
+        <div className="text-center mb-8">
+          <div className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-5" style={{background:'#E5EDF2'}}>
+            <svg width="28" height="28" fill="none" viewBox="0 0 24 24">
+              <path d="M5 13l4 4L19 7" stroke="#042033" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+          </div>
+          <p className="text-[11px] uppercase tracking-[0.2em] text-secondary mb-3">Оплата прошла успешно</p>
+          <h1 className="display text-ink mb-2" style={{fontSize:'40px',lineHeight:1}}>Заказ оформлен</h1>
+          {order && <p className="num text-secondary text-[14px]">№ {order.id}</p>}
         </div>
-        <h1 className="text-3xl font-bold text-ink mb-2">Заказ оформлен!</h1>
-        <p className="text-secondary mb-1">Оплата прошла успешно</p>
-        {order && <p className="font-bold text-lg mb-6" style={{color:'#042033'}}>#{order.id}</p>}
 
         {order && (
-          <div className="rounded-xl p-4 mb-6 text-left" style={{background:'#fafafa'}}>
-            <p className="text-xs font-semibold text-secondary uppercase tracking-wider mb-3">Состав заказа</p>
-            {order.items.map((i,n) => (
-              <div key={n} className="flex justify-between text-sm py-2 border-b border-gray-100 last:border-0">
-                <span className="text-ink">{i.name} <span className="text-secondary">×{i.qty}</span></span>
-                <span className="font-medium text-ink">{fmt(i.price*i.qty)}</span>
+          <>
+            <div className="mb-4">
+              <p className="text-[11px] uppercase tracking-[0.15em] text-secondary mb-3">Состав заказа</p>
+              <div className="space-y-2 mb-3">
+                {order.items.map((i,n) => (
+                  <div key={n} className="flex justify-between text-[14px]">
+                    <span className="text-ink">{i.name} <span className="text-secondary">×{i.qty}</span></span>
+                    <span className="text-ink num">{fmt(i.price*i.qty)}</span>
+                  </div>
+                ))}
               </div>
-            ))}
-            <div className="flex justify-between font-bold text-ink pt-3 border-t border-gray-100 mt-1">
-              <span>Итого</span><span>{fmt(order.total)}</span>
+              <div className="flex justify-between font-semibold text-ink pt-3" style={{borderTop:'1px solid rgba(4,32,51,0.08)'}}>
+                <span>Итого</span><span className="num">{fmt(order.total)}</span>
+              </div>
             </div>
-            {order.address && <p className="text-xs text-secondary mt-3">📍 {order.address}</p>}
-          </div>
+
+            {order.address && (
+              <div className="mb-4 pt-4" style={{borderTop:'1px solid rgba(4,32,51,0.08)'}}>
+                <p className="text-[11px] uppercase tracking-[0.15em] text-secondary mb-2">Куда доставим</p>
+                <p className="text-ink text-[14px] leading-relaxed">{order.address}</p>
+              </div>
+            )}
+
+            <div className="mb-6 pt-4" style={{borderTop:'1px solid rgba(4,32,51,0.08)'}}>
+              <p className="text-[11px] uppercase tracking-[0.15em] text-secondary mb-2">Трек-номер СДЭК</p>
+              {order.tracking ? (
+                <p className="num text-ink text-[14px]" style={{fontWeight:500,letterSpacing:'0.02em'}}>{order.tracking}</p>
+              ) : (
+                <p className="text-secondary text-[14px] leading-relaxed">
+                  Появится после передачи заказа в СДЭК. Мы пришлём его в SMS и продублируем в личный кабинет.
+                </p>
+              )}
+            </div>
+
+            <div className="rounded-xl p-4 mb-6 text-[13px] leading-relaxed" style={{background:'#E5EDF2',color:'#042033'}}>
+              Следующий шаг — наш менеджер передаёт заказ в СДЭК. После этого СДЭК пришлёт SMS получателю с информацией о статусах посылки.
+            </div>
+          </>
         )}
 
-        <div className="rounded-xl p-4 mb-6 text-sm text-left" style={{background:'#EBF7FD', color:'#0a3550'}}>
-          📦 Заказ передан в сборку. Ожидайте SMS с трек-номером СДЭК.
-        </div>
-
         <div className="space-y-3">
-          <button onClick={()=>history.push(order ? '/account/orders/'+order.id : '/account/orders')} className="btn-p w-full py-3 font-semibold">Отслеживать заказ →</button>
-          <button onClick={()=>history.push('/vitamins')} className="btn-o w-full py-3 font-semibold">Вернуться в магазин</button>
+          <button onClick={()=>history.push(order ? '/account/orders/'+order.id : '/account/orders')} className="btn-p w-full py-3 text-[14px]" style={{fontWeight:500}}>Отслеживать заказ →</button>
+          <button onClick={()=>history.push('/vitamins')} className="w-full py-3 text-[14px] text-secondary hover:text-ink transition-colors" style={{fontWeight:500}}>Вернуться в магазин</button>
         </div>
       </div>
     </div>
