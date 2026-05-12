@@ -3665,7 +3665,10 @@ function OrderSuccess() {
   const location = useLocation();
   const order = location.state?.order || curOrder;
 
-  const d = order?.delivery || {};
+  // Legacy fallback: old orders had only flat 'address' string
+  const d = order?.delivery && Object.keys(order.delivery).length > 0
+    ? order.delivery
+    : (order?.address ? { address: order.address } : {});
   return (
     <div className="min-h-screen flex items-center justify-center px-4 py-12 fade-in" style={{background:'#fafafa'}}>
       <div className="bg-white rounded-2xl shadow-xl p-10 w-full max-w-lg">
@@ -4010,13 +4013,24 @@ function AccountOrderDetail() {
       <div className="bg-white rounded-2xl p-5 border border-gray-100 mb-4">
         <h3 className="font-semibold text-ink mb-3">Доставка</h3>
         <span className={'inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold mb-3 ' + dst.cls}>{dst.label}</span>
+        {(() => {
+          const d = (o.delivery && Object.keys(o.delivery).length>0) ? o.delivery : (o.address ? {address:o.address} : null);
+          if (!d) return null;
+          return (
+            <div className="mt-3 text-sm">
+              {d.label && <p className="text-ink" style={{fontWeight:500}}>{d.label}</p>}
+              {d.name && <p className="text-ink">{d.name}</p>}
+              {d.address && <p className="text-secondary mt-1">{d.address}</p>}
+              {d.hours && <p className="text-disabled text-xs mt-1">{d.hours.split(' · ')[0]}</p>}
+            </div>
+          );
+        })()}
         {o.tracking && (
-          <div className="flex items-center gap-2 mt-2 mb-2">
-            <span className="text-sm text-secondary">Трек-номер СДЭК:</span>
-            <span className="font-mono font-semibold text-ink px-3 py-1 rounded-lg text-sm" style={{background:'#fafafa'}}>{o.tracking}</span>
+          <div className="flex items-center gap-2 mt-4 pt-4" style={{borderTop:'1px solid rgba(4,32,51,0.06)'}}>
+            <span className="text-xs text-secondary">Трек-номер СДЭК:</span>
+            <span className="num font-semibold text-ink px-3 py-1 rounded-lg text-sm" style={{background:'#fafafa'}}>{o.tracking}</span>
           </div>
         )}
-        {o.address && <p className="text-sm text-secondary">📍 {o.address}</p>}
         {o.tracking && (
           <a href="#" onClick={e=>e.preventDefault()} className="btn-o mt-4 px-4 py-2 text-sm font-semibold inline-flex">
             Отследить в СДЭК →
