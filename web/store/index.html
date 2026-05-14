@@ -2810,9 +2810,6 @@ function VitaminDetail() {
           )}
         </div>
         <div>
-          <div className="flex flex-wrap gap-2 mb-3">
-            {v.tags.map(t => <Tag key={t} label={t} />)}
-          </div>
           <h1 className="display text-ink mb-2" style={{fontSize:'48px',lineHeight:1.05}}>{v.name}</h1>
           <p className="text-secondary mb-6 text-[15px]">{v.sub}</p>
           {v.count && (
