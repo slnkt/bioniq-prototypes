@@ -2759,9 +2759,6 @@ function VitaminDetail() {
     if (addToCart({ id:v.id, type:'vitamin', name:v.name, price:v.price })) history.push('/checkout');
   };
 
-  const recKits = KITS.filter(kk => isKitAvailable(kk));
-  const recVits = VITAMINS.filter(x => x.id !== id && isAvailable(x.id));
-
   return (
     <div className="max-w-[1280px] mx-auto px-8 py-8 fade-in">
       <button onClick={()=>history.push('/vitamins')} className="text-secondary hover:text-ink text-sm mb-6 flex items-center gap-1 transition-colors">
@@ -2793,12 +2790,7 @@ function VitaminDetail() {
             {v.tags.map(t => <Tag key={t} label={t} />)}
           </div>
           <h1 className="display text-ink mb-2" style={{fontSize:'48px',lineHeight:1.05}}>{v.name}</h1>
-          <p className="text-secondary mb-4 text-[15px]">{v.sub}</p>
-          <div className="flex items-center gap-2 mb-4">
-            <Stars rating={productRating(v.id)} size={14} />
-            <span className="text-[13px] font-semibold text-ink">{productRating(v.id).toFixed(1)}</span>
-            <a href="#reviews" onClick={e=>{e.preventDefault();document.getElementById('reviews-'+v.id)?.scrollIntoView({behavior:'smooth'});}} className="text-[12px] hover:underline" style={{color:'rgba(0,0,0,0.54)'}}>· {productReviewCount(v.id)} {wordForm(productReviewCount(v.id), ['отзыв','отзыва','отзывов'])}</a>
-          </div>
+          <p className="text-secondary mb-6 text-[15px]">{v.sub}</p>
           {v.count && (
             <div className="flex items-center gap-2 mb-6 flex-wrap">
               <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[13px] font-semibold" style={{background:'#f5f5f5',color:'#042033'}}>
@@ -2892,21 +2884,6 @@ function VitaminDetail() {
         {tab==='dose' && <p className="text-ink">{v.dose}</p>}
       </div>
 
-      <div id={'reviews-'+v.id}><ReviewsSection productId={v.id} /></div>
-
-      <div className="mb-10 mt-8"><p className="text-[11px] tracking-[0.2em] uppercase mb-4 text-secondary">Подобрано для вас</p><h2 className="display text-ink" style={{fontSize:'40px',lineHeight:1.05}}>Рекомендуем также</h2></div>
-      {recVits.length > 0 && (
-        <>
-          <h3 className="text-ink mb-4" style={{fontSize:'18px',fontWeight:700,letterSpacing:'-0.01em'}}>Витамины</h3>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-x-6 gap-y-12 mb-16">
-            {recVits.slice(0,4).map(x => <VitCard key={x.id} v={x} />)}
-          </div>
-        </>
-      )}
-      <h3 className="text-ink mb-4" style={{fontSize:'18px',fontWeight:700,letterSpacing:'-0.01em'}}>Чекапы</h3>
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-5 mb-16">
-        {CHECKUPS.map(c => <CheckupCard key={c.id} c={c} />)}
-      </div>
     </div>
   );
 }
@@ -2935,9 +2912,6 @@ function KitDetail() {
     if (addKitToCart(k, 1)) history.push('/checkout');
   };
 
-  const recKits = KITS.filter(kk => isKitAvailable(kk) && kk.id !== k.id);
-  const recVits = VITAMINS.filter(v => isAvailable(v.id));
-
   return (
     <div className="max-w-[1280px] mx-auto px-8 py-8 fade-in">
       <button onClick={()=>history.push('/vitamins')} className="text-secondary hover:text-ink text-sm mb-6 flex items-center gap-1 transition-colors">← Назад в магазин</button>
@@ -2947,12 +2921,7 @@ function KitDetail() {
         </div>
         <div>
           <span className="text-xs font-semibold tracking-[0.2em] uppercase mb-4 inline-block" style={{color:'rgba(0,0,0,0.54)'}}>Набор</span>
-          <h1 className="display text-ink mb-2" style={{fontSize:'48px',lineHeight:1.05}}>{k.name}</h1>
-          <div className="flex items-center gap-2 mb-3">
-            <Stars rating={productRating(k.id)} size={14} />
-            <span className="text-[13px] font-semibold text-ink">{productRating(k.id).toFixed(1)}</span>
-            <a href="#reviews" onClick={e=>{e.preventDefault();document.getElementById('reviews-'+k.id)?.scrollIntoView({behavior:'smooth'});}} className="text-[12px] hover:underline" style={{color:'rgba(0,0,0,0.54)'}}>· {productReviewCount(k.id)} {wordForm(productReviewCount(k.id), ['отзыв','отзыва','отзывов'])}</a>
-          </div>
+          <h1 className="display text-ink mb-3" style={{fontSize:'48px',lineHeight:1.05}}>{k.name}</h1>
           <p className="text-secondary mb-4">{k.desc}</p>
           <div className="flex items-center gap-2 mb-6 flex-wrap">
             <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[13px] font-semibold" style={{background:'#f5f5f5',color:'#042033'}}>
@@ -3043,8 +3012,6 @@ function KitDetail() {
 
       <CertificatesSection productId={k.id} />
 
-      <div id={'reviews-'+k.id}><ReviewsSection productId={k.id} /></div>
-
       <div className="border-b border-gray-200 mb-6 flex gap-6">
         {[['desc','Описание'],['ingr','Состав'],['dose','Применение']].map(([key,label]) => (
           <button key={key} onClick={()=>setTab(key)}
@@ -3131,19 +3098,6 @@ function KitDetail() {
         )}
       </div>
 
-      <div className="mb-10 mt-8"><p className="text-[11px] tracking-[0.2em] uppercase mb-4 text-secondary">Подобрано для вас</p><h2 className="display text-ink" style={{fontSize:'40px',lineHeight:1.05}}>Рекомендуем также</h2></div>
-      {recVits.length > 0 && (
-        <>
-          <h3 className="text-ink mb-4" style={{fontSize:'18px',fontWeight:700,letterSpacing:'-0.01em'}}>Витамины</h3>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-x-6 gap-y-12 mb-16">
-            {recVits.slice(0,4).map(x => <VitCard key={x.id} v={x} />)}
-          </div>
-        </>
-      )}
-      <h3 className="text-ink mb-4" style={{fontSize:'18px',fontWeight:700,letterSpacing:'-0.01em'}}>Чекапы</h3>
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-5 mb-16">
-        {CHECKUPS.map(c => <CheckupCard key={c.id} c={c} />)}
-      </div>
     </div>
   );
 }
@@ -3166,8 +3120,6 @@ function CartPage() {
     else { setPromoErr('Промокод не найден'); setPromo(null); }
   };
 
-  const recs = VITAMINS.filter(v => !cart.find(c=>c.id===v.id) && effStock(v.id) > 0).slice(0,4);
-  const checkupRecs = CHECKUPS.slice(0,4);
 
   if (cart.length===0) return (
     <div className="max-w-2xl mx-auto px-6 py-24 text-center fade-in">
@@ -3223,61 +3175,6 @@ function CartPage() {
               </div>
             );
           })}
-
-          {recs.length>0 && (
-            <div className="bg-white rounded-2xl p-5 border border-gray-100">
-              <div className="flex items-center justify-between mb-4">
-                <p className="text-sm font-semibold text-ink">Добавить витамины</p>
-                <Link to="/vitamins" className="text-[12px] text-secondary hover:text-ink transition-colors flex items-center gap-1">
-                  Смотреть все
-                  <svg width="11" height="11" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
-                </Link>
-              </div>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                {recs.map(vv => {
-                  const s = effStock(vv.id);
-                  return (
-                    <div key={vv.id} className="text-center p-3 rounded-xl border border-gray-100 hover:border-gray-200 transition-colors cursor-pointer"
-                      onClick={()=>history.push('/vitamins/'+vv.id)}>
-                      <div className="aspect-square mb-2 rounded-lg flex items-center justify-center p-2 overflow-hidden" style={{background:'#f4f2ee'}}>
-                        <img src={vv.imgs[0]} alt={vv.name} className="max-h-full max-w-full object-contain" />
-                      </div>
-                      <p className="text-xs font-medium text-ink mb-1 leading-tight">{vv.name}</p>
-                      <p className="text-xs text-secondary mb-2 num">{fmt(vv.price)}</p>
-                      <button onClick={e=>{e.stopPropagation();addToCart({id:vv.id,type:'vitamin',name:vv.name,price:vv.price,stock:s});}}
-                        className="btn-p w-full py-1.5 text-xs font-semibold">+ Добавить</button>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          )}
-
-          {checkupRecs.length>0 && (
-            <div className="bg-white rounded-2xl p-5 border border-gray-100">
-              <div className="flex items-center justify-between mb-4">
-                <p className="text-sm font-semibold text-ink">Добавить чекап</p>
-                <Link to="/checkups" className="text-[12px] text-secondary hover:text-ink transition-colors flex items-center gap-1">
-                  Смотреть все
-                  <svg width="11" height="11" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
-                </Link>
-              </div>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                {checkupRecs.map(cc => (
-                  <div key={cc.id} className="text-center p-3 rounded-xl border border-gray-100 hover:border-gray-200 transition-colors cursor-pointer"
-                    onClick={()=>history.push('/checkups/'+cc.id)}>
-                    <div className="aspect-square mb-2 rounded-lg relative overflow-hidden" style={{background:cc.cover}}>
-                      {cc.photo && <img src={cc.photo} alt={cc.name} className="w-full h-full object-cover" onError={e=>{e.currentTarget.style.display='none';}} />}
-                    </div>
-                    <p className="text-xs font-medium text-ink mb-1 leading-tight">{cc.name}</p>
-                    <p className="text-xs text-secondary mb-2 num">от {fmt(cc.price)}</p>
-                    <button onClick={e=>{e.stopPropagation();history.push('/checkups/'+cc.id);}}
-                      className="btn-p w-full py-1.5 text-xs font-semibold">Подробнее</button>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
         </div>
 
         <div className="sticky top-20">
