@@ -2131,7 +2131,42 @@ function VitaminsPage() {
       <div className="mb-20">
         <p className="text-[11px] tracking-[0.2em] uppercase mb-6 text-secondary">Магазин</p>
         <h1 className="display text-ink" style={{fontSize:'72px',lineHeight:1}}>Витамины</h1>
-        <p className="text-secondary mt-6 max-w-xl text-[15px] leading-relaxed">Липосомальные формы, разработанные с врачами Союза PreventMed. GMP-производство, Академгородок.</p>
+        <p className="text-secondary mt-6 max-w-2xl text-[15px] leading-relaxed">
+          Липосомальная форма — активное вещество, упакованное в оболочку из фосфолипидов. Такая «капсула в капсуле» проходит ЖКТ без потерь и доставляет нутриент прямо в клетку. Усвоение до&nbsp;90% против 10–20% у обычных таблеток.
+        </p>
+
+        <div className="flex flex-wrap gap-2 mt-8">
+          {[
+            'Состав разработан с врачами PreventMed',
+            'GMP-производство, Академгородок',
+            'Веганская линейка',
+            'Доставка по всей России',
+          ].map(t => (
+            <span key={t}
+              className="px-4 py-2 text-[13px]"
+              style={{borderRadius:'999px',border:'1px solid rgba(4,32,51,0.14)',color:'rgba(0,0,0,0.66)'}}>
+              {t}
+            </span>
+          ))}
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-x-12 gap-y-10 mt-16 pt-10"
+          style={{borderTop:'1px solid rgba(4,32,51,0.08)'}}>
+          {[
+            { n:'01', t:'Усвоение до 90%',
+              d:'Обычные витамины теряют 70–80% при прохождении через желудок и кишечник. Липосомальная оболочка защищает активное вещество от кислоты и ферментов — в кровь попадает почти всё.' },
+            { n:'02', t:'Доставка в клетку',
+              d:'Фосфолипидная мембрана липосомы родственна мембране клетки. Она сливается с ней и высвобождает нутриент именно там, где он работает.' },
+            { n:'03', t:'Без раздражения ЖКТ',
+              d:'Оболочка нейтральна — не вызывает изжогу и тошноту. Можно принимать натощак. За счёт высокой биодоступности нужны меньшие дозировки.' },
+          ].map(f => (
+            <div key={f.n}>
+              <p className="text-[11px] tracking-[0.2em] uppercase mb-3 text-secondary num">{f.n}</p>
+              <h3 className="text-ink mb-2" style={{fontSize:'18px',fontWeight:500,letterSpacing:'-0.01em'}}>{f.t}</h3>
+              <p className="text-[13px] text-secondary leading-relaxed">{f.d}</p>
+            </div>
+          ))}
+        </div>
       </div>
       <div className="mb-12">
         <div className="flex items-end justify-between flex-wrap gap-6 mb-10">
