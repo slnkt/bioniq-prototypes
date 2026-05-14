@@ -532,7 +532,6 @@ const PROMOS = { 'BIONIQ10':10, 'WELCOME15':15 };
 const DELIVERY_OPTS = [
   { id:'pvz',     label:'ПВЗ или постамат',   sub:'СДЭК',          price:0,   days:'2–3 дня' },
   { id:'courier', label:'Курьер до двери',    sub:'СДЭК',          price:350, days:'1–2 дня' },
-  { id:'express', label:'Экспресс по Москве', sub:'в день заказа', price:690, days:'сегодня' },
 ];
 
 /* СДЭК — мок ПВЗ для виджета. Координаты относительные (0-100) внутри SVG-карты города. */
@@ -3477,7 +3476,7 @@ function CheckoutPage() {
     const e={};
     if (!delType) e.del='Выберите способ доставки';
     if (delType==='pvz' && !pvz) e.pvz='Выберите пункт выдачи';
-    if ((delType==='courier' || delType==='express') && !addr) e.addr='Введите адрес доставки';
+    if (delType==='courier' && !addr) e.addr='Введите адрес доставки';
     return e;
   };
 
@@ -3550,10 +3549,10 @@ function CheckoutPage() {
                 {errs.pvz && <p className="text-red-500 text-xs mt-2">{errs.pvz}</p>}
               </div>
             )}
-            {(delType==='courier' || delType==='express') && (
+            {delType==='courier' && (
               <div className="mt-2">
                 <input value={addr} onChange={e=>{setAddr(e.target.value);setErrs(er=>({...er,addr:null}));}}
-                  placeholder={delType==='express' ? 'Москва, улица, дом, квартира' : 'Город, улица, дом, квартира'} className={'inp ' + (errs.addr?'inp-err':'')} />
+                  placeholder="Город, улица, дом, квартира" className={'inp ' + (errs.addr?'inp-err':'')} />
                 {errs.addr && <p className="text-red-500 text-xs mt-1">{errs.addr}</p>}
               </div>
             )}
