@@ -2658,8 +2658,6 @@ function CertificatesSection({ productId }) {
   const seed = productId ? productId.charCodeAt(productId.length - 1) : 0;
   const certs = [
     { type:'СГР',  number:'AM.01.07.001.E.005' + (678+seed) + '.09.24' },
-    { type:'ЕАЭС', number:'EAЭС N RU Д-RU.РА03.B.32' + (145+seed) },
-    { type:'GMP',  number:'RU-GMP-2024/' + (417+seed) },
   ];
   return (
     <section className="mb-12 rounded-2xl border border-gray-100 p-5">
@@ -2670,7 +2668,7 @@ function CertificatesSection({ productId }) {
           </div>
           <div>
             <h3 className="text-ink leading-tight" style={{fontSize:'15px',fontWeight:700}}>Сертификаты и регистрация</h3>
-            <p className="text-[12px]" style={{color:'rgba(0,0,0,0.54)'}}>Зарегистрировано в Роспотребнадзоре · сертифицировано GMP</p>
+            <p className="text-[12px]" style={{color:'rgba(0,0,0,0.54)'}}>Зарегистрировано в Роспотребнадзоре</p>
           </div>
         </div>
         <button onClick={()=>showToast('PDF будет доступен после релиза')} className="text-[12px] font-semibold inline-flex items-center gap-1 hover:underline" style={{color:'#042033'}}>
@@ -2678,7 +2676,7 @@ function CertificatesSection({ productId }) {
           <svg width="12" height="12" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
         </button>
       </div>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+      <div className="grid grid-cols-1 gap-3">
         {certs.map(c => (
           <div key={c.type} className="rounded-lg p-3" style={{background:'#f5f5f5'}}>
             <div className="text-[10px] uppercase tracking-widest font-semibold mb-1" style={{color:'rgba(0,0,0,0.54)'}}>{c.type}</div>
