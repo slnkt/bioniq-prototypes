@@ -317,6 +317,30 @@ const DIET_OVERRIDES = {
 };
 VITAMINS.forEach(v => { v.diet = DIET_OVERRIDES[v.id] || DIET_ALL; });
 
+// Противопоказания: общий список + специфика по продукту
+const CONTRA_DEFAULT = [
+  'Индивидуальная непереносимость компонентов',
+  'Беременность и период лактации',
+  'Возраст до 18 лет',
+];
+const CONTRA_EXTRA = {
+  'vit-chondro': ['Тромбофлебит, склонность к кровотечениям', 'Тяжёлые нарушения функции почек'],
+  'vit-lcarn':   ['Заболевания почек', 'Эпилепсия и судорожные состояния'],
+  'vit-zma':     ['Приём антибиотиков тетрациклинового ряда — интервал не менее 2 часов'],
+  'vit-curcumin':['Желчнокаменная болезнь', 'Приём антикоагулянтов (варфарин, гепарин)'],
+  'vit-selen':   ['Аутоиммунные заболевания щитовидной железы — только под контролем врача'],
+  'vit-q10':     ['Приём антикоагулянтов — контроль МНО'],
+  'vit-bcomp':   [],
+  'vit-immune':  ['Аутоиммунные заболевания — приём по согласованию с врачом'],
+  'vit-skin':    [],
+  'vit-women':   ['Гормонозависимые опухоли — приём по согласованию с врачом'],
+  'vit-men':     ['Артериальная гипертензия — контроль АД', 'Тяжёлые заболевания печени и почек'],
+  'vit-memory':  ['Приём антикоагулянтов (гинкго билоба разжижает кровь) — за 2 недели до операций отменить'],
+  'vit-sleep':   ['Приём антидепрессантов (СИОЗС, ИМАО) — несовместимо с 5-HTP', 'Управление транспортом сразу после приёма'],
+  'vit-energy':  ['Артериальная гипертензия, тахикардия', 'Не принимать вечером — возможно нарушение сна'],
+};
+VITAMINS.forEach(v => { v.contra = [...CONTRA_DEFAULT, ...(CONTRA_EXTRA[v.id] || [])]; });
+
 const KITS = [
   { id:'kit-immunity', name:'Иммунитет Про', sub:'Тройной комплекс защиты', price:5990, orig:7390, available:true,
     imgs:['../../shared/photos/bottle-2.jpg','../../shared/photos/bottle-4.jpg','../../shared/photos/bottle-5.jpg'], saving:'1 400 ₽',
@@ -2864,8 +2888,8 @@ function VitaminDetail() {
 
       <CertificatesSection productId={v.id} />
 
-      <div className="border-b border-gray-200 mb-6 flex gap-6">
-        {[['desc','Описание'],['ingr','Состав'],['dose','Применение']].map(([k,l]) => (
+      <div className="border-b border-gray-200 mb-6 flex gap-6 flex-wrap">
+        {[['desc','Описание'],['ingr','Состав'],['dose','Применение'],['contra','Противопоказания']].map(([k,l]) => (
           <button key={k} onClick={()=>setTab(k)}
             className={'pb-3 text-sm font-medium border-b-2 -mb-px transition-colors ' + (tab===k?'text-brand':'border-transparent text-secondary hover:text-ink')}
             style={tab===k ? {borderBottomColor:'#042033'} : {}}>
@@ -2882,6 +2906,26 @@ function VitaminDetail() {
           </table>
         )}
         {tab==='dose' && <p className="text-ink">{v.dose}</p>}
+        {tab==='contra' && (
+          <div>
+            <ul className="space-y-2.5">
+              {(v.contra || []).map((c, i) => (
+                <li key={i} className="flex gap-3 text-[14px] text-ink leading-relaxed">
+                  <span className="flex-shrink-0 mt-2 w-1 h-1 rounded-full" style={{background:'#042033'}}></span>
+                  <span>{c}</span>
+                </li>
+              ))}
+            </ul>
+            <div className="mt-6 p-4 rounded-xl flex gap-3" style={{background:'#FAF6EE', border:'1px solid rgba(180,140,40,0.18)'}}>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#8A6A1F" strokeWidth="2" className="flex-shrink-0 mt-0.5">
+                <path d="M12 9v4M12 17h.01"/><circle cx="12" cy="12" r="10"/>
+              </svg>
+              <p className="text-[13px] leading-relaxed" style={{color:'#5A4715'}}>
+                Перед приёмом проконсультируйтесь с врачом, если у вас хронические заболевания, аллергии или вы принимаете лекарства. БАД не является лекарственным средством.
+              </p>
+            </div>
+          </div>
+        )}
       </div>
 
     </div>
@@ -3012,8 +3056,8 @@ function KitDetail() {
 
       <CertificatesSection productId={k.id} />
 
-      <div className="border-b border-gray-200 mb-6 flex gap-6">
-        {[['desc','Описание'],['ingr','Состав'],['dose','Применение']].map(([key,label]) => (
+      <div className="border-b border-gray-200 mb-6 flex gap-6 flex-wrap">
+        {[['desc','Описание'],['ingr','Состав'],['dose','Применение'],['contra','Противопоказания']].map(([key,label]) => (
           <button key={key} onClick={()=>setTab(key)}
             className={'pb-3 text-sm font-medium border-b-2 -mb-px transition-colors ' + (tab===key?'text-ink':'border-transparent text-secondary hover:text-ink')}
             style={tab===key ? {borderBottomColor:'#042033'} : {}}>
@@ -3096,6 +3140,30 @@ function KitDetail() {
             </div>
           </div>
         )}
+
+        {tab==='contra' && (() => {
+          const all = Array.from(new Set(k.items.flatMap(i => getV(i.vid)?.contra || [])));
+          return (
+            <div>
+              <ul className="space-y-2.5">
+                {all.map((c, i) => (
+                  <li key={i} className="flex gap-3 text-[14px] text-ink leading-relaxed">
+                    <span className="flex-shrink-0 mt-2 w-1 h-1 rounded-full" style={{background:'#042033'}}></span>
+                    <span>{c}</span>
+                  </li>
+                ))}
+              </ul>
+              <div className="mt-6 p-4 rounded-xl flex gap-3" style={{background:'#FAF6EE', border:'1px solid rgba(180,140,40,0.18)'}}>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#8A6A1F" strokeWidth="2" className="flex-shrink-0 mt-0.5">
+                  <path d="M12 9v4M12 17h.01"/><circle cx="12" cy="12" r="10"/>
+                </svg>
+                <p className="text-[13px] leading-relaxed" style={{color:'#5A4715'}}>
+                  Перед приёмом проконсультируйтесь с врачом, если у вас хронические заболевания, аллергии или вы принимаете лекарства. БАД не является лекарственным средством.
+                </p>
+              </div>
+            </div>
+          );
+        })()}
       </div>
 
     </div>
