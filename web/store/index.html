@@ -2763,7 +2763,7 @@ function VitaminDetail() {
   const { addToCart, updQty, removeItem, effStock, cart, setNotifyProduct, isAvailable, isKitAvailable } = useApp();
   const history = useHistory();
   const v = getV(id);
-  const [tab, setTab]       = useState('desc');
+  const [tab, setTab]       = useState('ingr');
   const [imgIdx, setImgIdx] = useState(0);
 
   if (!v) return <div className="text-center py-24 text-secondary">Товар не найден</div>;
@@ -2879,12 +2879,8 @@ function VitaminDetail() {
         </div>
       </div>
 
-      <LiposomeBanner />
-
-      <CertificatesSection productId={v.id} />
-
       <div className="border-b border-gray-200 mb-6 flex gap-6 flex-wrap">
-        {[['desc','Описание'],['ingr','Состав'],['dose','Применение'],['contra','Противопоказания']].map(([k,l]) => (
+        {[['ingr','Состав'],['dose','Применение'],['desc','Описание'],['contra','Противопоказания']].map(([k,l]) => (
           <button key={k} onClick={()=>setTab(k)}
             className={'pb-3 text-sm font-medium border-b-2 -mb-px transition-colors ' + (tab===k?'text-brand':'border-transparent text-secondary hover:text-ink')}
             style={tab===k ? {borderBottomColor:'#042033'} : {}}>
@@ -2892,7 +2888,7 @@ function VitaminDetail() {
           </button>
         ))}
       </div>
-      <div className="max-w-2xl mb-16">
+      <div className="max-w-2xl mb-12">
         {tab==='desc' && <p className="text-ink leading-relaxed">{v.desc}</p>}
         {tab==='ingr' && (
           <table className="w-full text-sm">
@@ -2923,6 +2919,10 @@ function VitaminDetail() {
         )}
       </div>
 
+      <LiposomeBanner />
+
+      <CertificatesSection productId={v.id} />
+
     </div>
   );
 }
@@ -2933,7 +2933,7 @@ function KitDetail() {
   const { addKitToCart, updQty, removeItem, effStock, cart, setNotifyProduct, isAvailable, isKitAvailable } = useApp();
   const history = useHistory();
   const k = getK(id);
-  const [tab, setTab] = useState('desc');
+  const [tab, setTab] = useState('ingr');
 
   if (!k) return <div className="text-center py-24 text-secondary">Набор не найден</div>;
 
@@ -3047,12 +3047,8 @@ function KitDetail() {
         </div>
       </div>
 
-      <LiposomeBanner />
-
-      <CertificatesSection productId={k.id} />
-
       <div className="border-b border-gray-200 mb-6 flex gap-6 flex-wrap">
-        {[['desc','Описание'],['ingr','Состав'],['dose','Применение'],['contra','Противопоказания']].map(([key,label]) => (
+        {[['ingr','Состав'],['dose','Применение'],['desc','Описание'],['contra','Противопоказания']].map(([key,label]) => (
           <button key={key} onClick={()=>setTab(key)}
             className={'pb-3 text-sm font-medium border-b-2 -mb-px transition-colors ' + (tab===key?'text-ink':'border-transparent text-secondary hover:text-ink')}
             style={tab===key ? {borderBottomColor:'#042033'} : {}}>
@@ -3160,6 +3156,10 @@ function KitDetail() {
           );
         })()}
       </div>
+
+      <LiposomeBanner />
+
+      <CertificatesSection productId={k.id} />
 
     </div>
   );
