@@ -310,6 +310,13 @@ const VITAMINS = [
     dose:'По 2 капсулы в первой половине дня (не позднее, чем за 6–8 ч до сна)' },
 ];
 
+// Diet tags: применяются ко всем витаминам, кроме переопределений
+const DIET_ALL = ['Веган','Без сахара','Без глютена'];
+const DIET_OVERRIDES = {
+  'vit-chondro': ['Без сахара','Без глютена'], // хондроитин/глюкозамин — животного происхождения
+};
+VITAMINS.forEach(v => { v.diet = DIET_OVERRIDES[v.id] || DIET_ALL; });
+
 const KITS = [
   { id:'kit-immunity', name:'Иммунитет Про', sub:'Тройной комплекс защиты', price:5990, orig:7390, available:true,
     imgs:['../../shared/photos/bottle-2.jpg','../../shared/photos/bottle-4.jpg','../../shared/photos/bottle-5.jpg'], saving:'1 400 ₽',
@@ -1225,6 +1232,26 @@ function Tag({ label }) {
   );
 }
 
+/* ─── DIET PILLS (Веган / Без сахара / Без глютена) ──────────────────────── */
+function DietPills({ tags, className='' }) {
+  if (!tags || tags.length===0) return null;
+  return (
+    <div className={'flex flex-wrap gap-1.5 ' + className}>
+      {tags.map(t => {
+        const isVegan = t==='Веган';
+        return (
+          <span key={t} className="text-[11px] px-2 py-[3px] rounded-full"
+            style={isVegan
+              ? {background:'#E4F1DE', color:'#2C7C2A', fontWeight:500}
+              : {background:'#F1EFEB', color:'rgba(0,0,0,0.62)', fontWeight:500}}>
+            {t}
+          </span>
+        );
+      })}
+    </div>
+  );
+}
+
 /* ─── VITAMIN CARD ───────────────────────────────────────────────────────── */
 function VitCard({ v }) {
   const { addToCart, updQty, removeItem, effStock, cart, setNotifyProduct } = useApp();
@@ -1288,6 +1315,7 @@ function VitCard({ v }) {
       <div className="pt-5">
         <h3 className="text-ink mb-1" style={{fontSize:'15px',fontWeight:500,letterSpacing:'-0.01em',lineHeight:1.3}}>{v.name}</h3>
         <p className="text-[12px] text-secondary mb-3">{v.sub}</p>
+        <DietPills tags={v.diet} className="mb-3" />
         <div className="flex items-baseline gap-2 num">
           <span className="text-ink" style={{fontSize:'15px',fontWeight:500,letterSpacing:'-0.01em'}}>{fmt(v.price)}</span>
           {v.orig>v.price && <span className="text-[12px] text-disabled line-through">{fmt(v.orig)}</span>}
@@ -2075,6 +2103,7 @@ function FAQOnHome() {
 function VitaminsPage() {
   const { isAvailable, setRequestOpen } = useApp();
   const [filter, setFilter] = useState('all');
+  const [diet, setDiet]     = useState([]); // мультивыбор
   const [faq, setFaq]       = useState(null);
   const FILTERS = [
     { id:'all',         l:'Все' },
@@ -2083,7 +2112,13 @@ function VitaminsPage() {
     { id:'Сон',         l:'Сон' },
     { id:'Красота',     l:'Красота' },
   ];
-  const shown = VITAMINS.filter(v => isAvailable(v.id) && (filter==='all' || v.tags.includes(filter)));
+  const DIET_FILTERS = ['Веган','Без сахара','Без глютена'];
+  const toggleDiet = t => setDiet(d => d.includes(t) ? d.filter(x=>x!==t) : [...d, t]);
+  const shown = VITAMINS.filter(v =>
+    isAvailable(v.id)
+    && (filter==='all' || v.tags.includes(filter))
+    && diet.every(t => (v.diet||[]).includes(t))
+  );
 
   const FAQS = [
     ['Как подобрать витамины?','Рекомендуем пройти наш онлайн-тест или сдать анализы.'],
@@ -2104,18 +2139,39 @@ function VitaminsPage() {
             <p className="text-[11px] tracking-[0.2em] uppercase mb-6 text-secondary">Каталог</p>
             <h2 className="display text-ink" style={{fontSize:'40px',lineHeight:1.05}}>Все витамины</h2>
           </div>
-          <div className="flex gap-1.5 flex-wrap">
-            {FILTERS.map(f => (
-              <button key={f.id} onClick={()=>setFilter(f.id)}
-                className={'px-4 py-2 text-[13px] transition-all ' + (filter===f.id
-                  ? 'text-white'
-                  : 'text-secondary hover:text-ink')}
-                style={filter===f.id
-                  ? {background:'#042033',borderRadius:'999px'}
-                  : {borderRadius:'999px',border:'1px solid rgba(4,32,51,0.12)'}}>
-                {f.l}
-              </button>
-            ))}
+          <div className="flex flex-col items-end gap-2.5">
+            <div className="flex gap-1.5 flex-wrap justify-end">
+              {FILTERS.map(f => (
+                <button key={f.id} onClick={()=>setFilter(f.id)}
+                  className={'px-4 py-2 text-[13px] transition-all ' + (filter===f.id
+                    ? 'text-white'
+                    : 'text-secondary hover:text-ink')}
+                  style={filter===f.id
+                    ? {background:'#042033',borderRadius:'999px'}
+                    : {borderRadius:'999px',border:'1px solid rgba(4,32,51,0.12)'}}>
+                  {f.l}
+                </button>
+              ))}
+            </div>
+            <div className="flex gap-1.5 flex-wrap justify-end">
+              {DIET_FILTERS.map(t => {
+                const isOn = diet.includes(t);
+                const isVegan = t==='Веган';
+                const base = isVegan
+                  ? {background:'#E4F1DE', color:'#2C7C2A'}
+                  : {background:'#F1EFEB', color:'rgba(0,0,0,0.62)'};
+                const active = isVegan
+                  ? {background:'#2C7C2A', color:'#fff'}
+                  : {background:'#042033', color:'#fff'};
+                return (
+                  <button key={t} onClick={()=>toggleDiet(t)}
+                    className="text-[12px] px-3 py-1.5 transition-all"
+                    style={{...(isOn ? active : base), borderRadius:'999px', fontWeight:500}}>
+                    {t}
+                  </button>
+                );
+              })}
+            </div>
           </div>
         </div>
       </div>
@@ -2125,7 +2181,7 @@ function VitaminsPage() {
         {shown.length===0 && (
           <div className="col-span-full text-center py-16">
             <p className="text-secondary mb-4">По выбранному фильтру ничего не найдено</p>
-            <button onClick={()=>setFilter('all')} className="btn-o px-6 py-2 text-sm font-semibold">Показать все</button>
+            <button onClick={()=>{setFilter('all'); setDiet([]);}} className="btn-o px-6 py-2 text-sm font-semibold">Показать все</button>
           </div>
         )}
       </div>
